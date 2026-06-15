@@ -2,12 +2,16 @@
 
 import { Truck, MapPin, Navigation, Phone, CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
 import RoleGuard from "@/components/RoleGuard";
 import Header from "@/components/Header";
-import DeliveryMap from "@/components/DeliveryMap";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
+
+const DeliveryMap = dynamic(() => import("@/components/DeliveryMap"), {
+    ssr: false,
+    loading: () => <div className="h-full w-full bg-slate-100 dark:bg-zinc-950 animate-pulse rounded-3xl" />
+});
 
 export default function DeliveryDashboard() {
     const { user } = useAuth();

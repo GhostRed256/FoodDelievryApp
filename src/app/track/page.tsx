@@ -5,9 +5,14 @@ import RoleGuard from "@/components/RoleGuard";
 import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { orderService, Order } from "@/lib/orderService";
-import DeliveryMap from "@/components/DeliveryMap";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+
+const DeliveryMap = dynamic(() => import("@/components/DeliveryMap"), {
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-slate-100 dark:bg-zinc-950 animate-pulse" />
+});
 
 export default function TrackingPage() {
     const [searchId, setSearchId] = useState("");
