@@ -118,7 +118,7 @@ export default function TrackingPage() {
                             {order.status === "picked_up" ? (
                                 <DeliveryMap
                                     origin={{ lat: 26.1445, lng: 91.7362 }} // Mock Kitchen
-                                    destination={order.customerLocation}
+                                    destination={order.customerLocation || { lat: 26.1445, lng: 91.7362 }}
                                     currentLocation={order.deliveryLocation}
                                 />
                             ) : (
