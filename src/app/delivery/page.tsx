@@ -2,6 +2,7 @@
 
 import { Truck, MapPin, Navigation, Phone, CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
 import RoleGuard from "@/components/RoleGuard";
 import Header from "@/components/Header";
