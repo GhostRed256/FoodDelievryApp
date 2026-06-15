@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Header from "@/components/Header";
 import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
