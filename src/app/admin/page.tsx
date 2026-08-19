@@ -47,7 +47,7 @@ export default function AdminDashboard() {
                         <StatsCard title="Total Orders" value="128" icon={<ShoppingBag className="rotate-3" />} trend="+12%" color="bg-blue-500" />
                         <StatsCard title="Active Users" value="842" icon={<Users />} trend="+5%" color="bg-purple-500" />
                         <StatsCard title="Menu Items" value="48" icon={<Utensils />} trend="0%" color="bg-orange-500" />
-                        <StatsCard title="Revenue" value="$4,250" icon={<TrendingUp />} trend="+18%" color="bg-green-500" />
+                        <StatsCard title="Revenue" value="₹42,500" icon={<TrendingUp />} trend="+18%" color="bg-green-500" />
                     </div>
 
                     <div className="grid gap-8 lg:grid-cols-3">
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
                                                 <div>
                                                     <p className="font-bold text-slate-900 dark:text-white">{order.customerName}</p>
                                                     <p className="text-xs text-slate-500">
-                                                        {order.items.length} items • ${order.total.toFixed(2)} • {order.createdAt ? format(order.createdAt.toDate(), "HH:mm") : "Just now"}
+                                                        {order.items.length} items • ₹{order.total.toFixed(2)} • {order.createdAt ? format(order.createdAt.toDate(), "HH:mm") : "Just now"}
                                                     </p>
                                                 </div>
                                             </div>

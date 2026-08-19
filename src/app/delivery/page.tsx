@@ -156,7 +156,7 @@ export default function DeliveryDashboard() {
                                             <div key={order.id} className="bg-white dark:bg-zinc-900 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:border-orange-500/30 transition-all">
                                                 <div className="flex justify-between items-center mb-4">
                                                     <h3 className="font-bold text-slate-900 dark:text-white">Order #{order.id.slice(-4).toUpperCase()}</h3>
-                                                    <span className="text-orange-500 font-black">${order.total.toFixed(2)}</span>
+                                                    <span className="text-orange-500 font-black">₹{order.total.toFixed(2)}</span>
                                                 </div>
                                                 <button
                                                     onClick={() => updateStatus(order.id, "picked_up")}

@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Strict Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // --- Users Collection (Private Profiles) ---
+    match /users/{userId} {
+      // Users can strictly only read and write their own data.
+      // Even if someone knows an ID, they cannot extract PII.
+      allow read, write: if isOwner(userId) || hasRole('admin');
+    }
+
+    // --- Orders Collection (Secure Transactions) ---
+    match /orders/{orderId} {
+      // Only authenticated users can place an order.
+      allow create: if isAuthenticated() && request.resource.data.customerId == request.auth.uid;
+      
+      // Strict Read: 
+      // Customers can only see their OWN orders. 
+      // Admins/Cooks/Delivery agents can read all orders for operational needs.
+      allow read: if isOwner(resource.data.customerId) || 
+                     hasRole('admin') || 
+                     hasRole('cook') || 
+                     hasRole('delivery');
+
+      // Strict Update: 
+      // Only authorized staff can modify order state. Customers CANNOT modify orders once placed.
+      allow update: if hasRole('admin') || 
+                       hasRole('cook') || 
+                       hasRole('delivery');
+      
+      // Strict Delete:
+      // Only admins can delete orders.
+      allow delete: if hasRole('admin');
+    }
+  }
+}
