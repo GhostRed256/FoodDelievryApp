@@ -50,7 +50,7 @@ export default function SignupPage() {
                             <img src="/logo.jpg" alt="FoodNJoy Logo" className="h-full w-full object-cover" />
                         </div>
                         <span className="text-2xl font-black tracking-tight text-white">
-                            Food<span className="text-gold-metallic">NJoy</span>
+                            Food<span className="text-gold-metallic">N</span>Joy
                         </span>
                         <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-400 -mt-1 flex items-center gap-1">
                             <Sparkles className="h-2.5 w-2.5 text-amber-400" /> Taste • Hygiene • Value

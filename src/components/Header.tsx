@@ -49,7 +49,7 @@ export default function Header() {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xl font-black tracking-tight text-white flex items-center">
-                            Food<span className="text-gold-gradient ml-0.5">NJoy</span>
+                            Food<span className="text-gold-gradient">N</span>Joy
                         </span>
                         <span className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-emerald-400 -mt-1 flex items-center gap-1">
                             Taste • Hygiene • Value

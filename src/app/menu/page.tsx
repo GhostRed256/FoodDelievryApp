@@ -396,7 +396,7 @@ export default function MenuPage() {
                             Taste • Hygiene • Value
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-                            Food<span className="text-gold-metallic">NJoy</span> Menu
+                            Food<span className="text-gold-metallic">N</span>Joy Menu
                         </h1>
                         <p className="text-zinc-400 mt-0.5 text-xs sm:text-sm">
                             Steaming fresh delicacies cooked to order in Tinsukia.
