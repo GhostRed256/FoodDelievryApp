@@ -5,16 +5,16 @@ import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Fix for default marker icons in Leaflet with Next.js
+// Marker icons
 const DefaultIcon = L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
 });
 
 const KitchenIcon = L.icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
     shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -33,7 +33,6 @@ interface DeliveryMapProps {
     currentLocation?: { lat: number; lng: number };
 }
 
-// Component to handle map centering and bounds
 function MapController({ origin, destination, currentLocation }: DeliveryMapProps) {
     const map = useMap();
 
@@ -62,7 +61,7 @@ export default function DeliveryMap({ origin, destination, currentLocation }: De
         setMounted(true);
     }, []);
 
-    if (!mounted) return <div className="h-full w-full bg-slate-100 dark:bg-zinc-950 animate-pulse" />;
+    if (!mounted) return <div className="h-full w-full bg-[#0c120c] animate-pulse" />;
 
     return (
         <div className="h-full w-full relative z-0">
@@ -73,6 +72,7 @@ export default function DeliveryMap({ origin, destination, currentLocation }: De
                 className="h-full w-full"
                 zoomControl={false}
             >
+                {/* CartoDB Dark Matter or OpenStreetMap tile layer */}
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -93,16 +93,16 @@ export default function DeliveryMap({ origin, destination, currentLocation }: De
                         currentLocation ? [currentLocation.lat, currentLocation.lng] : [destination.lat, destination.lng],
                         [destination.lat, destination.lng]
                     ]}
-                    color="#f97316"
+                    color="#eab308"
                     weight={4}
-                    dashArray="10, 10"
-                    opacity={0.6}
+                    dashArray="8, 8"
+                    opacity={0.8}
                 />
             </MapContainer>
 
-            {/* Custom UI Overlays can go here */}
-            <div className="absolute top-4 right-4 z-[1000] bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-800 text-[10px] font-bold uppercase tracking-widest">
-                Safe Delivery Mode Active
+            {/* Custom UI Overlays */}
+            <div className="absolute top-4 right-4 z-[1000] bg-[#070a07]/90 backdrop-blur-md px-3.5 py-2 rounded-xl shadow-xl border border-amber-500/30 text-[10px] font-black uppercase tracking-widest text-amber-400">
+                Live GPS Telemetry Active
             </div>
         </div>
     );

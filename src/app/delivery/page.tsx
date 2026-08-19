@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, MapPin, Navigation, Phone, CheckCircle, Loader2 } from "lucide-react";
+import { Truck, MapPin, Navigation, Phone, CheckCircle, Loader2, Sparkles, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 const DeliveryMap = dynamic(() => import("@/components/DeliveryMap"), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-slate-100 dark:bg-zinc-950 animate-pulse rounded-3xl" />
+    loading: () => <div className="h-full w-full bg-[#0c120c] animate-pulse rounded-3xl" />
 });
 
 export default function DeliveryDashboard() {
@@ -26,14 +26,13 @@ export default function DeliveryDashboard() {
             setOrders(updatedOrders);
             setLoading(false);
 
-            // Check if there's an order currently being delivered by this agent
             const active = updatedOrders.find(o => o.status === "picked_up" && o.deliveryId === user?.uid);
             if (active) setActiveOrder(active);
         });
         return () => unsubscribe();
     }, [user?.uid]);
 
-    // Live Location Sharing
+    // Live GPS Location Sharing
     useEffect(() => {
         if (isOnline && activeOrder && navigator.geolocation) {
             const watchId = navigator.geolocation.watchPosition(
@@ -66,53 +65,63 @@ export default function DeliveryDashboard() {
 
     return (
         <RoleGuard allowedRoles={["admin", "delivery"]}>
-            <main className="flex min-h-screen flex-col bg-slate-50 dark:bg-zinc-950 font-sans">
+            <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
                 <Header />
                 <div className="container mx-auto py-8 px-4 md:px-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                            <Truck className="h-8 w-8 text-orange-500" />
-                            Delivery Dashboard
-                        </h1>
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-4 border-b border-amber-500/20">
+                        <div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+                                <Sparkles className="h-3 w-3 text-emerald-400" />
+                                Rider Telemetry & Navigation
+                            </div>
+                            <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
+                                <Truck className="h-7 w-7 text-amber-400" />
+                                Delivery <span className="text-gold-metallic">Pilot Portal</span>
+                            </h1>
+                        </div>
+
+                        <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setIsOnline(!isOnline)}
                                 className={cn(
-                                    "px-6 py-2 rounded-full border text-sm font-bold shadow-sm transition-all",
+                                    "px-5 py-2 rounded-full border text-xs font-black uppercase tracking-wider transition-all active:scale-95",
                                     isOnline
-                                        ? "bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white hover:bg-slate-50"
-                                        : "bg-orange-500 border-orange-500 text-white"
+                                        ? "bg-[#0c120c] border-amber-500/40 text-amber-400 hover:bg-zinc-900"
+                                        : "bg-amber-500 border-amber-500 text-black"
                                 )}
                             >
-                                {isOnline ? "Go Offline" : "Go Online"}
+                                {isOnline ? "Switch Offline" : "Go Online"}
                             </button>
                             <div className={cn(
-                                "flex items-center gap-2 px-6 py-2 rounded-full text-white text-sm font-bold shadow-lg transition-all",
-                                isOnline ? "bg-green-500 shadow-green-500/30" : "bg-slate-400 shadow-slate-400/30"
+                                "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider border shadow-md",
+                                isOnline
+                                    ? "bg-emerald-950/80 text-emerald-400 border-emerald-500/40 shadow-emerald-500/10"
+                                    : "bg-zinc-900 text-zinc-400 border-zinc-700"
                             )}>
-                                {isOnline ? "Online" : "Offline"}
+                                <span className={cn("h-2 w-2 rounded-full", isOnline ? "bg-emerald-400 animate-pulse" : "bg-zinc-500")} />
+                                {isOnline ? "Broadcasting GPS" : "Offline"}
                             </div>
                         </div>
                     </div>
 
                     <div className="grid gap-8 lg:grid-cols-12">
-                        {/* Active Delivery Sidebar */}
+                        {/* Active Task or Available Tasks */}
                         <div className="lg:col-span-4 space-y-6">
-                            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <Navigation className="h-5 w-5 text-orange-500" />
-                                {activeOrder ? "Ongoing Task" : "Available Tasks"}
+                            <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                                <Navigation className="h-5 w-5 text-amber-400" />
+                                {activeOrder ? "Active Mission" : "Available Pickups"}
                             </h2>
 
                             {activeOrder ? (
-                                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-slate-100 dark:border-zinc-800 shadow-xl overflow-hidden animate-in zoom-in-95">
-                                    <div className="p-6 bg-orange-500 text-white">
+                                <div className="bg-[#0c120c] rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden animate-in zoom-in-95">
+                                    <div className="p-6 bg-gradient-to-r from-amber-500 to-amber-600 text-black">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <p className="text-orange-100 text-xs font-bold uppercase tracking-wider">Currently Delivering</p>
-                                                <h3 className="text-2xl font-bold">Order #{activeOrder.id.slice(-4).toUpperCase()}</h3>
+                                                <p className="text-black/80 text-[10px] font-black uppercase tracking-wider">Out for Delivery</p>
+                                                <h3 className="text-2xl font-black">Order #{activeOrder.id.slice(-4).toUpperCase()}</h3>
                                             </div>
-                                            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
-                                                <Truck className="h-6 w-6" />
+                                            <div className="bg-black/20 p-2.5 rounded-2xl">
+                                                <Truck className="h-6 w-6 text-black" />
                                             </div>
                                         </div>
                                     </div>
@@ -120,49 +129,49 @@ export default function DeliveryDashboard() {
                                         <div className="space-y-4">
                                             <div className="flex gap-4">
                                                 <div className="flex flex-col items-center">
-                                                    <div className="h-3 w-3 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></div>
-                                                    <div className="w-0.5 h-10 bg-slate-100 dark:bg-zinc-800 my-1"></div>
-                                                    <div className="h-3 w-3 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                                                    <div className="h-3.5 w-3.5 rounded-full bg-amber-400 ring-4 ring-amber-400/20" />
+                                                    <div className="w-0.5 h-12 bg-amber-500/20 my-1" />
+                                                    <div className="h-3.5 w-3.5 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20" />
                                                 </div>
-                                                <div className="space-y-6 flex-1">
+                                                <div className="space-y-4 flex-1">
                                                     <div>
-                                                        <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase">Pickup</p>
-                                                        <p className="font-semibold text-slate-900 dark:text-white text-sm">StayNJoy Main Kitchen</p>
+                                                        <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Pickup From</p>
+                                                        <p className="font-bold text-white text-sm">FoodNJoy Kitchen (Tinsukia)</p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase">Dropoff</p>
-                                                        <p className="font-semibold text-slate-900 dark:text-white text-sm">{activeOrder.customerLocation?.address || "Customer Address"}</p>
+                                                        <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Deliver To</p>
+                                                        <p className="font-bold text-white text-sm">{activeOrder.customerLocation?.address || "Tinsukia Local Destination"}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => updateStatus(activeOrder.id, "delivered")}
-                                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+                                            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 text-sm active:scale-[0.98]"
                                         >
                                             <CheckCircle className="h-5 w-5" />
-                                            Complete Delivery
+                                            Confirm Handover to Customer
                                         </button>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
                                     {availableOrders.length === 0 ? (
-                                        <div className="p-8 text-center text-slate-500 bg-white dark:bg-zinc-900 rounded-3xl border border-dashed border-slate-200 dark:border-zinc-800">
-                                            No orders ready for pickup.
+                                        <div className="p-8 text-center text-zinc-500 bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
+                                            No packed orders waiting for pickup.
                                         </div>
                                     ) : (
                                         availableOrders.filter(o => !o.deliveryId).map((order) => (
-                                            <div key={order.id} className="bg-white dark:bg-zinc-900 p-5 rounded-3xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:border-orange-500/30 transition-all">
+                                            <div key={order.id} className="bg-[#0c120c] p-5 rounded-3xl border border-amber-500/20 shadow-md hover:border-amber-400/50 transition-all">
                                                 <div className="flex justify-between items-center mb-4">
-                                                    <h3 className="font-bold text-slate-900 dark:text-white">Order #{order.id.slice(-4).toUpperCase()}</h3>
-                                                    <span className="text-orange-500 font-black">₹{order.total.toFixed(2)}</span>
+                                                    <h3 className="font-black text-white">Order #{order.id.slice(-4).toUpperCase()}</h3>
+                                                    <span className="text-gold-metallic font-black">₹{order.total}</span>
                                                 </div>
                                                 <button
                                                     onClick={() => updateStatus(order.id, "picked_up")}
-                                                    className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold py-3 rounded-2xl hover:bg-orange-500 hover:text-white transition-all"
+                                                    className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black py-3 rounded-2xl hover:from-amber-300 hover:to-amber-400 transition-all shadow-md active:scale-95 text-xs"
                                                 >
-                                                    Accept & Pickup
+                                                    Accept & Pickup Order
                                                 </button>
                                             </div>
                                         ))
@@ -171,19 +180,22 @@ export default function DeliveryDashboard() {
                             )}
                         </div>
 
-                        {/* Map View Main */}
-                        <div className="lg:col-span-8 flex flex-col min-h-[600px]">
-                            <div className="flex-1 bg-white dark:bg-zinc-900 rounded-3xl border border-slate-100 dark:border-zinc-800 shadow-sm overflow-hidden relative group">
+                        {/* Live Delivery Map */}
+                        <div className="lg:col-span-8 flex flex-col min-h-[480px] sm:min-h-[580px]">
+                            <div className="flex-1 bg-[#0c120c] rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden relative">
                                 {activeOrder ? (
                                     <DeliveryMap
-                                        origin={{ lat: 26.1445, lng: 91.7362 }} // Mock kitchen coords
-                                        destination={activeOrder.deliveryLocation || { lat: 26.1158, lng: 91.7086 }} // Mock/Live dest
+                                        origin={{ lat: 27.4924, lng: 95.3626 }} // Tinsukia kitchen
+                                        destination={activeOrder.deliveryLocation || { lat: 27.4924, lng: 95.3626 }}
                                         currentLocation={activeOrder.deliveryLocation}
                                     />
                                 ) : (
-                                    <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950 flex flex-col items-center justify-center text-slate-400">
-                                        <Truck className="h-12 w-12 mb-4 opacity-20" />
-                                        <p className="text-lg font-bold">Waiting for task...</p>
+                                    <div className="absolute inset-0 bg-[#080c08] flex flex-col items-center justify-center text-zinc-500 p-6 text-center">
+                                        <Truck className="h-12 w-12 mb-3 text-amber-400/40" />
+                                        <p className="text-base font-bold text-zinc-300">Rider Telemetry Ready</p>
+                                        <p className="text-xs text-zinc-500 max-w-xs mt-1">
+                                            Accept an order to view interactive navigation coordinates and destination route.
+                                        </p>
                                     </div>
                                 )}
                             </div>

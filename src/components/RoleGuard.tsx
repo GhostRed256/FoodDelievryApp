@@ -22,8 +22,11 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
-                <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+            <div className="flex min-h-screen items-center justify-center bg-[#070a07]">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-9 w-9 animate-spin text-amber-400" />
+                    <p className="text-xs font-bold uppercase tracking-widest text-amber-400/80">Authenticating Access...</p>
+                </div>
             </div>
         );
     }
