@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "@/components/Header";
-import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft } from "lucide-react";
+import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { orderService, Order } from "@/lib/orderService";
 import dynamic from "next/dynamic";
@@ -10,7 +10,7 @@ import { format } from "date-fns";
 
 const DeliveryMap = dynamic(() => import("@/components/DeliveryMap"), {
     ssr: false,
-    loading: () => <div className="absolute inset-0 bg-slate-100 dark:bg-zinc-950 animate-pulse" />
+    loading: () => <div className="absolute inset-0 bg-[#0c120c] animate-pulse" />
 });
 
 export default function TrackingPage() {
@@ -22,7 +22,6 @@ export default function TrackingPage() {
     useEffect(() => {
         if (!order?.id) return;
 
-        // Real-time updates for tracked order
         const unsubscribe = orderService.subscribeToOrders({ role: "admin" }, (orders) => {
             const updated = orders.find(o => o.id === order.id);
             if (updated) setOrder(updated);
@@ -55,29 +54,29 @@ export default function TrackingPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col bg-slate-50 dark:bg-zinc-950 font-sans pb-16">
+        <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
             <Header />
 
             <div className="container mx-auto py-6 sm:py-10 px-3 sm:px-4 md:px-6 flex-1">
                 {!order ? (
                     <div className="max-w-xl mx-auto text-center py-12 sm:py-20 animate-in fade-in zoom-in duration-500">
-                        <div className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 mb-6 shadow-xl shadow-orange-500/10">
-                            <Package className="h-8 w-8 sm:h-10 sm:w-10" />
+                        <div className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-6 shadow-xl shadow-amber-500/10">
+                            <Package className="h-8 w-8 sm:h-10 sm:w-10 text-amber-400" />
                         </div>
-                        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-3">
-                            Track Your Delivery
+                        <h1 className="text-2xl sm:text-4xl font-black text-white mb-2">
+                            Live Order <span className="text-gold-metallic">Tracker</span>
                         </h1>
-                        <p className="text-slate-600 dark:text-slate-400 mb-8 text-xs sm:text-base px-4">
-                            Enter your order ID to see live kitchen status and real-time delivery map in Tinsukia.
+                        <p className="text-zinc-400 mb-8 text-xs sm:text-base px-4">
+                            Enter your order ID to see live kitchen status and real-time delivery GPS in Tinsukia.
                         </p>
 
                         <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto px-2">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
                                 <input
                                     type="text"
                                     placeholder="Enter Order ID"
-                                    className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all shadow-sm text-sm text-slate-900 dark:text-white font-mono"
+                                    className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-[#0c120c] border border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-md text-sm text-white font-mono placeholder:text-zinc-500"
                                     value={searchId}
                                     onChange={(e) => setSearchId(e.target.value)}
                                 />
@@ -85,50 +84,50 @@ export default function TrackingPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3.5 rounded-2xl shadow-lg shadow-orange-500/25 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[48px] flex items-center justify-center text-sm"
+                                className="bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black px-6 py-3.5 rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[48px] flex items-center justify-center text-sm"
                             >
-                                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Track Order"}
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : "Track Order"}
                             </button>
                         </form>
-                        {error && <p className="text-red-500 text-xs sm:text-sm mt-4 font-semibold">{error}</p>}
+                        {error && <p className="text-red-400 text-xs sm:text-sm mt-4 font-bold bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl max-w-md mx-auto">{error}</p>}
                     </div>
                 ) : (
                     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-500">
                         {/* Top Bar with ID and Status */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-zinc-800/80 shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0c120c] p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-amber-500/30 shadow-lg">
                             <div>
                                 <button
                                     onClick={() => setOrder(null)}
-                                    className="text-xs font-bold text-orange-600 mb-1.5 hover:underline flex items-center gap-1 active:scale-95"
+                                    className="text-xs font-bold text-amber-400 mb-1.5 hover:underline flex items-center gap-1 active:scale-95"
                                 >
                                     <ArrowLeft className="h-3 w-3" /> Back to Search
                                 </button>
                                 <div className="flex items-center gap-2.5">
-                                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                                    <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
                                         Order #{order.id.slice(-6)}
                                     </h1>
                                     <span className={cn(
-                                        "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider",
+                                        "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider border",
                                         order.status === "delivered"
-                                            ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400"
-                                            : "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400 animate-pulse"
+                                            ? "bg-emerald-950/80 text-emerald-400 border-emerald-500/40"
+                                            : "bg-amber-500/15 text-amber-400 border-amber-500/40 animate-pulse"
                                     )}>
                                         {order.status.replace("_", " ")}
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 self-start sm:self-auto bg-slate-50 dark:bg-zinc-800/60 px-3.5 py-2 rounded-xl">
-                                <Clock className="h-4 w-4 text-orange-500" />
+                            <div className="flex items-center gap-3 self-start sm:self-auto bg-black/50 border border-amber-500/20 px-3.5 py-2 rounded-xl">
+                                <Clock className="h-4 w-4 text-amber-400" />
                                 <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Estimated Arrival</p>
-                                    <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">10 - 20 mins</p>
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase">Estimated Arrival</p>
+                                    <p className="text-xs sm:text-sm font-black text-white">10 - 20 mins</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Map & Live Tracking Block */}
-                        <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[32px] border border-slate-200/80 dark:border-zinc-800/80 shadow-lg overflow-hidden relative">
+                        <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-amber-500/30 shadow-2xl overflow-hidden relative">
                             {order.status === "picked_up" ? (
                                 <DeliveryMap
                                     origin={{ lat: 27.4924, lng: 95.3626 }} // Tinsukia FoodNJoy Kitchen
@@ -136,30 +135,30 @@ export default function TrackingPage() {
                                     currentLocation={order.deliveryLocation}
                                 />
                             ) : (
-                                <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-6 text-center">
+                                <div className="absolute inset-0 bg-[#080c08] flex flex-col items-center justify-center p-6 text-center">
                                     <div className="relative mb-4">
-                                        <div className="absolute -inset-6 bg-orange-500/10 rounded-full blur-2xl animate-pulse" />
-                                        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center relative shadow-lg">
+                                        <div className="absolute -inset-6 bg-amber-500/10 rounded-full blur-2xl animate-pulse" />
+                                        <div className="w-16 h-16 rounded-2xl bg-[#0c120c] border border-amber-500/30 flex items-center justify-center relative shadow-lg">
                                             {order.status === "preparing" ? (
-                                                <ChefHat className="h-8 w-8 text-orange-500" />
+                                                <ChefHat className="h-8 w-8 text-amber-400" />
                                             ) : (
-                                                <Package className="h-8 w-8 text-orange-500" />
+                                                <Package className="h-8 w-8 text-amber-400" />
                                             )}
                                         </div>
                                     </div>
-                                    <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-1">
-                                        {order.status === "preparing" ? "Chef is Preparing Your Food" : "Order Confirmed & Queued"}
+                                    <p className="text-base sm:text-lg font-black text-white mb-1">
+                                        {order.status === "preparing" ? "Chef is Preparing Your Delicacy" : "Order Confirmed & Queued"}
                                     </p>
-                                    <p className="max-w-xs text-xs text-slate-500">
-                                        Live GPS map will activate as soon as the delivery rider picks up your package.
+                                    <p className="max-w-xs text-xs text-zinc-400">
+                                        Live GPS map will activate as soon as our rider picks up your package.
                                     </p>
                                 </div>
                             )}
 
                             {/* Driver Badge Overlay */}
-                            <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 flex items-center justify-between bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-zinc-800/80 shadow-xl z-[1000]">
+                            <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 flex items-center justify-between bg-[#080c08]/95 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-amber-500/30 shadow-2xl z-[1000]">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-md overflow-hidden shrink-0">
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-amber-500 flex items-center justify-center text-black shadow-md overflow-hidden shrink-0 border border-amber-400">
                                         <img
                                             src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"
                                             alt="Delivery Partner"
@@ -167,19 +166,19 @@ export default function TrackingPage() {
                                         />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-wider">Delivery Partner</p>
-                                        <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">Rider Assigned</h4>
+                                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-wider">FoodNJoy Partner</p>
+                                        <h4 className="text-xs sm:text-sm font-black text-white">Verified Rider</h4>
                                         <div className="flex items-center gap-1 mt-0.5">
-                                            <ShieldCheck className="h-3 w-3 text-emerald-500" />
-                                            <span className="text-[10px] font-semibold text-slate-400">Vaccinated & Verified</span>
+                                            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                                            <span className="text-[10px] font-semibold text-emerald-400">Vaccinated & Inspected</span>
                                         </div>
                                     </div>
                                 </div>
                                 <a
                                     href="tel:+919876543210"
-                                    className="h-10 sm:h-11 px-3.5 sm:px-4 bg-slate-900 hover:bg-orange-500 dark:bg-white dark:hover:bg-orange-500 dark:text-slate-900 dark:hover:text-white text-white rounded-xl flex items-center gap-1.5 font-bold text-xs shadow-md transition-all active:scale-95 shrink-0"
+                                    className="h-10 sm:h-11 px-3.5 sm:px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black rounded-xl flex items-center gap-1.5 font-black text-xs shadow-md transition-all active:scale-95 shrink-0"
                                 >
-                                    <Phone className="h-3.5 w-3.5" />
+                                    <Phone className="h-3.5 w-3.5 text-black" />
                                     <span>Call</span>
                                 </a>
                             </div>
@@ -188,9 +187,9 @@ export default function TrackingPage() {
                         {/* Order Timeline & Item Summary Grid */}
                         <div className="grid gap-6 md:grid-cols-2">
                             {/* Order Timeline */}
-                            <div className="bg-white dark:bg-zinc-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-zinc-800/80 shadow-sm">
-                                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-orange-500" />
+                            <div className="bg-[#0c120c] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-amber-500/20 shadow-lg">
+                                <h3 className="text-base sm:text-lg font-black text-white mb-6 flex items-center gap-2">
+                                    <Clock className="h-4 w-4 text-amber-400" />
                                     Order Progress
                                 </h3>
                                 <div className="space-y-6">
@@ -224,18 +223,18 @@ export default function TrackingPage() {
                             </div>
 
                             {/* Order Items Breakdown */}
-                            <div className="bg-white dark:bg-zinc-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-zinc-800/80 shadow-sm flex flex-col justify-between">
+                            <div className="bg-[#0c120c] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-amber-500/20 shadow-lg flex flex-col justify-between">
                                 <div>
-                                    <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-4">
+                                    <h3 className="text-base sm:text-lg font-black text-white mb-4">
                                         Ordered Items ({order.items.length})
                                     </h3>
-                                    <div className="space-y-2.5 divide-y divide-slate-100 dark:divide-zinc-800">
+                                    <div className="space-y-2.5 divide-y divide-amber-500/10">
                                         {order.items.map((item, idx) => (
                                             <div key={idx} className="pt-2.5 first:pt-0 flex justify-between items-center text-xs sm:text-sm">
-                                                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                                <span className="font-semibold text-zinc-200">
                                                     {item.quantity}x {item.name}
                                                 </span>
-                                                <span className="font-black text-slate-900 dark:text-white">
+                                                <span className="font-black text-gold-metallic">
                                                     ₹{item.price * item.quantity}
                                                 </span>
                                             </div>
@@ -243,12 +242,12 @@ export default function TrackingPage() {
                                     </div>
                                 </div>
 
-                                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-zinc-800">
-                                    <div className="flex justify-between items-center text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                                <div className="mt-6 pt-4 border-t border-amber-500/20">
+                                    <div className="flex justify-between items-center text-sm sm:text-base font-black text-white">
                                         <span>Total Amount</span>
-                                        <span className="text-orange-600 dark:text-orange-400">₹{order.total}</span>
+                                        <span className="text-gold-metallic text-lg">₹{order.total}</span>
                                     </div>
-                                    <p className="text-[11px] text-slate-400 mt-1">
+                                    <p className="text-[11px] text-zinc-400 mt-1">
                                         Delivery destination: {order.customerLocation?.address || "Tinsukia Local Delivery"}
                                     </p>
                                 </div>
@@ -266,17 +265,17 @@ function TimelineStep({ icon, title, time, active = false, pulse = false }: any)
         <div className="flex gap-4 items-start relative group">
             <div className={cn(
                 "h-7 w-7 rounded-full border-2 flex items-center justify-center shrink-0 z-10 transition-all text-xs",
-                active ? "bg-orange-500 border-orange-500 text-white shadow-md shadow-orange-500/20" : "bg-white dark:bg-black border-slate-200 dark:border-zinc-800 text-slate-300",
-                pulse && "animate-pulse ring-4 ring-orange-500/20"
+                active ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/30" : "bg-[#070a07] border-zinc-800 text-zinc-600",
+                pulse && "animate-pulse ring-4 ring-amber-500/30"
             )}>
                 {icon}
             </div>
-            <div className="absolute left-[13px] top-7 bottom-[-24px] w-[2px] bg-slate-100 dark:bg-zinc-800 group-last:hidden" />
+            <div className="absolute left-[13px] top-7 bottom-[-24px] w-[2px] bg-amber-500/20 group-last:hidden" />
             <div>
-                <h4 className={cn("font-bold text-xs sm:text-sm leading-tight", active ? "text-slate-900 dark:text-white" : "text-slate-400")}>
+                <h4 className={cn("font-bold text-xs sm:text-sm leading-tight", active ? "text-white" : "text-zinc-500")}>
                     {title}
                 </h4>
-                <p className="text-[11px] text-orange-500 font-semibold mt-0.5">{time}</p>
+                <p className="text-[11px] text-amber-400/80 font-bold mt-0.5">{time}</p>
             </div>
         </div>
     );
