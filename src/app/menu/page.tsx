@@ -388,7 +388,7 @@ export default function MenuPage() {
 
         setIsSubmitting(true);
         try {
-            await orderService.createOrder({
+            const orderDoc = await orderService.createOrder({
                 customerId: user.uid,
                 customerName: profile.displayName || "Valued Customer",
                 items: cart.map(item => ({
@@ -405,6 +405,29 @@ export default function MenuPage() {
                     address: deliveryAddress.trim() || "Tinsukia Local Delivery"
                 }
             });
+
+            // Trigger background receipt email
+            if (user.email) {
+                fetch("/api/send-receipt", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        toEmail: user.email,
+                        details: {
+                            orderId: orderDoc.id,
+                            customerName: profile.displayName || "Valued Customer",
+                            items: cart.map(item => ({
+                                name: `${item.product.name} (${item.variant.name})`,
+                                quantity: item.quantity,
+                                price: item.variant.price
+                            })),
+                            total: totalOrderAmount,
+                            address: deliveryAddress.trim() || "Tinsukia Local Delivery"
+                        }
+                    })
+                }).catch(e => console.warn("Email dispatch error:", e));
+            }
+
             setCart([]);
             setIsCartOpen(false);
             router.push("/track");
