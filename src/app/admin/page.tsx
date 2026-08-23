@@ -79,6 +79,19 @@ export default function AdminDashboard() {
                                                     <p className="text-xs text-zinc-400">
                                                         {order.items.length} items • <span className="text-amber-400 font-bold">₹{order.total}</span> • {order.createdAt ? format(order.createdAt.toDate(), "HH:mm") : "Just now"}
                                                     </p>
+                                                    <p className="text-[11px] text-zinc-400 mt-0.5 flex items-center gap-1">
+                                                        📍 {order.customerLocation?.address || "Tinsukia Local"}
+                                                        {order.customerLocation?.lat && (
+                                                            <a
+                                                                href={`https://www.google.com/maps/search/?api=1&query=${order.customerLocation.lat},${order.customerLocation.lng}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-amber-400 hover:underline font-bold ml-1 text-[10px]"
+                                                            >
+                                                                (View Map)
+                                                            </a>
+                                                        )}
+                                                    </p>
                                                 </div>
                                             </div>
 

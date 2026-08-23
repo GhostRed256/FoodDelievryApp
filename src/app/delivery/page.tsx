@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, MapPin, Navigation, Phone, CheckCircle, Loader2, Sparkles, ShieldCheck } from "lucide-react";
+import { Truck, MapPin, Navigation, Phone, CheckCircle, Loader2, Sparkles, ShieldCheck, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
@@ -40,7 +40,7 @@ export default function DeliveryDashboard() {
                     const { latitude, longitude } = position.coords;
                     orderService.updateDeliveryLocation(activeOrder.id, latitude, longitude);
                 },
-                (error) => console.error(error),
+                (error) => console.error("Rider GPS watch error:", error),
                 { enableHighAccuracy: true }
             );
             return () => navigator.geolocation.clearWatch(watchId);
@@ -62,6 +62,11 @@ export default function DeliveryDashboard() {
     };
 
     const availableOrders = orders.filter(o => o.status === "ready");
+
+    const getGoogleMapsUrl = (lat?: number, lng?: number) => {
+        if (!lat || !lng) return "https://maps.google.com";
+        return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    };
 
     return (
         <RoleGuard allowedRoles={["admin", "delivery"]}>
@@ -125,7 +130,7 @@ export default function DeliveryDashboard() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="p-6 space-y-6">
+                                    <div className="p-6 space-y-5">
                                         <div className="space-y-4">
                                             <div className="flex gap-4">
                                                 <div className="flex flex-col items-center">
@@ -145,6 +150,18 @@ export default function DeliveryDashboard() {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Direct Google Maps Turn-by-Turn Button */}
+                                        <a
+                                            href={getGoogleMapsUrl(activeOrder.customerLocation?.lat, activeOrder.customerLocation?.lng)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md active:scale-95"
+                                        >
+                                            <ExternalLink className="h-4 w-4" />
+                                            🗺️ Open Turn-by-Turn in Google Maps App
+                                        </a>
+
                                         <button
                                             onClick={() => updateStatus(activeOrder.id, "delivered")}
                                             className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 text-sm active:scale-[0.98]"
@@ -163,10 +180,14 @@ export default function DeliveryDashboard() {
                                     ) : (
                                         availableOrders.filter(o => !o.deliveryId).map((order) => (
                                             <div key={order.id} className="bg-[#0c120c] p-5 rounded-3xl border border-amber-500/20 shadow-md hover:border-amber-400/50 transition-all">
-                                                <div className="flex justify-between items-center mb-4">
+                                                <div className="flex justify-between items-center mb-2">
                                                     <h3 className="font-black text-white">Order #{order.id.slice(-4).toUpperCase()}</h3>
                                                     <span className="text-gold-metallic font-black">₹{order.total}</span>
                                                 </div>
+                                                <p className="text-xs text-zinc-400 mb-4 flex items-center gap-1">
+                                                    <MapPin className="h-3.5 w-3.5 text-amber-400" />
+                                                    {order.customerLocation?.address || "Tinsukia Local Destination"}
+                                                </p>
                                                 <button
                                                     onClick={() => updateStatus(order.id, "picked_up")}
                                                     className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black py-3 rounded-2xl hover:from-amber-300 hover:to-amber-400 transition-all shadow-md active:scale-95 text-xs"
@@ -186,7 +207,7 @@ export default function DeliveryDashboard() {
                                 {activeOrder ? (
                                     <DeliveryMap
                                         origin={{ lat: 27.4924, lng: 95.3626 }} // Tinsukia kitchen
-                                        destination={activeOrder.deliveryLocation || { lat: 27.4924, lng: 95.3626 }}
+                                        destination={activeOrder.customerLocation || { lat: 27.4924, lng: 95.3626 }}
                                         currentLocation={activeOrder.deliveryLocation}
                                     />
                                 ) : (

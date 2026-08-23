@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Header from "@/components/Header";
-import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, Flame } from "lucide-react";
+import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { orderService } from "@/lib/orderService";
@@ -298,6 +298,15 @@ export default function MenuPage() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Free Browser GPS & Address State (No Paid Google API required)
+    const [deliveryAddress, setDeliveryAddress] = useState("Tinsukia Local");
+    const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number }>({
+        lat: 27.4924,
+        lng: 95.3626
+    });
+    const [isLocating, setIsLocating] = useState(false);
+    const [gpsAcquired, setGpsAcquired] = useState(false);
+
     // Fee parameters
     const DELIVERY_FEE = 25;
     const TAX_AND_SERVICE_FEE = 10;
@@ -343,6 +352,30 @@ export default function MenuPage() {
         }).filter(item => item.quantity > 0));
     };
 
+    // Free device GPS capture (Runs on any phone browser)
+    const handleFetchLocation = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setCustomerCoords({ lat: latitude, lng: longitude });
+                setGpsAcquired(true);
+                setIsLocating(false);
+            },
+            (error) => {
+                console.warn("GPS error:", error);
+                setIsLocating(false);
+                alert("Please enable location permission on your phone for direct doorstep delivery.");
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    };
+
     const totalCartCount = cart.reduce((a, b) => a + b.quantity, 0);
     const itemsSubtotal = cart.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
     const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE + TAX_AND_SERVICE_FEE : 0;
@@ -367,9 +400,9 @@ export default function MenuPage() {
                 total: totalOrderAmount,
                 status: "pending",
                 customerLocation: {
-                    lat: 27.4924,
-                    lng: 95.3626,
-                    address: "Tinsukia Local Delivery Address"
+                    lat: customerCoords.lat,
+                    lng: customerCoords.lng,
+                    address: deliveryAddress.trim() || "Tinsukia Local Delivery"
                 }
             });
             setCart([]);
@@ -388,7 +421,7 @@ export default function MenuPage() {
             <Header />
 
             <div className="container mx-auto py-6 sm:py-10 px-3 sm:px-4 md:px-6 flex-1">
-                {/* Header Banner with Golden Crest */}
+                {/* Header Banner */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 sm:mb-8 pb-4 border-b border-amber-500/20">
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mb-2">
@@ -442,7 +475,7 @@ export default function MenuPage() {
                     ))}
                 </div>
 
-                {/* Product Grid in Dark Luxury Cards */}
+                {/* Product Grid */}
                 <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredProducts.map(product => {
                         const currentVariant = selectedVariants[product.id] || product.variants[0];
@@ -508,7 +541,7 @@ export default function MenuPage() {
                                     </div>
 
                                     <div>
-                                        {/* Portion/Variant Selector with large touch targets */}
+                                        {/* Portion/Variant Selector */}
                                         {product.variants.length > 1 && (
                                             <div className="mb-3">
                                                 <div className="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-1">
@@ -612,7 +645,7 @@ export default function MenuPage() {
                         className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                         onClick={() => setIsCartOpen(false)}
                     />
-                    <div className="fixed bottom-0 sm:top-0 right-0 z-50 h-[85vh] sm:h-full w-full max-w-md bg-[#0a0e0a] border-t sm:border-t-0 sm:border-l border-amber-500/30 rounded-t-[32px] sm:rounded-none shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 flex flex-col">
+                    <div className="fixed bottom-0 sm:top-0 right-0 z-50 h-[90vh] sm:h-full w-full max-w-md bg-[#0a0e0a] border-t sm:border-t-0 sm:border-l border-amber-500/30 rounded-t-[32px] sm:rounded-none shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 flex flex-col">
                         {/* Pull bar for mobile */}
                         <div className="w-12 h-1 bg-amber-500/40 rounded-full mx-auto mt-3 sm:hidden" />
 
@@ -632,7 +665,7 @@ export default function MenuPage() {
                         </div>
 
                         {/* Cart Items List */}
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
                             {cart.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
                                     <Utensils className="h-16 w-16 mb-4 opacity-20 text-amber-400" />
@@ -640,54 +673,100 @@ export default function MenuPage() {
                                     <p className="text-xs text-zinc-500 mt-1">Add your favorite momos, chowmein or rolls!</p>
                                 </div>
                             ) : (
-                                cart.map(item => (
-                                    <div
-                                        key={item.cartKey}
-                                        className="flex gap-3 p-3 rounded-2xl bg-[#0e140e] border border-amber-500/20 shadow-sm"
-                                    >
-                                        <img
-                                            src={item.product.image}
-                                            alt={item.product.name}
-                                            className="h-16 w-16 rounded-xl object-cover shadow-sm shrink-0 border border-amber-500/20"
-                                        />
-                                        <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <h4 className="font-bold text-sm text-white leading-tight truncate">
-                                                        {item.product.name}
-                                                    </h4>
-                                                    <span className="text-[11px] font-semibold text-amber-400">
-                                                        {item.variant.name} • ₹{item.variant.price}
-                                                    </span>
-                                                </div>
-                                                <span className="font-black text-sm text-gold-metallic">
-                                                    ₹{item.variant.price * item.quantity}
-                                                </span>
-                                            </div>
+                                <>
+                                    <div className="space-y-3">
+                                        {cart.map(item => (
+                                            <div
+                                                key={item.cartKey}
+                                                className="flex gap-3 p-3 rounded-2xl bg-[#0e140e] border border-amber-500/20 shadow-sm"
+                                            >
+                                                <img
+                                                    src={item.product.image}
+                                                    alt={item.product.name}
+                                                    className="h-16 w-16 rounded-xl object-cover shadow-sm shrink-0 border border-amber-500/20"
+                                                />
+                                                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h4 className="font-bold text-sm text-white leading-tight truncate">
+                                                                {item.product.name}
+                                                            </h4>
+                                                            <span className="text-[11px] font-semibold text-amber-400">
+                                                                {item.variant.name} • ₹{item.variant.price}
+                                                            </span>
+                                                        </div>
+                                                        <span className="font-black text-sm text-gold-metallic">
+                                                            ₹{item.variant.price * item.quantity}
+                                                        </span>
+                                                    </div>
 
-                                            <div className="flex items-center justify-between mt-2">
-                                                <span className="text-[10px] font-bold text-zinc-400 uppercase">Qty</span>
-                                                <div className="flex items-center gap-2 bg-zinc-900 border border-amber-500/30 rounded-lg p-1">
-                                                    <button
-                                                        onClick={() => updateQuantity(item.cartKey, -1)}
-                                                        className="h-7 w-7 rounded bg-zinc-800 hover:bg-amber-500 hover:text-black transition-colors flex items-center justify-center text-zinc-300 active:scale-95"
-                                                    >
-                                                        <Minus className="h-3 w-3" />
-                                                    </button>
-                                                    <span className="font-bold text-xs w-4 text-center text-white">
-                                                        {item.quantity}
-                                                    </span>
-                                                    <button
-                                                        onClick={() => updateQuantity(item.cartKey, 1)}
-                                                        className="h-7 w-7 rounded bg-amber-500 text-black flex items-center justify-center shadow-sm active:scale-95 font-bold"
-                                                    >
-                                                        <Plus className="h-3 w-3" />
-                                                    </button>
+                                                    <div className="flex items-center justify-between mt-2">
+                                                        <span className="text-[10px] font-bold text-zinc-400 uppercase">Qty</span>
+                                                        <div className="flex items-center gap-2 bg-zinc-900 border border-amber-500/30 rounded-lg p-1">
+                                                            <button
+                                                                onClick={() => updateQuantity(item.cartKey, -1)}
+                                                                className="h-7 w-7 rounded bg-zinc-800 hover:bg-amber-500 hover:text-black transition-colors flex items-center justify-center text-zinc-300 active:scale-95"
+                                                            >
+                                                                <Minus className="h-3 w-3" />
+                                                            </button>
+                                                            <span className="font-bold text-xs w-4 text-center text-white">
+                                                                {item.quantity}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => updateQuantity(item.cartKey, 1)}
+                                                                className="h-7 w-7 rounded bg-amber-500 text-black flex items-center justify-center shadow-sm active:scale-95 font-bold"
+                                                            >
+                                                                <Plus className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
-                                ))
+
+                                    {/* Free Direct Delivery Location & Address Input (No Google API needed) */}
+                                    <div className="p-4 rounded-2xl bg-[#0c120c] border border-amber-500/30 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                                <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+                                                Delivery Address & Location
+                                            </label>
+                                            {gpsAcquired && (
+                                                <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1">
+                                                    <CheckCircle2 className="h-3 w-3" /> GPS Locked
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <input
+                                            type="text"
+                                            value={deliveryAddress}
+                                            onChange={(e) => setDeliveryAddress(e.target.value)}
+                                            placeholder="House / Flat / Street / Landmark (Tinsukia)"
+                                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            onClick={handleFetchLocation}
+                                            disabled={isLocating}
+                                            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-bold text-xs transition-all active:scale-95"
+                                        >
+                                            {isLocating ? (
+                                                <>
+                                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                    Locating Device GPS...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Navigation className="h-3.5 w-3.5 text-emerald-400" />
+                                                    {gpsAcquired ? "📍 Location Verified (Tap to refresh)" : "📍 Pin My Live Location (GPS)"}
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </>
                             )}
                         </div>
 
