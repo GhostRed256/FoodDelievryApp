@@ -18,6 +18,7 @@ export default function TrackingPage() {
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [etaMinutes, setEtaMinutes] = useState<number | null>(null);
 
     useEffect(() => {
         if (!order?.id) return;
@@ -29,6 +30,32 @@ export default function TrackingPage() {
 
         return () => unsubscribe();
     }, [order?.id]);
+
+    useEffect(() => {
+        if (order?.status === "picked_up" && order.deliveryLocation && order.customerLocation) {
+            const fetchEta = async () => {
+                try {
+                    const { lat: srcLat, lng: srcLng } = order.deliveryLocation!;
+                    const { lat: dstLat, lng: dstLng } = order.customerLocation!;
+                    const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${srcLng},${srcLat};${dstLng},${dstLat}?overview=false`);
+                    const data = await res.json();
+                    if (data.routes && data.routes.length > 0) {
+                        const durationSeconds = data.routes[0].duration;
+                        const mins = Math.ceil(durationSeconds / 60);
+                        setEtaMinutes(mins);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch ETA:", error);
+                }
+            };
+
+            fetchEta();
+            const interval = setInterval(fetchEta, 30000);
+            return () => clearInterval(interval);
+        } else {
+            setEtaMinutes(null);
+        }
+    }, [order?.status, order?.deliveryLocation, order?.customerLocation]);
 
     const handleTrack = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -121,7 +148,9 @@ export default function TrackingPage() {
                                 <Clock className="h-4 w-4 text-amber-400" />
                                 <div>
                                     <p className="text-[10px] font-bold text-zinc-400 uppercase">Estimated Arrival</p>
-                                    <p className="text-xs sm:text-sm font-black text-white">10 - 20 mins</p>
+                                    <p className="text-xs sm:text-sm font-black text-white">
+                                        {etaMinutes !== null ? `${etaMinutes} mins` : "15 - 25 mins"}
+                                    </p>
                                 </div>
                             </div>
                         </div>
