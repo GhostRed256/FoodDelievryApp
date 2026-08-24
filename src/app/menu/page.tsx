@@ -314,15 +314,16 @@ export default function MenuPage() {
     // Free Browser GPS & Address State (No Paid Google API required)
     const [deliveryAddress, setDeliveryAddress] = useState("Tinsukia Local");
     const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number }>({
-        lat: 27.4924,
-        lng: 95.3626
+        lat: 27.4978, // Tinsukia College
+        lng: 95.3645
     });
     const [isLocating, setIsLocating] = useState(false);
     const [gpsAcquired, setGpsAcquired] = useState(false);
 
-    // Fee parameters (Free under 5km)
-    const distanceToKitchen = calculateDistance(27.4924, 95.3626, customerCoords.lat, customerCoords.lng);
-    const DELIVERY_FEE = (gpsAcquired && distanceToKitchen < 5) ? 0 : 25;
+    // Fee parameters (Free under 5km, ₹20 above 5km)
+    // Tinsukia College Base Location: 27.4978, 95.3645
+    const distanceToKitchen = calculateDistance(27.4978, 95.3645, customerCoords.lat, customerCoords.lng);
+    const DELIVERY_FEE = (gpsAcquired && distanceToKitchen <= 5) ? 0 : 20;
     const TAX_AND_SERVICE_FEE = 10;
 
     const filteredProducts = PRODUCTS.filter(p =>
@@ -821,8 +822,8 @@ export default function MenuPage() {
                                             {DELIVERY_FEE === 0 ? "FREE" : `₹${DELIVERY_FEE}`}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Govt Taxes & Packaging Fee</span>
+                                    <div className="flex justify-between text-zinc-400">
+                                        <span>Platform & Service Fee (Applied at Checkout)</span>
                                         <span className="font-semibold text-white">₹{TAX_AND_SERVICE_FEE}</span>
                                     </div>
                                     <div className="flex justify-between text-base font-black text-white pt-2.5 border-t border-amber-500/20">
@@ -842,7 +843,7 @@ export default function MenuPage() {
                                             Placing Order...
                                         </>
                                     ) : (
-                                        `Proceed to Pay • ₹${totalOrderAmount}`
+                                        (!user || !profile) ? "Login to Place Order" : `Confirm & Pay • ₹${totalOrderAmount}`
                                     )}
                                 </button>
 
