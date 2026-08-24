@@ -843,7 +843,7 @@ export default function MenuPage() {
                                             Placing Order...
                                         </>
                                     ) : (
-                                        (!user || !profile) ? "Login to Place Order" : `Confirm & Pay • ₹${totalOrderAmount}`
+                                        (!user || !profile) ? "Login to Place Order" : `Place Order (Cash on Delivery) • ₹${totalOrderAmount}`
                                     )}
                                 </button>
 

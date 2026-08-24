@@ -1,19 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, User, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function SignupPage() {
+    const { user } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (user) {
+            router.push("/");
+        }
+    }, [user, router]);
+
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
