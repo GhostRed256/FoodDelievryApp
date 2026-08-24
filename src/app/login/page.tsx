@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, ArrowRight, Loader2, Sparkles } from "lucide-react";
@@ -27,14 +27,9 @@ export default function LoginPage() {
         setLoading(false);
     };
 
-    const handleGoogleLogin = async () => {
+    const handleGoogleLogin = () => {
         const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-            router.push("/");
-        } catch (err: any) {
-            setError(err.message || "Google sign in failed.");
-        }
+        signInWithRedirect(auth, provider);
     };
 
     return (
