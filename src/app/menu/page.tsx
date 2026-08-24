@@ -280,6 +280,19 @@ interface CartItem {
     quantity: number;
 }
 
+// Distance calculation using Haversine formula (returns distance in km)
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
 export default function MenuPage() {
     const { profile, user } = useAuth();
     const router = useRouter();
@@ -307,8 +320,9 @@ export default function MenuPage() {
     const [isLocating, setIsLocating] = useState(false);
     const [gpsAcquired, setGpsAcquired] = useState(false);
 
-    // Fee parameters
-    const DELIVERY_FEE = 25;
+    // Fee parameters (Free under 5km)
+    const distanceToKitchen = calculateDistance(27.4924, 95.3626, customerCoords.lat, customerCoords.lng);
+    const DELIVERY_FEE = (gpsAcquired && distanceToKitchen < 5) ? 0 : 25;
     const TAX_AND_SERVICE_FEE = 10;
 
     const filteredProducts = PRODUCTS.filter(p =>
@@ -803,7 +817,9 @@ export default function MenuPage() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Delivery Partner Fee (Tinsukia)</span>
-                                        <span className="font-semibold text-white">₹{DELIVERY_FEE}</span>
+                                        <span className={cn("font-semibold", DELIVERY_FEE === 0 ? "text-emerald-400" : "text-white")}>
+                                            {DELIVERY_FEE === 0 ? "FREE" : `₹${DELIVERY_FEE}`}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Govt Taxes & Packaging Fee</span>
