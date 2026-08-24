@@ -2,11 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, Sparkles, Phone } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+
+// Add global recaptcha type
+declare global {
+    interface Window {
+        recaptchaVerifier: any;
+    }
+}
 
 export default function LoginPage() {
     const { user } = useAuth();
@@ -18,8 +25,12 @@ export default function LoginPage() {
         }
     }, [user, router]);
 
+    const [authMode, setAuthMode] = useState<"email" | "phone">("email");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [otp, setOtp] = useState("");
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -39,6 +50,48 @@ export default function LoginPage() {
     const handleGoogleLogin = () => {
         const provider = new GoogleAuthProvider();
         signInWithRedirect(auth, provider);
+    };
+
+    const setupRecaptcha = () => {
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+            });
+        }
+    };
+
+    const handleSendOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        try {
+            setupRecaptcha();
+            const appVerifier = window.recaptchaVerifier;
+            const formattedPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`; // default to India if no code
+            const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+            setConfirmationResult(confirmation);
+        } catch (err: any) {
+            setError(err.message || "Failed to send OTP.");
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+                window.recaptchaVerifier = null;
+            }
+        }
+        setLoading(false);
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!confirmationResult) return;
+        setLoading(true);
+        setError("");
+        try {
+            await confirmationResult.confirm(otp);
+            router.push("/");
+        } catch (err: any) {
+            setError(err.message || "Invalid OTP code.");
+        }
+        setLoading(false);
     };
 
     return (
@@ -63,54 +116,131 @@ export default function LoginPage() {
                 </div>
 
                 <div className="bg-[#0c120c] p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/30">
-                    <form onSubmit={handleEmailLogin} className="space-y-4">
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-zinc-300 ml-1">Email Address</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
-                                <input
-                                    type="email"
-                                    required
-                                    autoComplete="email"
-                                    autoCapitalize="none"
-                                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-amber-500/30 bg-[#070a07] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-base text-white placeholder:text-zinc-500"
-                                    placeholder="name@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between items-center px-1">
-                                <label className="text-xs font-bold text-zinc-300">Password</label>
-                                <Link href="#" className="text-xs text-amber-400 hover:underline">Forgot?</Link>
-                            </div>
-                            <div className="relative">
-                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
-                                <input
-                                    type="password"
-                                    required
-                                    autoComplete="current-password"
-                                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-amber-500/30 bg-[#070a07] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-base text-white placeholder:text-zinc-500"
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        {error && <p className="text-xs text-red-400 text-center font-bold bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl">{error}</p>}
-
+                    {/* Auth Mode Toggle */}
+                    <div className="flex p-1 bg-black/40 rounded-xl mb-6 border border-amber-500/20">
                         <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 text-sm min-h-[48px] mt-2"
+                            type="button"
+                            onClick={() => { setAuthMode("email"); setError(""); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === "email" ? "bg-amber-500/20 text-amber-400" : "text-zinc-400 hover:text-zinc-200"}`}
                         >
-                            {loading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : "Sign In"}
-                            {!loading && <ArrowRight className="h-4 w-4 text-black" />}
+                            Email
                         </button>
-                    </form>
+                        <button
+                            type="button"
+                            onClick={() => { setAuthMode("phone"); setError(""); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${authMode === "phone" ? "bg-amber-500/20 text-amber-400" : "text-zinc-400 hover:text-zinc-200"}`}
+                        >
+                            Phone
+                        </button>
+                    </div>
+
+                    {authMode === "email" ? (
+                        <form onSubmit={handleEmailLogin} className="space-y-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-zinc-300 ml-1">Email Address</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
+                                    <input
+                                        type="email"
+                                        required
+                                        autoComplete="email"
+                                        autoCapitalize="none"
+                                        className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-amber-500/30 bg-[#070a07] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-base text-white placeholder:text-zinc-500"
+                                        placeholder="name@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <div className="flex justify-between items-center px-1">
+                                    <label className="text-xs font-bold text-zinc-300">Password</label>
+                                    <Link href="#" className="text-xs text-amber-400 hover:underline">Forgot?</Link>
+                                </div>
+                                <div className="relative">
+                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
+                                    <input
+                                        type="password"
+                                        required
+                                        autoComplete="current-password"
+                                        className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-amber-500/30 bg-[#070a07] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-base text-white placeholder:text-zinc-500"
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {error && <p className="text-xs text-red-400 text-center font-bold bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl">{error}</p>}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 text-sm min-h-[48px] mt-2"
+                            >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : "Sign In with Email"}
+                                {!loading && <ArrowRight className="h-4 w-4 text-black" />}
+                            </button>
+                        </form>
+                    ) : (
+                        <div className="space-y-4">
+                            {!confirmationResult ? (
+                                <form onSubmit={handleSendOtp} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-zinc-300 ml-1">Phone Number</label>
+                                        <div className="relative">
+                                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
+                                            <input
+                                                type="tel"
+                                                required
+                                                className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-amber-500/30 bg-[#070a07] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-base text-white placeholder:text-zinc-500"
+                                                placeholder="9876543210"
+                                                value={phoneNumber}
+                                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-zinc-500 ml-1">Will default to +91 (India) if country code is omitted.</p>
+                                    </div>
+                                    <div id="recaptcha-container"></div>
+                                    {error && <p className="text-xs text-red-400 text-center font-bold bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl">{error}</p>}
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 text-sm min-h-[48px] mt-2"
+                                    >
+                                        {loading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : "Send OTP Code"}
+                                        {!loading && <ArrowRight className="h-4 w-4 text-black" />}
+                                    </button>
+                                </form>
+                            ) : (
+                                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-zinc-300 ml-1">Verification Code</label>
+                                        <div className="relative">
+                                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
+                                            <input
+                                                type="text"
+                                                required
+                                                className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-amber-500/30 bg-[#070a07] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-base text-white placeholder:text-zinc-500 tracking-widest"
+                                                placeholder="123456"
+                                                value={otp}
+                                                onChange={(e) => setOtp(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    {error && <p className="text-xs text-red-400 text-center font-bold bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl">{error}</p>}
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 text-sm min-h-[48px] mt-2"
+                                    >
+                                        {loading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : "Verify Code & Login"}
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+                    )}
 
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
