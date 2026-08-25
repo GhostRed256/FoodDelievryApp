@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, User, ArrowRight, Loader2, Sparkles } from "lucide-react";
@@ -45,7 +45,8 @@ export default function SignupPage() {
         setError("");
         try {
             const provider = new GoogleAuthProvider();
-            await signInWithRedirect(auth, provider);
+            await signInWithPopup(auth, provider);
+            router.push("/");
         } catch (err: any) {
             setError(err.message || "Google sign up failed.");
             setLoading(false);
