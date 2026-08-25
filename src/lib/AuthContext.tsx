@@ -61,8 +61,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                             role: "customer",
                             photoURL: user.photoURL,
                         };
-                        await setDoc(userDocRef, newProfile);
+                        // Immediately set profile to unblock UI (don't wait for Firestore)
                         setProfile(newProfile);
+                        // Fire and forget the write to Firestore
+                        setDoc(userDocRef, newProfile).catch(err => {
+                             console.error("Profile background save failed:", err);
+                        });
                     }
                 } catch (err) {
                     console.error("Profile load/save failed (likely Firestore rules):", err);

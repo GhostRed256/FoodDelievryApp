@@ -411,7 +411,7 @@ export default function MenuPage() {
     const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE + TAX_AND_SERVICE_FEE : 0;
 
     const handleCheckout = async () => {
-        if (!user || !profile) {
+        if (!user) {
             router.push("/login");
             return;
         }
@@ -420,7 +420,7 @@ export default function MenuPage() {
         try {
             const orderDoc = await orderService.createOrder({
                 customerId: user.uid,
-                customerName: profile.displayName || "Valued Customer",
+                customerName: profile?.displayName || user.displayName || "Valued Customer",
                 items: cart.map(item => ({
                     id: item.cartKey,
                     name: `${item.product.name} (${item.variant.name})`,
@@ -445,7 +445,7 @@ export default function MenuPage() {
                         toEmail: user.email,
                         details: {
                             orderId: orderDoc.id,
-                            customerName: profile.displayName || "Valued Customer",
+                            customerName: profile?.displayName || user.displayName || "Valued Customer",
                             items: cart.map(item => ({
                                 name: `${item.product.name} (${item.variant.name})`,
                                 quantity: item.quantity,
@@ -858,7 +858,7 @@ export default function MenuPage() {
                                             Placing Order...
                                         </>
                                     ) : (
-                                        (!user || !profile) ? "Login to Place Order" : `Place Order (Cash on Delivery) • ₹${totalOrderAmount}`
+                                        !user ? "Login to Place Order" : `Place Order (Cash on Delivery) • ₹${totalOrderAmount}`
                                     )}
                                 </button>
 
