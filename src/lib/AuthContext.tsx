@@ -35,6 +35,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Check for redirect errors
+        import("firebase/auth").then(({ getRedirectResult }) => {
+            getRedirectResult(auth).catch((error) => {
+                console.error("Redirect Auth Error:", error);
+                // We could set a global error state here if needed
+            });
+        });
+
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
             if (user) {
