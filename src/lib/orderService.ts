@@ -79,7 +79,7 @@ export const orderService = {
         filters: { role: "admin" | "cook" | "delivery" | "customer"; uid?: string },
         onUpdate: (orders: Order[]) => void
     ) {
-        let q = query(collection(db, ORDERS_COLLECTION), orderBy("createdAt", "desc"));
+        let q = query(collection(db, ORDERS_COLLECTION));
 
         if (filters.role === "cook") {
             q = query(q, where("status", "in", ["confirmed", "preparing"]));
@@ -94,6 +94,14 @@ export const orderService = {
                 id: doc.id,
                 ...doc.data()
             } as Order));
+            
+            // Client-side sort to avoid requiring composite indexes in Firestore
+            orders.sort((a, b) => {
+                const timeA = a.createdAt?.toMillis() || 0;
+                const timeB = b.createdAt?.toMillis() || 0;
+                return timeB - timeA; // Descending
+            });
+            
             onUpdate(orders);
         });
     },

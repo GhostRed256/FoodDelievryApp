@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { orderService, Order } from "@/lib/orderService";
+import { useAuth } from "@/lib/AuthContext";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -19,13 +20,26 @@ export default function TrackingPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [etaMinutes, setEtaMinutes] = useState<number | null>(null);
+    const { user } = useAuth();
 
+    // Auto-load active order for logged-in user
+    useEffect(() => {
+        if (!user) return;
+        const unsubscribe = orderService.subscribeToOrders({ role: "customer", uid: user.uid }, (orders) => {
+            const active = orders.find(o => o.status !== "delivered" && o.status !== "cancelled");
+            if (active && !order) {
+                setOrder(active);
+            }
+        });
+        return () => unsubscribe();
+    }, [user]);
+
+    // Live update for the specific tracked order
     useEffect(() => {
         if (!order?.id) return;
 
-        const unsubscribe = orderService.subscribeToOrders({ role: "admin" }, (orders) => {
-            const updated = orders.find(o => o.id === order.id);
-            if (updated) setOrder(updated);
+        const unsubscribe = orderService.subscribeToOrder(order.id, (updatedOrder) => {
+            setOrder(updatedOrder);
         });
 
         return () => unsubscribe();
@@ -64,12 +78,12 @@ export default function TrackingPage() {
         setLoading(true);
         setError(null);
         try {
-            const unsubscribe = orderService.subscribeToOrders({ role: "admin" }, (orders) => {
-                const found = orders.find(o => o.id.toLowerCase().includes(searchId.toLowerCase().trim()));
+            // Attempt to subscribe to the specific order by ID
+            const unsubscribe = orderService.subscribeToOrder(searchId.trim(), (found) => {
                 if (found) {
                     setOrder(found);
                 } else {
-                    setError("Order not found. Please verify the ID from your receipt.");
+                    setError("Order not found. Please verify the exact ID from your receipt.");
                 }
                 setLoading(false);
                 unsubscribe();
