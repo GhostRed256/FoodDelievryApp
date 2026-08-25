@@ -46,23 +46,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
             if (user) {
-                // Fetch or create profile
-                const userDocRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userDocRef);
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userDoc = await getDoc(userDocRef);
 
-                if (userDoc.exists()) {
-                    setProfile(userDoc.data() as UserProfile);
-                } else {
-                    // New user - default to customer role
-                    const newProfile: UserProfile = {
+                    if (userDoc.exists()) {
+                        setProfile(userDoc.data() as UserProfile);
+                    } else {
+                        // New user - default to customer role
+                        const newProfile: UserProfile = {
+                            uid: user.uid,
+                            email: user.email,
+                            displayName: user.displayName,
+                            role: "customer",
+                            photoURL: user.photoURL,
+                        };
+                        await setDoc(userDocRef, newProfile);
+                        setProfile(newProfile);
+                    }
+                } catch (err) {
+                    console.error("Profile load/save failed (likely Firestore rules):", err);
+                    // Fallback to allow them to place an order even if Firestore blocks the user document save
+                    setProfile({
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName,
                         role: "customer",
                         photoURL: user.photoURL,
-                    };
-                    await setDoc(userDocRef, newProfile);
-                    setProfile(newProfile);
+                    });
                 }
             } else {
                 setProfile(null);
