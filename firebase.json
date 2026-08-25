@@ -4,7 +4,7 @@
       "localhost",
       "foodnjoy-95079.firebaseapp.com",
       "foodnjoy-95079.web.app",
-      "fooddelievryapp.vercel.app"
+      "food-n-joy.vercel.app"
     ],
     "providers": {
       "emailPassword": true,
