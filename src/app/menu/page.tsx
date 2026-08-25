@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -308,6 +308,21 @@ export default function MenuPage() {
     });
 
     const [cart, setCart] = useState<CartItem[]>([]);
+
+    useEffect(() => {
+        try {
+            const savedCart = localStorage.getItem("foodnjoy_cart");
+            if (savedCart) {
+                setCart(JSON.parse(savedCart));
+            }
+        } catch (err) {
+            console.error("Failed to load cart from local storage", err);
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("foodnjoy_cart", JSON.stringify(cart));
+    }, [cart]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
