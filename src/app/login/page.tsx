@@ -42,7 +42,11 @@ export default function LoginPage() {
             await signInWithEmailAndPassword(auth, email.trim(), password);
             router.push("/");
         } catch (err: any) {
-            setError(err.message || "Failed to sign in. Please verify credentials.");
+            if (err.code === 'auth/invalid-credential') {
+                setError("Invalid password. If you originally signed up with Google, tap 'Forgot?' below to set a password for this email.");
+            } else {
+                setError(err.message || "Failed to sign in. Please verify credentials.");
+            }
         }
         setLoading(false);
     };
