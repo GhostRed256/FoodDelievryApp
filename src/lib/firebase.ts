@@ -17,15 +17,14 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-// Use initializeFirestore with experimentalForceLongPolling to bypass strict browser Websocket blocking
-// Wrapped in try/catch to prevent Next.js HMR crashes (Firestore can only be initialized once)
+// Initialize Firestore, catching initialization errors if it's already initialized by HMR
 let db: any;
 try {
+    db = getFirestore(app);
+} catch (e) {
     db = initializeFirestore(app, {
         experimentalForceLongPolling: true,
     });
-} catch (error) {
-    db = getFirestore(app);
 }
 
 export { app, auth, db };
