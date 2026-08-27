@@ -9,7 +9,6 @@ import { orderService } from "@/lib/orderService";
 import { db, auth } from "@/lib/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { createOrder } from "@/lib/orderService";
 import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
