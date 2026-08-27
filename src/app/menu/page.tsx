@@ -431,7 +431,7 @@ export default function MenuPage() {
 
         setIsSubmitting(true);
         try {
-            const orderDoc = await orderService.createOrder({
+            const orderPromise = orderService.createOrder({
                 customerId: user.uid,
                 customerName: profile?.displayName || user.displayName || "Valued Customer",
                 items: cart.map(item => ({
@@ -448,6 +448,13 @@ export default function MenuPage() {
                     address: deliveryAddress.trim() || "Tinsukia Local Delivery"
                 }
             });
+
+            // Set a 10-second timeout for the Firestore write to prevent indefinite hangs
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Database connection timed out. If this persists, your ad-blocker may be blocking Firestore or your internet is unstable.")), 10000)
+            );
+
+            const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
 
             // Trigger background receipt email
             if (user.email) {
@@ -474,9 +481,9 @@ export default function MenuPage() {
             setCart([]);
             setIsCartOpen(false);
             router.push("/track");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Checkout failed:", error);
-            alert("Checkout failed. Please try again.");
+            alert(error.message || "Checkout failed. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
