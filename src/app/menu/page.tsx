@@ -385,25 +385,37 @@ export default function MenuPage() {
         }).filter(item => item.quantity > 0));
     };
 
-    // Free device GPS capture (Runs on any phone browser)
+    // Free device GPS capture and Reverse Geocoding (Runs on any phone browser)
     const handleFetchLocation = () => {
         if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
+            setCheckoutError("Geolocation is not supported by your browser");
             return;
         }
 
         setIsLocating(true);
         navigator.geolocation.getCurrentPosition(
-            (position) => {
+            async (position) => {
                 const { latitude, longitude } = position.coords;
                 setCustomerCoords({ lat: latitude, lng: longitude });
                 setGpsAcquired(true);
+                
+                // Use free OpenStreetMap Nominatim API for reverse geocoding
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
+                    const data = await response.json();
+                    if (data && data.display_name) {
+                        setDeliveryAddress(data.display_name);
+                    }
+                } catch (err) {
+                    console.error("Failed to reverse geocode:", err);
+                }
+                
                 setIsLocating(false);
             },
             (error) => {
                 console.warn("GPS error:", error);
                 setIsLocating(false);
-                alert("Please enable location permission on your phone for direct doorstep delivery.");
+                setCheckoutError("Please enable location permission on your phone for direct doorstep delivery.");
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
