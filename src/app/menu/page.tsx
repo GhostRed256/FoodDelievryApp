@@ -335,6 +335,7 @@ export default function MenuPage() {
     });
     const [isLocating, setIsLocating] = useState(false);
     const [gpsAcquired, setGpsAcquired] = useState(false);
+    const [checkoutError, setCheckoutError] = useState("");
 
     // Fee parameters (Free under 5km, ₹20 above 5km)
     // Origin: Tinsukia College (27.4893, 95.3524)
@@ -413,19 +414,25 @@ export default function MenuPage() {
     const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE + TAX_AND_SERVICE_FEE : 0;
 
     const handleCheckout = async () => {
+        setCheckoutError("");
+
         if (!user) {
-            alert("Please sign in to place your order!");
             router.push("/login");
             return;
         }
 
-        if (isOutsideTinsukia) {
-            alert("Sorry, we currently only deliver within the Tinsukia city area (approx 12km radius from Tinsukia College). Please adjust your location.");
+        if (!gpsAcquired) {
+            setCheckoutError("Delivery Location is Mandatory. Please tap 'Pin My Live Location' to verify your address.");
             return;
         }
 
-        if (!deliveryAddress.trim() && !gpsAcquired) {
-            alert("Please provide a delivery address or use 'Detect Current Location' before placing the order.");
+        if (isOutsideTinsukia) {
+            setCheckoutError("Sorry, we currently only deliver within the Tinsukia city area. Please adjust your pinned location.");
+            return;
+        }
+
+        if (!deliveryAddress.trim()) {
+            setCheckoutError("Please enter your exact House/Flat/Street details so our rider can find you.");
             return;
         }
 
@@ -866,6 +873,12 @@ export default function MenuPage() {
                                         <span className="text-gold-metallic text-lg">₹{totalOrderAmount}</span>
                                     </div>
                                 </div>
+
+                                {checkoutError && (
+                                    <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-medium">
+                                        {checkoutError}
+                                    </div>
+                                )}
 
                                 <button
                                     className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm min-h-[48px]"
