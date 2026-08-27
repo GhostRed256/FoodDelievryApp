@@ -2,11 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2 } from "lucide-react";
+import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { orderService } from "@/lib/orderService";
+import { db, auth } from "@/lib/firebase";
+import { collection, onSnapshot, query } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { createOrder } from "@/lib/orderService";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
 
 export interface ProductVariant {
     name: string;
@@ -336,6 +342,7 @@ export default function MenuPage() {
     const [isLocating, setIsLocating] = useState(false);
     const [gpsAcquired, setGpsAcquired] = useState(false);
     const [checkoutError, setCheckoutError] = useState("");
+    const [showMap, setShowMap] = useState(false);
 
     // Fee parameters (Free under 5km, ₹20 above 5km)
     // Origin: Tinsukia College (27.4893, 95.3524)
@@ -839,24 +846,35 @@ export default function MenuPage() {
                                             className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                                         />
 
-                                        <button
-                                            type="button"
-                                            onClick={handleFetchLocation}
-                                            disabled={isLocating}
-                                            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-bold text-xs transition-all active:scale-95"
-                                        >
-                                            {isLocating ? (
-                                                <>
-                                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                    Locating Device GPS...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Navigation className="h-3.5 w-3.5 text-emerald-400" />
-                                                    {gpsAcquired ? "📍 Location Verified (Tap to refresh)" : "📍 Pin My Live Location (GPS)"}
-                                                </>
-                                            )}
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={handleFetchLocation}
+                                                disabled={isLocating}
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-bold text-[10px] sm:text-xs transition-all active:scale-95"
+                                            >
+                                                {isLocating ? (
+                                                    <>
+                                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                        Locating...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Navigation className="h-3.5 w-3.5 text-emerald-400" />
+                                                        {gpsAcquired ? "Refresh GPS" : "Pin Live GPS"}
+                                                    </>
+                                                )}
+                                            </button>
+                                            
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowMap(true)}
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/40 text-amber-400 font-bold text-[10px] sm:text-xs transition-all active:scale-95"
+                                            >
+                                                <Map className="h-3.5 w-3.5" />
+                                                Select on Map
+                                            </button>
+                                        </div>
                                     </div>
                                 </>
                             )}
@@ -915,6 +933,22 @@ export default function MenuPage() {
                         )}
                     </div>
                 </>
+            )}
+            {/* Map Modal */}
+            {showMap && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="w-full max-w-lg bg-[#070a07] rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <LocationPicker 
+                            onConfirm={(loc) => {
+                                setCustomerCoords({ lat: loc.lat, lng: loc.lng });
+                                setDeliveryAddress(loc.address);
+                                setGpsAcquired(true);
+                                setShowMap(false);
+                            }} 
+                            onCancel={() => setShowMap(false)} 
+                        />
+                    </div>
+                </div>
             )}
         </main>
     );
