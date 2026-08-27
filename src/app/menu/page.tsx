@@ -322,24 +322,26 @@ export default function MenuPage() {
 
     useEffect(() => {
         localStorage.setItem("foodnjoy_cart", JSON.stringify(cart));
+        window.dispatchEvent(new Event("cartUpdated"));
     }, [cart]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Free Browser GPS & Address State (No Paid Google API required)
-    const [deliveryAddress, setDeliveryAddress] = useState("Tinsukia Local");
+    // Free Browser GPS & Address State
+    const [deliveryAddress, setDeliveryAddress] = useState("");
     const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number }>({
-        lat: 27.4978, // Tinsukia College
-        lng: 95.3645
+        lat: 27.4893, // Tinsukia College Default
+        lng: 95.3524
     });
     const [isLocating, setIsLocating] = useState(false);
     const [gpsAcquired, setGpsAcquired] = useState(false);
 
     // Fee parameters (Free under 5km, ₹20 above 5km)
-    // Tinsukia College Base Location: 27.4978, 95.3645
-    const distanceToKitchen = calculateDistance(27.4978, 95.3645, customerCoords.lat, customerCoords.lng);
-    const DELIVERY_FEE = (gpsAcquired && distanceToKitchen <= 5) ? 0 : 20;
-    const TAX_AND_SERVICE_FEE = 10;
+    // Origin: Tinsukia College (27.4893, 95.3524)
+    const distanceToKitchen = calculateDistance(27.4893, 95.3524, customerCoords.lat, customerCoords.lng);
+    const isOutsideTinsukia = gpsAcquired && distanceToKitchen > 12; // Reject if outside 12km radius of Tinsukia College
+    const DELIVERY_FEE = (gpsAcquired && distanceToKitchen <= 5) ? 0 : 25;
+    const TAX_AND_SERVICE_FEE = 15;
 
     const filteredProducts = PRODUCTS.filter(p =>
         (activeCategory === "All" || p.category === activeCategory) &&
@@ -412,7 +414,18 @@ export default function MenuPage() {
 
     const handleCheckout = async () => {
         if (!user) {
+            alert("Please sign in to place your order!");
             router.push("/login");
+            return;
+        }
+
+        if (isOutsideTinsukia) {
+            alert("Sorry, we currently only deliver within the Tinsukia city area (approx 12km radius from Tinsukia College). Please adjust your location.");
+            return;
+        }
+
+        if (!deliveryAddress.trim() && !gpsAcquired) {
+            alert("Please provide a delivery address or use 'Detect Current Location' before placing the order.");
             return;
         }
 

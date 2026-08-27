@@ -206,8 +206,8 @@ export default function DeliveryDashboard() {
                             <div className="flex-1 bg-[#0c120c] rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden relative">
                                 {activeOrder ? (
                                     <DeliveryMap
-                                        origin={{ lat: 27.4924, lng: 95.3626 }} // Tinsukia kitchen
-                                        destination={activeOrder.customerLocation || { lat: 27.4924, lng: 95.3626 }}
+                                        origin={{ lat: 27.4893, lng: 95.3524 }} // Tinsukia College Base
+                                        destination={activeOrder.customerLocation || { lat: 27.4893, lng: 95.3524 }}
                                         currentLocation={activeOrder.deliveryLocation}
                                     />
                                 ) : (

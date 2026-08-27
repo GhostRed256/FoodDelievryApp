@@ -173,8 +173,8 @@ export default function TrackingPage() {
                         <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-amber-500/30 shadow-2xl overflow-hidden relative">
                             {order.status === "picked_up" ? (
                                 <DeliveryMap
-                                    origin={{ lat: 27.4924, lng: 95.3626 }} // Tinsukia FoodNJoy Kitchen
-                                    destination={order.customerLocation || { lat: 27.4924, lng: 95.3626 }}
+                                    origin={{ lat: 27.4893, lng: 95.3524 }} // Tinsukia College Base
+                                    destination={order.customerLocation || { lat: 27.4893, lng: 95.3524 }}
                                     currentLocation={order.deliveryLocation}
                                 />
                             ) : (

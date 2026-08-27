@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
-import { Utensils, User as UserIcon, LogOut, ChevronDown, Menu, X, MapPin, ChefHat, Truck, Shield, Home, Sparkles } from "lucide-react";
+import { Utensils, User as UserIcon, LogOut, ChevronDown, Menu, X, MapPin, ChefHat, Truck, Shield, Home, Sparkles, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -35,9 +35,43 @@ export default function Header() {
         { href: "/track", label: "Track Order", icon: MapPin },
     ];
 
+    const [cartCount, setCartCount] = useState(0);
+
+    // Sync cart count from localStorage globally across the app
+    useEffect(() => {
+        const updateCartCount = () => {
+            const savedCart = localStorage.getItem("foodnjoy_cart");
+            if (savedCart) {
+                try {
+                    const parsed = JSON.parse(savedCart);
+                    const count = parsed.reduce((a: number, b: any) => a + (b.quantity || 0), 0);
+                    setCartCount(count);
+                } catch (e) {
+                    setCartCount(0);
+                }
+            } else {
+                setCartCount(0);
+            }
+        };
+
+        updateCartCount(); 
+        window.addEventListener("cartUpdated", updateCartCount);
+        window.addEventListener("storage", updateCartCount); // Handles cross-tab cart updates
+        
+        return () => {
+            window.removeEventListener("cartUpdated", updateCartCount);
+            window.removeEventListener("storage", updateCartCount);
+        };
+    }, []);
+
     return (
-        <header className="sticky top-0 z-40 w-full border-b border-amber-500/20 bg-[#070a07]/95 backdrop-blur-md shadow-lg shadow-black/60">
-            <div className="container mx-auto flex h-18 items-center justify-between px-4 md:px-6">
+        <header 
+            className="sticky top-0 z-40 w-full border-b border-amber-500/20 bg-[#070a07]/95 backdrop-blur-md shadow-lg shadow-black/60 relative"
+            style={{ 
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23fbbf24\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' 
+            }}
+        >
+            <div className="container mx-auto flex h-18 items-center justify-between px-4 md:px-6 relative z-10">
                 {/* Brand Logo & Name */}
                 <Link href="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
                     <div className="relative h-11 w-11 rounded-full overflow-hidden border border-amber-500/40 shadow-md shadow-amber-500/10 group-hover:border-amber-400 transition-colors">
@@ -103,6 +137,16 @@ export default function Header() {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-3">
+                    {/* Global Cart Button */}
+                    <Link href="/menu" className="relative p-2 rounded-full bg-zinc-900/80 border border-amber-500/30 hover:bg-zinc-800 transition-all active:scale-95 group">
+                        <ShoppingCart className="h-5 w-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-black shadow-sm ring-2 ring-[#070a07]">
+                                {cartCount}
+                            </span>
+                        )}
+                    </Link>
+
                     {user ? (
                         <div className="relative">
                             <button
