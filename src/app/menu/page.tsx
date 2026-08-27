@@ -313,6 +313,7 @@ export default function MenuPage() {
     });
 
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [isCartLoaded, setIsCartLoaded] = useState(false);
 
     useEffect(() => {
         try {
@@ -322,13 +323,17 @@ export default function MenuPage() {
             }
         } catch (err) {
             console.error("Failed to load cart from local storage", err);
+        } finally {
+            setIsCartLoaded(true);
         }
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("foodnjoy_cart", JSON.stringify(cart));
-        window.dispatchEvent(new Event("cartUpdated"));
-    }, [cart]);
+        if (isCartLoaded) {
+            localStorage.setItem("foodnjoy_cart", JSON.stringify(cart));
+            window.dispatchEvent(new Event("cartUpdated"));
+        }
+    }, [cart, isCartLoaded]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
