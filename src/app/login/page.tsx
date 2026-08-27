@@ -163,7 +163,28 @@ export default function LoginPage() {
                             <div className="space-y-1.5">
                                 <div className="flex justify-between items-center px-1">
                                     <label className="text-xs font-bold text-zinc-300">Password</label>
-                                    <Link href="#" className="text-xs text-amber-400 hover:underline">Forgot?</Link>
+                                    <button 
+                                        type="button" 
+                                        onClick={async () => {
+                                            if (!email) {
+                                                setError("Please enter your email address first to reset your password.");
+                                                return;
+                                            }
+                                            try {
+                                                setLoading(true);
+                                                const { sendPasswordResetEmail } = await import("firebase/auth");
+                                                await sendPasswordResetEmail(auth, email.trim());
+                                                setError("Password reset email sent! Check your inbox.");
+                                            } catch (err: any) {
+                                                setError(err.message || "Failed to send reset email.");
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        className="text-xs text-amber-400 hover:underline"
+                                    >
+                                        Forgot?
+                                    </button>
                                 </div>
                                 <div className="relative">
                                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400" />
@@ -179,7 +200,13 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {error && <p className="text-xs text-red-400 text-center font-bold bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl">{error}</p>}
+                            {error && (
+                                <p className={`text-xs text-center font-bold p-2.5 rounded-xl ${
+                                    error.includes("sent") ? "text-emerald-400 bg-emerald-950/40 border border-emerald-900/50" : "text-red-400 bg-red-950/40 border border-red-900/50"
+                                }`}>
+                                    {error}
+                                </p>
+                            )}
 
                             <button
                                 type="submit"
