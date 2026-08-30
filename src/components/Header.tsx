@@ -190,6 +190,15 @@ export default function Header() {
                                             <UserIcon className="h-4 w-4 text-amber-400" />
                                             Profile & Addresses
                                         </Link>
+                                        {profile?.role === "admin" && (
+                                            <Link
+                                                href="/admin"
+                                                className="flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-zinc-200 hover:bg-emerald-500/10 hover:text-emerald-400 rounded-xl transition-all"
+                                            >
+                                                <Shield className="h-4 w-4 text-emerald-400" />
+                                                Admin Dashboard
+                                            </Link>
+                                        )}
                                         <button
                                             onClick={() => signOut()}
                                             className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-red-400 hover:bg-red-950/30 rounded-xl transition-all"
