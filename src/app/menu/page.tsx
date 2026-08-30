@@ -485,6 +485,29 @@ export default function MenuPage() {
             
             // Open WhatsApp in a new tab or app
             window.open(waUrl, "_blank");
+
+            // Attempt to save to database silently for Kitchen Dashboard (no blocking)
+            try {
+                orderService.createOrder({
+                    customerId: user ? user.uid : "guest",
+                    customerName: profile?.displayName || user?.displayName || "WhatsApp Guest",
+                    items: cart.map(item => ({
+                        id: item.cartKey,
+                        name: `${item.product.name} (${item.variant.name})`,
+                        price: item.variant.price,
+                        quantity: item.quantity
+                    })),
+                    total: finalTotal,
+                    status: "pending",
+                    customerLocation: {
+                        lat: customerCoords.lat,
+                        lng: customerCoords.lng,
+                        address: deliveryAddress.trim() || "Not Provided"
+                    }
+                }).catch(console.error); // Fire and forget
+            } catch (dbErr) {
+                console.error("Silent DB save failed", dbErr);
+            }
             
             // Clear cart after checkout
             setCart([]);
