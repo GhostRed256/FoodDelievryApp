@@ -438,7 +438,7 @@ export default function MenuPage() {
 
     const [hasWarnedLocation, setHasWarnedLocation] = useState(false);
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
         setCheckoutError("");
 
         // Make location optional but show a warning prompt once
@@ -450,72 +450,47 @@ export default function MenuPage() {
 
         setIsSubmitting(true);
         try {
-            // WhatsApp formatting
-            let msg = `*🍽️ New Order from FoodNJoy!* \n\n`;
-            msg += `*Items:* \n`;
-            cart.forEach(item => {
-                msg += `- ${item.quantity}x ${item.product.name} (${item.variant.name}) [₹${item.variant.price * item.quantity}]\n`;
-            });
-            
-            msg += `\n*Subtotal:* ₹${itemsSubtotal}\n`;
-            msg += `*Taxes & Fees:* ₹${TAX_AND_SERVICE_FEE}\n`;
-            
             let finalTotal = itemsSubtotal + TAX_AND_SERVICE_FEE;
             if (gpsAcquired) {
-                msg += `*Delivery Fee:* ₹${DELIVERY_FEE}\n`;
                 finalTotal += DELIVERY_FEE;
-            } else {
-                msg += `*Delivery Fee:* To be confirmed by kitchen\n`;
-            }
-            msg += `*Total Estimate:* ₹${finalTotal}\n\n`;
-
-            msg += `*📍 Delivery Details:*\n`;
-            if (deliveryAddress.trim()) {
-                msg += `Address: ${deliveryAddress.trim()}\n`;
-            } else {
-                msg += `Address: Not Provided\n`;
-            }
-
-            if (gpsAcquired) {
-                msg += `GPS Link: https://maps.google.com/?q=${customerCoords.lat},${customerCoords.lng}\n`;
-            }
-
-            const encodedMsg = encodeURIComponent(msg);
-            const waUrl = `https://wa.me/918133819414?text=${encodedMsg}`;
-            
-            // Open WhatsApp in a new tab or app
-            window.open(waUrl, "_blank");
-
-            // Attempt to save to database silently for Kitchen Dashboard (no blocking)
-            try {
-                orderService.createOrder({
-                    customerId: user ? user.uid : "guest",
-                    customerName: profile?.displayName || user?.displayName || "WhatsApp Guest",
-                    items: cart.map(item => ({
-                        id: item.cartKey,
-                        name: `${item.product.name} (${item.variant.name})`,
-                        price: item.variant.price,
-                        quantity: item.quantity
-                    })),
-                    total: finalTotal,
-                    status: "pending",
-                    customerLocation: {
-                        lat: customerCoords.lat,
-                        lng: customerCoords.lng,
-                        address: deliveryAddress.trim() || "Not Provided"
-                    }
-                }).catch(console.error); // Fire and forget
-            } catch (dbErr) {
-                console.error("Silent DB save failed", dbErr);
             }
             
-            // Clear cart after checkout
+            // Save to database
+            const orderPromise = orderService.createOrder({
+                customerId: user ? user.uid : "guest",
+                customerName: profile?.displayName || user?.displayName || "WhatsApp Guest",
+                items: cart.map(item => ({
+                    id: item.cartKey,
+                    name: `${item.product.name} (${item.variant.name})`,
+                    price: item.variant.price,
+                    quantity: item.quantity
+                })),
+                total: finalTotal,
+                status: "pending",
+                customerLocation: {
+                    lat: customerCoords.lat,
+                    lng: customerCoords.lng,
+                    address: deliveryAddress.trim() || "Not Provided"
+                }
+            });
+
+            // Set a timeout to prevent infinite hanging
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Database connection timed out.")), 10000)
+            );
+
+            const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
+            
+            // Clear cart
             setCart([]);
             setIsCartOpen(false);
             setHasWarnedLocation(false);
+            
+            // Redirect to tracking page which will handle the WhatsApp redirect and show receipt
+            router.push(`/track?id=${orderDoc.id}&new=true`);
         } catch (error: any) {
             console.error("Checkout failed:", error);
-            setCheckoutError("Failed to open WhatsApp. Please try again.");
+            setCheckoutError(error.message || "Checkout failed. Please try again.");
         } finally {
             setIsSubmitting(false);
         }

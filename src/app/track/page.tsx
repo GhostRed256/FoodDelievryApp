@@ -1,20 +1,24 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
 import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const DeliveryMap = dynamic(() => import("@/components/DeliveryMap"), {
     ssr: false,
     loading: () => <div className="absolute inset-0 bg-[#0c120c] animate-pulse" />
 });
 
-export default function TrackingPage() {
+export function TrackingPageContent() {
+    const searchParams = useSearchParams();
+    const urlOrderId = searchParams.get("id");
+
     const [searchId, setSearchId] = useState("");
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(false);
@@ -22,9 +26,24 @@ export default function TrackingPage() {
     const [etaMinutes, setEtaMinutes] = useState<number | null>(null);
     const { user } = useAuth();
 
+    // Auto-load order from URL if present
+    useEffect(() => {
+        if (urlOrderId) {
+            setSearchId(urlOrderId);
+            const unsubscribe = orderService.subscribeToOrder(urlOrderId, (found) => {
+                if (found) {
+                    setOrder(found);
+                } else {
+                    setError("Order not found from link.");
+                }
+            });
+            return () => unsubscribe();
+        }
+    }, [urlOrderId]);
+
     // Auto-load active order for logged-in user
     useEffect(() => {
-        if (!user) return;
+        if (!user || urlOrderId) return;
         const unsubscribe = orderService.subscribeToOrders({ role: "customer", uid: user.uid }, (orders) => {
             const active = orders.find(o => o.status !== "delivered" && o.status !== "cancelled");
             if (active && !order) {
@@ -32,18 +51,18 @@ export default function TrackingPage() {
             }
         });
         return () => unsubscribe();
-    }, [user]);
+    }, [user, urlOrderId, order]);
 
     // Live update for the specific tracked order
     useEffect(() => {
-        if (!order?.id) return;
+        if (!order?.id || urlOrderId === order.id) return;
 
         const unsubscribe = orderService.subscribeToOrder(order.id, (updatedOrder) => {
             setOrder(updatedOrder);
         });
 
         return () => unsubscribe();
-    }, [order?.id]);
+    }, [order?.id, urlOrderId]);
 
     useEffect(() => {
         if (order?.status === "picked_up" && order.deliveryLocation && order.customerLocation) {
@@ -296,6 +315,40 @@ export default function TrackingPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* WhatsApp Action Banner for Pending Orders */}
+                        {order.status === "pending" && (
+                            <div className="bg-[#0f1710] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-emerald-500/40 shadow-xl shadow-emerald-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in duration-300">
+                                <div className="text-center sm:text-left">
+                                    <h3 className="text-lg font-black text-white flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                        <Sparkles className="h-4 w-4 text-emerald-400" /> WhatsApp Required
+                                    </h3>
+                                    <p className="text-xs text-zinc-300">Your order is saved, but you must send it to our WhatsApp to confirm location and start cooking.</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        let msg = `*🍽️ New Order from FoodNJoy!* \n\n`;
+                                        msg += `*Order ID:* ${order.id}\n\n`;
+                                        msg += `*Items:* \n`;
+                                        order.items.forEach((item: any) => {
+                                            msg += `- ${item.quantity}x ${item.name} [₹${item.price * item.quantity}]\n`;
+                                        });
+                                        msg += `\n*Total Estimate:* ₹${order.total}\n\n`;
+                                        msg += `*📍 Delivery Address:*\n${order.customerLocation?.address || "Not Provided"}\n`;
+                                        
+                                        if (order.customerLocation?.lat) {
+                                            msg += `GPS Link: https://maps.google.com/?q=${order.customerLocation.lat},${order.customerLocation.lng}\n`;
+                                        }
+                                        
+                                        window.open(`https://wa.me/918133819414?text=${encodeURIComponent(msg)}`, "_blank");
+                                    }}
+                                    className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black px-6 py-4 rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 whitespace-nowrap border border-emerald-400/50"
+                                >
+                                    <Phone className="h-5 w-5" />
+                                    Send to WhatsApp
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -321,5 +374,17 @@ function TimelineStep({ icon, title, time, active = false, pulse = false }: any)
                 <p className="text-[11px] text-amber-400/80 font-bold mt-0.5">{time}</p>
             </div>
         </div>
+    );
+}
+
+export default function TrackingPage() {
+    return (
+        <React.Suspense fallback={
+            <div className="flex min-h-screen items-center justify-center bg-[#070a07]">
+                <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+            </div>
+        }>
+            <TrackingPageContent />
+        </React.Suspense>
     );
 }
