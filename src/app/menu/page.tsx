@@ -436,84 +436,63 @@ export default function MenuPage() {
     const itemsSubtotal = cart.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
     const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE + TAX_AND_SERVICE_FEE : 0;
 
-    const handleCheckout = async () => {
+    const [hasWarnedLocation, setHasWarnedLocation] = useState(false);
+
+    const handleCheckout = () => {
         setCheckoutError("");
 
-        if (!user) {
-            router.push("/login");
-            return;
-        }
-
-        if (!gpsAcquired) {
-            setCheckoutError("Delivery Location is Mandatory. Please tap 'Pin My Live Location' to verify your address.");
-            return;
-        }
-
-        if (isOutsideTinsukia) {
-            setCheckoutError("Sorry, we currently only deliver within the Tinsukia city area. Please adjust your pinned location.");
-            return;
-        }
-
-        if (!deliveryAddress.trim()) {
-            setCheckoutError("Please enter your exact House/Flat/Street details so our rider can find you.");
+        // Make location optional but show a warning prompt once
+        if (!gpsAcquired && !deliveryAddress.trim() && !hasWarnedLocation) {
+            setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin My Live Location'. If you still want to order without a location, tap Place Order again.");
+            setHasWarnedLocation(true);
             return;
         }
 
         setIsSubmitting(true);
         try {
-            const orderPromise = orderService.createOrder({
-                customerId: user.uid,
-                customerName: profile?.displayName || user.displayName || "Valued Customer",
-                items: cart.map(item => ({
-                    id: item.cartKey,
-                    name: `${item.product.name} (${item.variant.name})`,
-                    price: item.variant.price,
-                    quantity: item.quantity
-                })),
-                total: totalOrderAmount,
-                status: "pending",
-                customerLocation: {
-                    lat: customerCoords.lat,
-                    lng: customerCoords.lng,
-                    address: deliveryAddress.trim() || "Tinsukia Local Delivery"
-                }
+            // WhatsApp formatting
+            let msg = `*🍽️ New Order from FoodNJoy!* \n\n`;
+            msg += `*Items:* \n`;
+            cart.forEach(item => {
+                msg += `- ${item.quantity}x ${item.product.name} (${item.variant.name}) [₹${item.variant.price * item.quantity}]\n`;
             });
+            
+            msg += `\n*Subtotal:* ₹${itemsSubtotal}\n`;
+            msg += `*Taxes & Fees:* ₹${TAX_AND_SERVICE_FEE}\n`;
+            
+            let finalTotal = itemsSubtotal + TAX_AND_SERVICE_FEE;
+            if (gpsAcquired) {
+                msg += `*Delivery Fee:* ₹${DELIVERY_FEE}\n`;
+                finalTotal += DELIVERY_FEE;
+            } else {
+                msg += `*Delivery Fee:* To be confirmed by kitchen\n`;
+            }
+            msg += `*Total Estimate:* ₹${finalTotal}\n\n`;
 
-            // Set a 10-second timeout for the Firestore write to prevent indefinite hangs
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Database connection timed out. If this persists, your ad-blocker may be blocking Firestore or your internet is unstable.")), 10000)
-            );
-
-            const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
-
-            // Trigger background receipt email
-            if (user.email) {
-                fetch("/api/send-receipt", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        toEmail: user.email,
-                        details: {
-                            orderId: orderDoc.id,
-                            customerName: profile?.displayName || user.displayName || "Valued Customer",
-                            items: cart.map(item => ({
-                                name: `${item.product.name} (${item.variant.name})`,
-                                quantity: item.quantity,
-                                price: item.variant.price
-                            })),
-                            total: totalOrderAmount,
-                            address: deliveryAddress.trim() || "Tinsukia Local Delivery"
-                        }
-                    })
-                }).catch(e => console.warn("Email dispatch error:", e));
+            msg += `*📍 Delivery Details:*\n`;
+            if (deliveryAddress.trim()) {
+                msg += `Address: ${deliveryAddress.trim()}\n`;
+            } else {
+                msg += `Address: Not Provided\n`;
             }
 
+            if (gpsAcquired) {
+                msg += `GPS Link: https://maps.google.com/?q=${customerCoords.lat},${customerCoords.lng}\n`;
+            }
+
+            const encodedMsg = encodeURIComponent(msg);
+            const waUrl = `https://wa.me/918133819414?text=${encodedMsg}`;
+            
+            // Open WhatsApp in a new tab or app
+            window.open(waUrl, "_blank");
+            
+            // Clear cart after checkout
             setCart([]);
             setIsCartOpen(false);
-            router.push("/track");
+            setHasWarnedLocation(false);
         } catch (error: any) {
             console.error("Checkout failed:", error);
-            alert(error.message || "Checkout failed. Please try again.");
+            setCheckoutError("Failed to open WhatsApp. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -922,16 +901,16 @@ export default function MenuPage() {
                                     {isSubmitting ? (
                                         <>
                                             <Loader2 className="h-4 w-4 animate-spin" />
-                                            Placing Order...
+                                            Redirecting to WhatsApp...
                                         </>
                                     ) : (
-                                        !user ? "Login to Place Order" : `Place Order (Cash on Delivery) • ₹${totalOrderAmount}`
+                                        `Place Order via WhatsApp • ₹${totalOrderAmount}`
                                     )}
                                 </button>
 
                                 <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400">
                                     <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Safe & Encrypted Checkout</span>
+                                    <span>Fast & Direct WhatsApp Ordering</span>
                                 </div>
                             </div>
                         )}
