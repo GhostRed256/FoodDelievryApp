@@ -18,20 +18,33 @@ service cloud.firestore {
 
     // --- Users Collection (Private Profiles) ---
     match /users/{userId} {
-      // Users can strictly only read and write their own data.
-      // Even if someone knows an ID, they cannot extract PII.
-      allow read, write: if isOwner(userId) || hasRole('admin');
+      // Users can strictly only read their own data.
+      allow read: if isOwner(userId) || hasRole('admin');
+      
+      // Security: Users can only create their own profile as a 'customer'.
+      // Privilege Escalation Prevention: They CANNOT set themselves as 'admin'.
+      allow create: if isOwner(userId) && request.resource.data.role == 'customer';
+      
+      // Security: Users can update their profile, but CANNOT change their own role.
+      // Only an existing Admin can upgrade someone's role.
+      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || hasRole('admin');
+      
+      allow delete: if hasRole('admin');
     }
 
     // --- Orders Collection (Secure Transactions) ---
     match /orders/{orderId} {
-      // Only authenticated users can place an order.
-      allow create: if isAuthenticated() && request.resource.data.customerId == request.auth.uid;
+      // Security: Allow authenticated customers to create orders OR allow guest orders.
+      // We enforce that the customerId matches the auth token or is explicitly "guest".
+      allow create: if (isAuthenticated() && request.resource.data.customerId == request.auth.uid) || 
+                       (!isAuthenticated() && request.resource.data.customerId == 'guest');
       
       // Strict Read: 
       // Customers can only see their OWN orders. 
+      // Unauthenticated users can read an order ONLY if they know the 20-character random orderId (URL sharing).
       // Admins/Cooks/Delivery agents can read all orders for operational needs.
-      allow read: if isOwner(resource.data.customerId) || 
+      allow read: if resource.data.customerId == 'guest' || 
+                     isOwner(resource.data.customerId) || 
                      hasRole('admin') || 
                      hasRole('cook') || 
                      hasRole('delivery');

@@ -4,30 +4,11 @@ import { useAuth } from "@/lib/AuthContext";
 import Header from "@/components/Header";
 import { User, Mail, Shield, LogOut, Camera, MapPin, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { useEffect } from "react";
 
 export default function ProfilePage() {
     const { user, profile, loading, signOut } = useAuth();
     const router = useRouter();
-    const [isUpdating, setIsUpdating] = useState(false);
-
-    const handleMakeAdmin = async () => {
-        if (!user) return;
-        setIsUpdating(true);
-        try {
-            await updateDoc(doc(db, "users", user.uid), {
-                role: "admin"
-            });
-            window.location.reload(); // Reload to refresh AuthContext
-        } catch (e) {
-            console.error("Failed to make admin", e);
-            alert("Error: Make sure you are logged in.");
-        } finally {
-            setIsUpdating(false);
-        }
-    };
 
     useEffect(() => {
         if (!loading && !user) {
@@ -139,21 +120,6 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                             </div>
-                            
-                            {/* Developer Access Button */}
-                            {profile?.role !== "admin" && (
-                                <div className="mt-8 flex justify-center">
-                                    <button 
-                                        onClick={handleMakeAdmin}
-                                        disabled={isUpdating}
-                                        className="px-6 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold rounded-full text-xs transition-all flex items-center gap-2"
-                                    >
-                                        <Shield className="h-4 w-4" />
-                                        {isUpdating ? "Updating..." : "Developer: Grant Admin Rights"}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>
