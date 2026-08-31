@@ -28,6 +28,8 @@ export interface Order {
     items: OrderItem[];
     total: number;
     status: OrderStatus;
+    paymentMethod?: string;
+    transactionId?: string;
     createdAt: Timestamp;
     updatedAt: Timestamp;
     cookId?: string;

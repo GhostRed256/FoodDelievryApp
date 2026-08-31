@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map } from "lucide-react";
+import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { orderService } from "@/lib/orderService";
@@ -435,16 +435,27 @@ export default function MenuPage() {
     const totalCartCount = cart.reduce((a, b) => a + b.quantity, 0);
     const itemsSubtotal = cart.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
     const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE + TAX_AND_SERVICE_FEE : 0;
-
     const [hasWarnedLocation, setHasWarnedLocation] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [upiTransactionId, setUpiTransactionId] = useState("");
 
-    const handleCheckout = async () => {
+    const initiatePayment = () => {
         setCheckoutError("");
 
         // Make location optional but show a warning prompt once
         if (!gpsAcquired && !deliveryAddress.trim() && !hasWarnedLocation) {
             setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin My Live Location'. If you still want to order without a location, tap Place Order again.");
             setHasWarnedLocation(true);
+            return;
+        }
+        
+        setShowPaymentModal(true);
+    };
+
+    const confirmCheckout = async () => {
+        setCheckoutError("");
+        if (!upiTransactionId.trim()) {
+            setCheckoutError("Please enter the UTR / Transaction ID after making the payment.");
             return;
         }
 
@@ -467,6 +478,8 @@ export default function MenuPage() {
                 })),
                 total: finalTotal,
                 status: "pending",
+                paymentMethod: "UPI",
+                transactionId: upiTransactionId.trim(),
                 customerLocation: {
                     lat: customerCoords.lat,
                     lng: customerCoords.lng,
@@ -478,12 +491,13 @@ export default function MenuPage() {
             const timeoutPromise = new Promise((_, reject) => 
                 setTimeout(() => reject(new Error("Database connection timed out.")), 10000)
             );
-
+            
             const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
             
-            // Clear cart
+            // Clear cart & close modals
             setCart([]);
             setIsCartOpen(false);
+            setShowPaymentModal(false);
             setHasWarnedLocation(false);
             
             // Redirect to tracking page which will handle the WhatsApp redirect and show receipt
@@ -892,23 +906,15 @@ export default function MenuPage() {
                                 )}
 
                                 <button
-                                    className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm min-h-[48px]"
-                                    disabled={isSubmitting}
-                                    onClick={handleCheckout}
+                                    className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm min-h-[48px]"
+                                    onClick={initiatePayment}
                                 >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Redirecting to WhatsApp...
-                                        </>
-                                    ) : (
-                                        `Place Order via WhatsApp • ₹${totalOrderAmount}`
-                                    )}
+                                    Proceed to Pay • ₹{totalOrderAmount}
                                 </button>
 
-                                <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400">
+                                <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400 font-bold">
                                     <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Fast & Direct WhatsApp Ordering</span>
+                                    <span>Secure UPI Payment</span>
                                 </div>
                             </div>
                         )}
@@ -928,6 +934,76 @@ export default function MenuPage() {
                             }} 
                             onCancel={() => setShowMap(false)} 
                         />
+                    </div>
+                </div>
+            )}
+            
+            {/* Payment Modal */}
+            {showPaymentModal && (
+                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
+                    <div className="w-full max-w-sm bg-[#0c120c] rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col max-h-screen">
+                        
+                        <div className="p-4 border-b border-amber-500/20 flex items-center justify-between sticky top-0 bg-[#0c120c] z-10">
+                            <h3 className="text-lg font-black text-white">Secure UPI Payment</h3>
+                            <button onClick={() => setShowPaymentModal(false)} className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-6 overflow-y-auto pb-24">
+                            <div className="text-center mb-6">
+                                <p className="text-sm text-zinc-400 font-medium mb-1">Total Amount to Pay</p>
+                                <p className="text-4xl font-black text-amber-400 tracking-tight">₹{totalOrderAmount}</p>
+                            </div>
+                            
+                            <div className="bg-white p-4 rounded-3xl flex items-center justify-center mb-6 max-w-[200px] mx-auto aspect-square border-4 border-amber-500/20 shadow-xl preserve-colors">
+                                <div className="flex flex-col items-center text-zinc-400 text-center space-y-2 preserve-colors">
+                                    <QrCode className="h-16 w-16 text-zinc-300" />
+                                    <span className="text-[10px] font-bold">QR Code Placeholder<br/>(Upload public/upi-qr.jpg later)</span>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center">
+                                    <p className="text-xs font-bold text-amber-400 leading-relaxed">
+                                        Scan using any UPI app (GPay, PhonePe, Paytm). After payment, please enter the Transaction ID below.
+                                    </p>
+                                </div>
+                                
+                                <div>
+                                    <label className="text-xs font-black text-white uppercase tracking-wider mb-2 block">Transaction ID / UTR (12 Digits)</label>
+                                    <input 
+                                        type="text" 
+                                        value={upiTransactionId}
+                                        onChange={e => setUpiTransactionId(e.target.value)}
+                                        placeholder="e.g. 312345678901"
+                                        className="w-full px-4 py-3 rounded-xl bg-[#070a07] border border-amber-500/30 text-sm text-white font-bold placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500 text-center tracking-widest"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#080c08] border-t border-amber-500/20">
+                            {checkoutError && (
+                                <div className="mb-3 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] text-center font-bold">
+                                    {checkoutError}
+                                </div>
+                            )}
+                            <button
+                                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-black py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+                                disabled={isSubmitting}
+                                onClick={confirmCheckout}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Confirming Order...
+                                    </>
+                                ) : (
+                                    `I have Paid ₹${totalOrderAmount}`
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
