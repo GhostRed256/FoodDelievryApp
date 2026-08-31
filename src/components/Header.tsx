@@ -6,6 +6,7 @@ import { Utensils, User as UserIcon, LogOut, ChevronDown, Menu, X, MapPin, ChefH
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Header() {
     const { user, profile, signOut } = useAuth();
@@ -108,7 +109,7 @@ export default function Header() {
                             >
                                 {link.label}
                                 {isActive && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-emerald-400 rounded-full" />
+                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-emerald-400 rounded-full preserve-colors" />
                                 )}
                             </Link>
                         );
@@ -137,6 +138,8 @@ export default function Header() {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    
                     {/* Global Cart Button */}
                     <Link href="/menu" className="relative p-2 rounded-full bg-zinc-900/80 border border-amber-500/30 hover:bg-zinc-800 transition-all active:scale-95 group">
                         <ShoppingCart className="h-5 w-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
