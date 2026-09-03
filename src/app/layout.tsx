@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   title: "FoodNJoy - Authentic Street Food Delivery | Tinsukia",
   description: "Order fresh momos, noodles, rolls, and Indian Chinese delicacies with real-time delivery tracking in Tinsukia.",
   keywords: ["food delivery", "tinsukia food", "assam food", "indian street food", "momos", "chowmein", "live tracking", "FoodNJoy"],
+  icons: {
+    icon: "/logo.jpg",
+    shortcut: "/logo.jpg",
+    apple: "/logo.jpg"
+  },
   authors: [{ name: "FoodNJoy Team" }],
   creator: "FoodNJoy",
   publisher: "FoodNJoy",

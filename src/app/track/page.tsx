@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles } from "lucide-react";
+import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles, Star, CheckCircle2 } from "lucide-react";
 import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
 import dynamic from "next/dynamic";
@@ -25,6 +25,23 @@ export function TrackingPageContent() {
     const [error, setError] = useState<string | null>(null);
     const [etaMinutes, setEtaMinutes] = useState<number | null>(null);
     const { user } = useAuth();
+
+    // Review States
+    const [rating, setRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
+    const [reviewText, setReviewText] = useState("");
+    const [reviewSubmitted, setReviewSubmitted] = useState(false);
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    const handleReviewSubmit = async () => {
+        if (rating === 0) return;
+        setIsSubmittingReview(true);
+        // We will add the actual SMTP logic later as requested by the user, for now we simulate a network delay
+        setTimeout(() => {
+            setIsSubmittingReview(false);
+            setReviewSubmitted(true);
+        }, 1500);
+    };
 
     // Auto-load order from URL if present
     useEffect(() => {
@@ -188,63 +205,121 @@ export function TrackingPageContent() {
                             </div>
                         </div>
 
-                        {/* Map & Live Tracking Block */}
-                        <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-amber-500/30 shadow-2xl overflow-hidden relative">
-                            {order.status === "picked_up" ? (
-                                <DeliveryMap
-                                    origin={{ lat: 27.4893, lng: 95.3524 }} // Tinsukia College Base
-                                    destination={order.customerLocation || { lat: 27.4893, lng: 95.3524 }}
-                                    currentLocation={order.deliveryLocation}
-                                />
-                            ) : (
-                                <div className="absolute inset-0 bg-[#080c08] flex flex-col items-center justify-center p-6 text-center">
-                                    <div className="relative mb-4">
-                                        <div className="absolute -inset-6 bg-amber-500/10 rounded-full blur-2xl animate-pulse" />
-                                        <div className="w-16 h-16 rounded-2xl bg-[#0c120c] border border-amber-500/30 flex items-center justify-center relative shadow-lg">
-                                            {order.status === "preparing" ? (
-                                                <ChefHat className="h-8 w-8 text-amber-400" />
-                                            ) : (
-                                                <Package className="h-8 w-8 text-amber-400" />
-                                            )}
+                        {order.status === "delivered" ? (
+                            <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-emerald-500/30 shadow-2xl overflow-hidden relative flex flex-col items-center justify-center p-6 text-center">
+                                {reviewSubmitted ? (
+                                    <div className="flex flex-col items-center animate-in zoom-in-95 duration-500">
+                                        <div className="h-20 w-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
+                                            <CheckCircle2 className="h-10 w-10 text-emerald-400" />
                                         </div>
+                                        <h2 className="text-2xl font-black text-white mb-2">Thank You!</h2>
+                                        <p className="text-zinc-400 text-sm max-w-xs">Your feedback helps us maintain the highest standards of taste and hygiene in Tinsukia.</p>
                                     </div>
-                                    <p className="text-base sm:text-lg font-black text-white mb-1">
-                                        {order.status === "preparing" ? "Chef is Preparing Your Delicacy" : "Order Confirmed & Queued"}
-                                    </p>
-                                    <p className="max-w-xs text-xs text-zinc-400">
-                                        Live GPS map will activate as soon as our rider picks up your package.
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Driver Badge Overlay */}
-                            <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 flex items-center justify-between bg-[#080c08]/95 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-amber-500/30 shadow-2xl z-[1000]">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-amber-500 flex items-center justify-center text-black shadow-md overflow-hidden shrink-0 border border-amber-400">
-                                        <img
-                                            src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"
-                                            alt="Delivery Partner"
-                                            className="h-full w-full object-cover"
+                                ) : (
+                                    <div className="w-full max-w-sm flex flex-col items-center animate-in fade-in duration-500">
+                                        <div className="h-16 w-16 bg-amber-500/10 rounded-full flex items-center justify-center mb-4 border border-amber-500/30">
+                                            <Star className="h-8 w-8 text-amber-400" />
+                                        </div>
+                                        <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Order Delivered</h2>
+                                        <p className="text-zinc-400 text-xs sm:text-sm mb-8">How was your FoodNJoy experience? Rate the food and delivery partner.</p>
+                                        
+                                        <div className="flex gap-2 mb-6">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    type="button"
+                                                    onClick={() => setRating(star)}
+                                                    onMouseEnter={() => setHoverRating(star)}
+                                                    onMouseLeave={() => setHoverRating(0)}
+                                                    className="p-1 transition-transform hover:scale-110 active:scale-95"
+                                                >
+                                                    <Star 
+                                                        className={cn(
+                                                            "h-10 w-10 sm:h-12 sm:w-12 transition-all",
+                                                            (hoverRating || rating) >= star 
+                                                                ? "text-amber-400 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" 
+                                                                : "text-zinc-700"
+                                                        )}
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                        
+                                        <textarea 
+                                            value={reviewText}
+                                            onChange={e => setReviewText(e.target.value)}
+                                            placeholder="Tell us what you loved... (Optional)"
+                                            className="w-full h-24 bg-[#080c08] border border-amber-500/20 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 mb-6 resize-none"
                                         />
+                                        
+                                        <button 
+                                            onClick={handleReviewSubmit}
+                                            disabled={rating === 0 || isSubmittingReview}
+                                            className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-black py-4 rounded-xl shadow-xl shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
+                                        >
+                                            {isSubmittingReview ? <Loader2 className="h-5 w-5 animate-spin" /> : "Submit Feedback"}
+                                        </button>
                                     </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-wider">FoodNJoy Partner</p>
-                                        <h4 className="text-xs sm:text-sm font-black text-white">Verified Rider</h4>
-                                        <div className="flex items-center gap-1 mt-0.5">
-                                            <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                                            <span className="text-[10px] font-semibold text-emerald-400">Vaccinated & Inspected</span>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-amber-500/30 shadow-2xl overflow-hidden relative">
+                                {order.status === "picked_up" ? (
+                                    <DeliveryMap
+                                        origin={{ lat: 27.4893, lng: 95.3524 }} // Tinsukia College Base
+                                        destination={order.customerLocation || { lat: 27.4893, lng: 95.3524 }}
+                                        currentLocation={order.deliveryLocation}
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 bg-[#080c08] flex flex-col items-center justify-center p-6 text-center">
+                                        <div className="relative mb-4">
+                                            <div className="absolute -inset-6 bg-amber-500/10 rounded-full blur-2xl animate-pulse" />
+                                            <div className="w-16 h-16 rounded-2xl bg-[#0c120c] border border-amber-500/30 flex items-center justify-center relative shadow-lg">
+                                                {order.status === "preparing" ? (
+                                                    <ChefHat className="h-8 w-8 text-amber-400" />
+                                                ) : (
+                                                    <Package className="h-8 w-8 text-amber-400" />
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="text-base sm:text-lg font-black text-white mb-1">
+                                            {order.status === "preparing" ? "Chef is Preparing Your Delicacy" : "Order Confirmed & Queued"}
+                                        </p>
+                                        <p className="max-w-xs text-xs text-zinc-400">
+                                            Live GPS map will activate as soon as our rider picks up your package.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Driver Badge Overlay */}
+                                <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 flex items-center justify-between bg-[#080c08]/95 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-amber-500/30 shadow-2xl z-[1000]">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-amber-500 flex items-center justify-center text-black shadow-md overflow-hidden shrink-0 border border-amber-400">
+                                            <img
+                                                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"
+                                                alt="Delivery Partner"
+                                                className="h-full w-full object-cover"
+                                            />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-amber-400 uppercase tracking-wider">FoodNJoy Partner</p>
+                                            <h4 className="text-xs sm:text-sm font-black text-white">Verified Rider</h4>
+                                            <div className="flex items-center gap-1 mt-0.5">
+                                                <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                                                <span className="text-[10px] font-semibold text-emerald-400">Vaccinated & Inspected</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <a
+                                        href="tel:+919876543210"
+                                        className="h-10 sm:h-11 px-3.5 sm:px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black rounded-xl flex items-center gap-1.5 font-black text-xs shadow-md transition-all active:scale-95 shrink-0"
+                                    >
+                                        <Phone className="h-3.5 w-3.5 text-black" />
+                                        <span>Call</span>
+                                    </a>
                                 </div>
-                                <a
-                                    href="tel:+919876543210"
-                                    className="h-10 sm:h-11 px-3.5 sm:px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black rounded-xl flex items-center gap-1.5 font-black text-xs shadow-md transition-all active:scale-95 shrink-0"
-                                >
-                                    <Phone className="h-3.5 w-3.5 text-black" />
-                                    <span>Call</span>
-                                </a>
                             </div>
-                        </div>
+                        )}
 
                         {/* Order Timeline & Item Summary Grid */}
                         <div className="grid gap-6 md:grid-cols-2">

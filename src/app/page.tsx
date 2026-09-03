@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Link from "next/link";
+import Image from "next/image";
 import { Utensils, MapPin, Sparkles, ArrowRight, ShieldCheck, Leaf, Heart, Flame, Star, Award } from "lucide-react";
 import * as motion from "framer-motion/client";
 import HeroBackground from "@/components/HeroBackground";
@@ -137,20 +138,22 @@ export default function Home() {
           {/* Scrollable Gallery */}
           <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {[
-              { name: "Chicken Steamed Momo", image: "/chicken_steamed_momo_1786735232675.jpg" },
-              { name: "Chicken Kathi Roll", image: "/chicken_kathi_roll_1786735165181.jpg" },
-              { name: "Schezwan Veg Rice", image: "/schezwan_veg_rice_1786736024030.jpg" }
+              { name: "Chicken Steamed Momo", image: "/hero/momos.jpg" },
+              { name: "Chicken Kathi Roll", image: "/hero/roll.jpg" },
+              { name: "Schezwan Veg Noodles", image: "/hero/noodles.jpg" }
             ].map((item, i) => (
               <div key={i} className="snap-center shrink-0 w-[260px] sm:w-[320px] group cursor-pointer relative overflow-hidden rounded-3xl border border-amber-500/20 bg-zinc-900">
                 <div className="absolute top-4 right-4 z-10 bg-black/60 backdrop-blur-md border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
                   <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
                   <span className="text-xs font-bold text-white">4.9</span>
                 </div>
-                <div className="aspect-[4/5] sm:aspect-square overflow-hidden">
-                  <img
+                <div className="aspect-[4/5] sm:aspect-square overflow-hidden relative">
+                  <Image
                     src={item.image}
                     alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    fill
+                    quality={60}
+                    className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
                 </div>
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 pt-12">

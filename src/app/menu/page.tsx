@@ -312,20 +312,19 @@ export default function MenuPage() {
         return initial;
     });
 
+    const [vegFilter, setVegFilter] = useState<"All" | "Veg" | "Non-Veg">("All");
+
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isCartLoaded, setIsCartLoaded] = useState(false);
 
     useEffect(() => {
         try {
             const savedCart = localStorage.getItem("foodnjoy_cart");
-            if (savedCart) {
-                setCart(JSON.parse(savedCart));
-            }
-        } catch (err) {
-            console.error("Failed to load cart from local storage", err);
-        } finally {
-            setIsCartLoaded(true);
+            if (savedCart) setCart(JSON.parse(savedCart));
+        } catch (e) {
+            console.error("Failed to load cart", e);
         }
+        setIsCartLoaded(true);
     }, []);
 
     useEffect(() => {
@@ -334,19 +333,17 @@ export default function MenuPage() {
             window.dispatchEvent(new Event("cartUpdated"));
         }
     }, [cart, isCartLoaded]);
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Free Browser GPS & Address State
-    const [deliveryAddress, setDeliveryAddress] = useState("");
-    const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number }>({
-        lat: 27.4893, // Tinsukia College Default
-        lng: 95.3524
-    });
-    const [isLocating, setIsLocating] = useState(false);
-    const [gpsAcquired, setGpsAcquired] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const [checkoutError, setCheckoutError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showMap, setShowMap] = useState(false);
+
+    // Default: Hardcoded to roughly center of Tinsukia for calculation baseline
+    const [customerCoords, setCustomerCoords] = useState({ lat: 27.4886, lng: 95.3558 });
+    const [deliveryAddress, setDeliveryAddress] = useState("");
+    const [gpsAcquired, setGpsAcquired] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
 
     // Fee parameters (Free under 5km, ₹20 above 5km)
     // Origin: Tinsukia College (27.4893, 95.3524)
@@ -355,12 +352,18 @@ export default function MenuPage() {
     const DELIVERY_FEE = (gpsAcquired && distanceToKitchen <= 5) ? 0 : 25;
     const TAX_AND_SERVICE_FEE = 15;
 
-    const filteredProducts = PRODUCTS.filter(p =>
-        (activeCategory === "All" || p.category === activeCategory) &&
-        (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         p.category.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const filteredProducts = PRODUCTS.filter(p => {
+        const matchesCategory = activeCategory === "All" || p.category === activeCategory;
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              p.category.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        let matchesVeg = true;
+        if (vegFilter === "Veg") matchesVeg = p.isVeg === true;
+        if (vegFilter === "Non-Veg") matchesVeg = p.isVeg === false;
+
+        return matchesCategory && matchesSearch && matchesVeg;
+    });
 
     const handleSelectVariant = (productId: string, variant: ProductVariant) => {
         setSelectedVariants(prev => ({
@@ -567,6 +570,43 @@ export default function MenuPage() {
                             {cat}
                         </button>
                     ))}
+                </div>
+
+                {/* Dietary Filter Toggles */}
+                <div className="flex items-center gap-3 mb-8">
+                    <button
+                        onClick={() => setVegFilter("All")}
+                        className={cn(
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                            vegFilter === "All"
+                                ? "bg-amber-500/20 text-amber-400 border-amber-500/50"
+                                : "bg-transparent text-zinc-400 border-zinc-700 hover:text-zinc-300"
+                        )}
+                    >
+                        All Foods
+                    </button>
+                    <button
+                        onClick={() => setVegFilter("Veg")}
+                        className={cn(
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5",
+                            vegFilter === "Veg"
+                                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50"
+                                : "bg-transparent text-zinc-400 border-zinc-700 hover:text-zinc-300"
+                        )}
+                    >
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" /> Veg
+                    </button>
+                    <button
+                        onClick={() => setVegFilter("Non-Veg")}
+                        className={cn(
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5",
+                            vegFilter === "Non-Veg"
+                                ? "bg-red-500/20 text-red-400 border-red-500/50"
+                                : "bg-transparent text-zinc-400 border-zinc-700 hover:text-zinc-300"
+                        )}
+                    >
+                        <span className="h-2 w-2 rounded-full bg-red-500" /> Non-Veg
+                    </button>
                 </div>
 
                 {/* Product Grid */}
