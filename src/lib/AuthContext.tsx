@@ -47,21 +47,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(user);
             if (user) {
                 try {
+                    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase();
+                    const isSystemAdmin = !!(user.email && user.email.toLowerCase() === adminEmail);
+
                     const userDocRef = doc(db, "users", user.uid);
                     const userDoc = await getDoc(userDocRef);
 
                     if (userDoc.exists()) {
-                        setProfile(userDoc.data() as UserProfile);
+                        const data = userDoc.data() as UserProfile;
+                        // Enforce environment variable security for admin privileges
+                        const resolvedRole: UserRole = isSystemAdmin ? "admin" : (data.role === "admin" ? "customer" : data.role);
+                        setProfile({ ...data, role: resolvedRole });
                     } else {
-                        // New user - default to customer role
+                        // New user - default to customer role unless matching environment variable admin credentials
                         const newProfile: UserProfile = {
                             uid: user.uid,
                             email: user.email,
                             displayName: user.displayName,
-                            role: "customer",
+                            role: isSystemAdmin ? "admin" : "customer",
                             photoURL: user.photoURL,
                         };
-                        // Immediately set profile to unblock UI (don't wait for Firestore)
+                        // Immediately set profile to unblock UI
                         setProfile(newProfile);
                         // Fire and forget the write to Firestore
                         setDoc(userDocRef, newProfile).catch(err => {
@@ -69,13 +75,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         });
                     }
                 } catch (err) {
-                    console.error("Profile load/save failed (likely Firestore rules):", err);
-                    // Fallback to allow them to place an order even if Firestore blocks the user document save
+                    console.error("Profile load/save failed:", err);
+                    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase();
+                    const isSystemAdmin = !!(user.email && user.email.toLowerCase() === adminEmail);
                     setProfile({
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName,
-                        role: "customer",
+                        role: isSystemAdmin ? "admin" : "customer",
                         photoURL: user.photoURL,
                     });
                 }

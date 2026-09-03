@@ -996,8 +996,14 @@ export default function MenuPage() {
                                 <p className="text-4xl font-black text-amber-400 tracking-tight">₹{totalOrderAmount}</p>
                             </div>
                             
-                            <div className="bg-white p-4 rounded-3xl flex items-center justify-center mb-6 max-w-[200px] mx-auto aspect-square border-4 border-amber-500/20 shadow-xl preserve-colors">
-                                <div className="flex flex-col items-center text-zinc-400 text-center space-y-2 preserve-colors">
+                            <div className="bg-white p-4 rounded-3xl flex items-center justify-center mb-6 max-w-[200px] mx-auto aspect-square border-4 border-amber-500/20 shadow-xl overflow-hidden preserve-colors relative">
+                                <img 
+                                    src="/upi-qr.jpg" 
+                                    alt="UPI QR Code" 
+                                    className="w-full h-full object-contain relative z-10 bg-white"
+                                    onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+                                />
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 text-center space-y-2 p-2 preserve-colors z-0">
                                     <QrCode className="h-16 w-16 text-zinc-300" />
                                     <span className="text-[10px] font-bold">QR Code Placeholder<br/>(Upload public/upi-qr.jpg later)</span>
                                 </div>
