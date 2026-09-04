@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles, Star, CheckCircle2 } from "lucide-react";
+import { Search, MapPin, Package, Clock, CheckCircle, Navigation, ShieldCheck, Loader2, ChefHat, Phone, ArrowLeft, Sparkles, Star, CheckCircle2, Camera } from "lucide-react";
 import { orderService, Order } from "@/lib/orderService";
 import { useAuth } from "@/lib/AuthContext";
 import dynamic from "next/dynamic";
@@ -396,23 +396,32 @@ export function TrackingPageContent() {
                             <div className="bg-[#0f1710] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-emerald-500/40 shadow-xl shadow-emerald-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in duration-300">
                                 <div className="text-center sm:text-left">
                                     <h3 className="text-lg font-black text-white flex items-center justify-center sm:justify-start gap-2 mb-1">
-                                        <Sparkles className="h-4 w-4 text-emerald-400" /> WhatsApp Required
+                                        <Camera className="h-5 w-5 text-emerald-400" /> WhatsApp & Payment Screenshot
                                     </h3>
-                                    <p className="text-xs text-zinc-300">Your order is saved, but you must send it to our WhatsApp to confirm location and start cooking.</p>
+                                    <p className="text-xs text-zinc-300 max-w-lg leading-relaxed">
+                                        Please send your order details and attach your UPI payment screenshot in WhatsApp so the owner can verify and cook your order right away!
+                                    </p>
                                 </div>
                                 <button
                                     onClick={() => {
-                                        let msg = `*🍽️ New Order from FoodNJoy!* \n\n`;
-                                        msg += `*Order ID:* ${order.id}\n\n`;
-                                        msg += `*Items:* \n`;
+                                        let msg = `*🍽️ FOODNJOY ORDER VERIFICATION*\n\n`;
+                                        msg += `*Order ID:* #${order.id.slice(-6)}\n`;
+                                        if (order.customerName) msg += `*Customer:* ${order.customerName}\n`;
+                                        if (order.customerPhone) msg += `*Phone:* ${order.customerPhone}\n\n`;
+                                        msg += `*📋 Items:* \n`;
                                         order.items.forEach((item: any) => {
                                             msg += `- ${item.quantity}x ${item.name} [₹${item.price * item.quantity}]\n`;
                                         });
-                                        msg += `\n*Total Estimate:* ₹${order.total}\n\n`;
+                                        msg += `\n*💰 Total Amount:* ₹${order.total}\n`;
+                                        msg += `*💳 Payment:* Online UPI (Diban Borboruah)\n`;
+                                        if (order.transactionId) {
+                                            msg += `*🧾 Transaction / UTR:* ${order.transactionId}\n`;
+                                        }
+                                        msg += `*📸 Payment Proof:* Attaching screenshot in this chat\n\n`;
                                         msg += `*📍 Delivery Address:*\n${order.customerLocation?.address || "Not Provided"}\n`;
                                         
                                         if (order.customerLocation?.lat) {
-                                            msg += `GPS Link: https://maps.google.com/?q=${order.customerLocation.lat},${order.customerLocation.lng}\n`;
+                                            msg += `*🗺️ GPS Link:* https://maps.google.com/?q=${order.customerLocation.lat},${order.customerLocation.lng}\n`;
                                         }
                                         
                                         window.open(`https://wa.me/918133819414?text=${encodeURIComponent(msg)}`, "_blank");
@@ -420,7 +429,7 @@ export function TrackingPageContent() {
                                     className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black px-6 py-4 rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 whitespace-nowrap border border-emerald-400/50"
                                 >
                                     <Phone className="h-5 w-5" />
-                                    Send to WhatsApp
+                                    Send to WhatsApp & Attach Screenshot
                                 </button>
                             </div>
                         )}

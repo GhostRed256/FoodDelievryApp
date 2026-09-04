@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Image from "next/image";
-import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map, QrCode } from "lucide-react";
+import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map, QrCode, Copy, Check, ExternalLink, Camera, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { orderService } from "@/lib/orderService";
@@ -340,6 +340,28 @@ export default function MenuPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showMap, setShowMap] = useState(false);
 
+    // Customer Contact Details for Order & WhatsApp
+    const [customerName, setCustomerName] = useState("");
+    const [customerPhone, setCustomerPhone] = useState("");
+    const [isCopied, setIsCopied] = useState(false);
+
+    // UPI Payment & WhatsApp Details (Diban Borboruah)
+    const UPI_ID = "7002586087-2@ybl";
+    const UPI_NAME = "DIBAN BORBORUAH";
+    const WHATSAPP_NUMBER = "918133819414";
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const savedName = localStorage.getItem("foodnjoy_name");
+            const savedPhone = localStorage.getItem("foodnjoy_phone");
+            if (savedName) setCustomerName(savedName);
+            else if (profile?.displayName || user?.displayName) {
+                setCustomerName(profile?.displayName || user?.displayName || "");
+            }
+            if (savedPhone) setCustomerPhone(savedPhone);
+        }
+    }, [profile, user]);
+
     // Default: Hardcoded to roughly center of Tinsukia for calculation baseline
     const [customerCoords, setCustomerCoords] = useState({ lat: 27.4886, lng: 95.3558 });
     const [deliveryAddress, setDeliveryAddress] = useState("");
@@ -446,9 +468,14 @@ export default function MenuPage() {
     const initiatePayment = () => {
         setCheckoutError("");
 
+        if (!customerPhone.trim() || customerPhone.replace(/\D/g, "").length < 10) {
+            setCheckoutError("Please enter your 10-digit mobile number so the restaurant & rider can contact you.");
+            return;
+        }
+
         // Make location optional but show a warning prompt once
         if (!gpsAcquired && !deliveryAddress.trim() && !hasWarnedLocation) {
-            setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin My Live Location'. If you still want to order without a location, tap Place Order again.");
+            setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin Live GPS'. If you still want to order without a location, tap Proceed to Pay again.");
             setHasWarnedLocation(true);
             return;
         }
@@ -458,57 +485,97 @@ export default function MenuPage() {
 
     const confirmCheckout = async () => {
         setCheckoutError("");
-        if (!upiTransactionId.trim()) {
-            setCheckoutError("Please enter the UTR / Transaction ID after making the payment.");
-            return;
-        }
-
         setIsSubmitting(true);
+
+        const tempOrderId = `FNJ-${Date.now().toString().slice(-6)}`;
+        let finalOrderId = tempOrderId;
+
         try {
             let finalTotal = itemsSubtotal + TAX_AND_SERVICE_FEE;
             if (gpsAcquired) {
                 finalTotal += DELIVERY_FEE;
             }
-            
-            // Save to database
-            const orderPromise = orderService.createOrder({
-                customerId: user ? user.uid : "guest",
-                customerName: profile?.displayName || user?.displayName || "WhatsApp Guest",
-                items: cart.map(item => ({
-                    id: item.cartKey,
-                    name: `${item.product.name} (${item.variant.name})`,
-                    price: item.variant.price,
-                    quantity: item.quantity
-                })),
-                total: finalTotal,
-                status: "pending",
-                paymentMethod: "UPI",
-                transactionId: upiTransactionId.trim(),
-                customerLocation: {
-                    lat: customerCoords.lat,
-                    lng: customerCoords.lng,
-                    address: deliveryAddress.trim() || "Not Provided"
-                }
-            });
 
-            // Set a timeout to prevent infinite hanging
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Database connection timed out.")), 10000)
-            );
-            
-            const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
-            
-            // Clear cart & close modals
+            // Save phone & name in browser storage for convenience
+            if (typeof window !== "undefined") {
+                if (customerPhone.trim()) localStorage.setItem("foodnjoy_phone", customerPhone.trim());
+                if (customerName.trim()) localStorage.setItem("foodnjoy_name", customerName.trim());
+            }
+
+            // Attempt to save to database with 4s timeout so network never blocks the user
+            try {
+                const orderPromise = orderService.createOrder({
+                    customerId: user ? user.uid : "guest",
+                    customerName: customerName.trim() || profile?.displayName || user?.displayName || "Guest Customer",
+                    customerPhone: customerPhone.trim(),
+                    items: cart.map(item => ({
+                        id: item.cartKey,
+                        name: `${item.product.name} (${item.variant.name})`,
+                        price: item.variant.price,
+                        quantity: item.quantity
+                    })),
+                    total: finalTotal,
+                    status: "pending",
+                    paymentMethod: "UPI",
+                    transactionId: upiTransactionId.trim() || "Screenshot in WhatsApp",
+                    customerLocation: {
+                        lat: customerCoords.lat,
+                        lng: customerCoords.lng,
+                        address: deliveryAddress.trim() || "Tinsukia Local Delivery"
+                    }
+                });
+
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("DB Timeout")), 4000)
+                );
+
+                const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
+                if (orderDoc && orderDoc.id) {
+                    finalOrderId = orderDoc.id;
+                }
+            } catch (dbErr) {
+                console.warn("DB save skipped or timed out, order proceeding via WhatsApp:", dbErr);
+            }
+
+            // Build detailed WhatsApp Message for Restaurant Owner
+            let msg = `*🍽️ NEW ORDER - FoodNJoy Tinsukia*\n\n`;
+            msg += `*Order ID:* #${finalOrderId.slice(-6)}\n`;
+            msg += `*Customer:* ${customerName.trim() || "Customer"}\n`;
+            msg += `*Phone:* ${customerPhone.trim()}\n\n`;
+            msg += `*📋 Ordered Items:*\n`;
+            cart.forEach(item => {
+                msg += `▪️ ${item.quantity}x ${item.product.name} (${item.variant.name}) - ₹${item.variant.price * item.quantity}\n`;
+            });
+            msg += `\n*💰 Total Amount:* ₹${finalTotal}\n`;
+            msg += `*💳 Payment:* Online UPI (to ${UPI_NAME})\n`;
+            if (upiTransactionId.trim()) {
+                msg += `*🧾 UTR / Trans ID:* ${upiTransactionId.trim()}\n`;
+            }
+            msg += `*📸 Payment Proof:* Attaching screenshot in this chat\n\n`;
+            msg += `*📍 Delivery Address:*\n${deliveryAddress.trim() || "Tinsukia Local Delivery"}\n`;
+            if (customerCoords.lat) {
+                msg += `*🗺️ GPS Location:* https://maps.google.com/?q=${customerCoords.lat},${customerCoords.lng}\n`;
+            }
+            msg += `\n_Please confirm our order and dispatch freshly cooked!_`;
+
+            // Open WhatsApp directly
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, "_blank");
+
+            // Clear cart & state
             setCart([]);
+            if (typeof window !== "undefined") {
+                localStorage.removeItem("foodnjoy_cart");
+            }
             setIsCartOpen(false);
             setShowPaymentModal(false);
             setHasWarnedLocation(false);
-            
-            // Redirect to tracking page which will handle the WhatsApp redirect and show receipt
-            router.push(`/track?id=${orderDoc.id}&new=true`);
+
+            // Redirect to tracking page
+            router.push(`/track?id=${finalOrderId}&new=true`);
         } catch (error: any) {
-            console.error("Checkout failed:", error);
-            setCheckoutError(error.message || "Checkout failed. Please try again.");
+            console.error("Checkout process error:", error);
+            setCheckoutError(error.message || "Failed to process order. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -863,6 +930,34 @@ export default function MenuPage() {
                                         ))}
                                     </div>
 
+                                    {/* Customer Contact Details (Name & Phone) */}
+                                    <div className="p-4 rounded-2xl bg-[#0c120c] border border-amber-500/30 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                                <Phone className="h-3.5 w-3.5 text-amber-400" />
+                                                Customer Contact Details
+                                            </label>
+                                            <span className="text-[10px] font-bold text-zinc-400">Required for delivery</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <input
+                                                type="text"
+                                                value={customerName}
+                                                onChange={(e) => setCustomerName(e.target.value)}
+                                                placeholder="Your Name"
+                                                className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                            />
+                                            <input
+                                                type="tel"
+                                                value={customerPhone}
+                                                onChange={(e) => setCustomerPhone(e.target.value)}
+                                                placeholder="10-digit Mobile Number *"
+                                                className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                                                maxLength={13}
+                                            />
+                                        </div>
+                                    </div>
+
                                     {/* Free Direct Delivery Location & Address Input (No Google API needed) */}
                                     <div className="p-4 rounded-2xl bg-[#0c120c] border border-amber-500/30 space-y-3">
                                         <div className="flex items-center justify-between">
@@ -958,7 +1053,7 @@ export default function MenuPage() {
 
                                 <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400 font-bold">
                                     <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Secure UPI Payment</span>
+                                    <span>Instant UPI & WhatsApp Checkout</span>
                                 </div>
                             </div>
                         )}
@@ -984,73 +1079,133 @@ export default function MenuPage() {
             
             {/* Payment Modal */}
             {showPaymentModal && (
-                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
-                    <div className="w-full max-w-sm bg-[#0c120c] rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col max-h-screen">
+                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
+                    <div className="w-full max-w-sm bg-[#0c120c] rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col max-h-[92vh]">
                         
                         <div className="p-4 border-b border-amber-500/20 flex items-center justify-between sticky top-0 bg-[#0c120c] z-10">
-                            <h3 className="text-lg font-black text-white">Secure UPI Payment</h3>
+                            <div className="flex items-center gap-2">
+                                <ShieldCheck className="h-5 w-5 text-amber-400" />
+                                <h3 className="text-base sm:text-lg font-black text-white">Pay Online via UPI</h3>
+                            </div>
                             <button onClick={() => setShowPaymentModal(false)} className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
                         
-                        <div className="p-6 overflow-y-auto pb-24">
-                            <div className="text-center mb-6">
-                                <p className="text-sm text-zinc-400 font-medium mb-1">Total Amount to Pay</p>
+                        <div className="p-5 overflow-y-auto pb-28 space-y-4">
+                            {/* Bill Amount */}
+                            <div className="text-center py-1">
+                                <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-1">Total Bill Amount</p>
                                 <p className="text-4xl font-black text-amber-400 tracking-tight">₹{totalOrderAmount}</p>
                             </div>
                             
-                            <div className="bg-white p-4 rounded-3xl flex items-center justify-center mb-6 max-w-[200px] mx-auto aspect-square border-4 border-amber-500/20 shadow-xl overflow-hidden preserve-colors relative">
-                                <img 
-                                    src="/upi-qr.jpg" 
-                                    alt="UPI QR Code" 
-                                    className="w-full h-full object-contain relative z-10 bg-white"
-                                    onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
-                                />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 text-center space-y-2 p-2 preserve-colors z-0">
-                                    <QrCode className="h-16 w-16 text-zinc-300" />
-                                    <span className="text-[10px] font-bold">QR Code Placeholder<br/>(Upload public/upi-qr.jpg later)</span>
-                                </div>
+                            {/* Clickable UPI QR Code Card */}
+                            <div className="text-center">
+                                <a
+                                    href={`upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${totalOrderAmount}&cu=INR&tn=${encodeURIComponent("FoodNJoy Order")}`}
+                                    className="block group"
+                                    title="Tap to pay via any UPI app"
+                                >
+                                    <div className="bg-white p-3 rounded-2xl max-w-[210px] mx-auto aspect-square border-2 border-amber-500/40 shadow-xl overflow-hidden relative cursor-pointer group-hover:scale-[1.02] transition-transform">
+                                        <img 
+                                            src="/upi-qr.jpg" 
+                                            alt="Diban Borboruah UPI QR Code" 
+                                            className="w-full h-full object-contain relative z-10 bg-white"
+                                        />
+                                    </div>
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400/90 mt-2 group-hover:text-amber-300">
+                                        <ExternalLink className="h-3 w-3" /> Tap QR to Open UPI App
+                                    </span>
+                                </a>
                             </div>
-                            
-                            <div className="space-y-4">
-                                <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center">
-                                    <p className="text-xs font-bold text-amber-400 leading-relaxed">
-                                        Scan using any UPI app (GPay, PhonePe, Paytm). After payment, please enter the Transaction ID below.
-                                    </p>
+
+                            {/* Direct UPI App Intent Button */}
+                            <a
+                                href={`upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${totalOrderAmount}&cu=INR&tn=${encodeURIComponent("FoodNJoy Order")}`}
+                                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
+                            >
+                                <ExternalLink className="h-4 w-4" />
+                                Open GPay / PhonePe / Paytm App
+                            </a>
+
+                            {/* UPI ID & Copy Box */}
+                            <div className="bg-[#070a07] p-3 rounded-xl border border-amber-500/30 flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">UPI ID ({UPI_NAME})</p>
+                                    <p className="text-xs font-mono font-bold text-white truncate">{UPI_ID}</p>
                                 </div>
-                                
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(UPI_ID);
+                                        setIsCopied(true);
+                                        setTimeout(() => setIsCopied(false), 2000);
+                                    }}
+                                    className="shrink-0 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold text-xs flex items-center gap-1 transition-all active:scale-95 border border-amber-500/20"
+                                >
+                                    {isCopied ? (
+                                        <>
+                                            <Check className="h-3.5 w-3.5 text-emerald-400" />
+                                            <span className="text-emerald-400">Copied!</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className="h-3.5 w-3.5" />
+                                            <span>Copy</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Optional UTR / Transaction ID */}
+                            <div>
+                                <label className="text-[11px] font-black text-zinc-300 uppercase tracking-wider mb-1.5 block">
+                                    Transaction ID / UTR (Optional)
+                                </label>
+                                <input 
+                                    type="text" 
+                                    value={upiTransactionId}
+                                    onChange={e => setUpiTransactionId(e.target.value)}
+                                    placeholder="e.g. 312345678901"
+                                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/30 text-xs text-white font-bold placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500 text-center tracking-widest font-mono"
+                                />
+                            </div>
+
+                            {/* WhatsApp Screenshot Instructions Banner */}
+                            <div className="bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3.5 flex items-start gap-2.5">
+                                <Camera className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                                 <div>
-                                    <label className="text-xs font-black text-white uppercase tracking-wider mb-2 block">Transaction ID / UTR (12 Digits)</label>
-                                    <input 
-                                        type="text" 
-                                        value={upiTransactionId}
-                                        onChange={e => setUpiTransactionId(e.target.value)}
-                                        placeholder="e.g. 312345678901"
-                                        className="w-full px-4 py-3 rounded-xl bg-[#070a07] border border-amber-500/30 text-sm text-white font-bold placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500 text-center tracking-widest"
-                                    />
+                                    <p className="text-xs font-black text-emerald-300">
+                                        📸 Attach Screenshot in WhatsApp
+                                    </p>
+                                    <p className="text-[11px] text-zinc-300 mt-0.5 leading-relaxed">
+                                        After paying, tap the green button below. Your order details will open in WhatsApp — just attach your payment screenshot there so the owner can verify and cook your order!
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#080c08] border-t border-amber-500/20">
                             {checkoutError && (
-                                <div className="mb-3 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] text-center font-bold">
+                                <div className="mb-2.5 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] text-center font-bold">
                                     {checkoutError}
                                 </div>
                             )}
                             <button
-                                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-black py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+                                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black py-3.5 rounded-xl shadow-xl shadow-emerald-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm border border-emerald-400/40"
                                 disabled={isSubmitting}
                                 onClick={confirmCheckout}
                             >
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="h-4 w-4 animate-spin" />
-                                        Confirming Order...
+                                        Connecting to WhatsApp...
                                     </>
                                 ) : (
-                                    `I have Paid ₹${totalOrderAmount}`
+                                    <>
+                                        <Phone className="h-4 w-4 text-white fill-white" />
+                                        Confirm & Send to WhatsApp
+                                    </>
                                 )}
                             </button>
                         </div>
