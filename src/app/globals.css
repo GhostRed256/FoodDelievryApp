@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 :root {
   --background: #070a07;
@@ -94,11 +95,13 @@ html.light .preserve-colors {
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
-/* Hide scrollbar for category pills */
-.no-scrollbar::-webkit-scrollbar {
+/* Hide scrollbar for category pills and galleries */
+.no-scrollbar::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+.no-scrollbar,
+.hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

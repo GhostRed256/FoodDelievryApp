@@ -8,15 +8,22 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans selection:bg-amber-500 selection:text-black relative pb-10 overflow-x-hidden">
       
-      {/* Background Effects */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/20 via-[#070a07]/80 to-[#070a07] pointer-events-none" />
-      <div 
-        className="absolute top-0 left-0 right-0 h-[500px] z-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 50% 0%, #fbbf24 0%, transparent 70%)',
-          filter: 'blur(60px)'
-        }}
-      />
+      {/* Background Image + Overlay */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <Image
+          src="/hero-bg.jpg"
+          alt="Restaurant ambiance"
+          fill
+          priority
+          className="object-cover opacity-25"
+          sizes="100vw"
+          quality={60}
+        />
+        {/* Dark overlay gradients for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070a07] via-[#070a07]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#070a07]/80 via-transparent to-transparent h-40" />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
 
       <Header />
 
@@ -159,7 +166,9 @@ export default function Home() {
                     src={item.image}
                     alt={item.name}
                     fill
-                    quality={60}
+                    quality={40}
+                    sizes="320px"
+                    loading="lazy"
                     className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
                 </div>

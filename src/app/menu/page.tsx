@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import Image from "next/image";
 import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
@@ -622,10 +623,13 @@ export default function MenuPage() {
                             >
                                 {/* Dish Image */}
                                 <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-zinc-900">
-                                    <img
+                                    <Image
                                         src={product.image}
                                         alt={product.name}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        fill
+                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                        quality={40}
                                         loading="lazy"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
