@@ -25,16 +25,16 @@ export default function ProfilePage() {
     }
 
     return (
-        <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
+        <main className="flex min-h-screen flex-col bg-[#f7fbf8] dark:bg-[#040905] text-zinc-900 dark:text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black transition-colors duration-300">
             <Header />
             <div className="container mx-auto py-8 sm:py-12 px-4 md:px-6">
                 <div className="max-w-4xl mx-auto">
                     <div className="mb-8 pb-4 border-b border-amber-500/20">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
-                            <Sparkles className="h-3 w-3 text-emerald-400" />
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 dark:text-amber-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+                            <Sparkles className="h-3 w-3 text-emerald-500" />
                             Account Profile
                         </div>
-                        <h1 className="text-2xl sm:text-3xl font-black text-white">
+                        <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
                             Customer <span className="text-gold-metallic">Settings</span>
                         </h1>
                     </div>
@@ -42,7 +42,7 @@ export default function ProfilePage() {
                     <div className="grid gap-6 md:grid-cols-3">
                         {/* Left Col: Avatar and Basic Info */}
                         <div className="md:col-span-1 space-y-6">
-                            <div className="bg-[#0c120c] p-6 sm:p-8 rounded-3xl border border-amber-500/30 shadow-xl flex flex-col items-center">
+                            <div className="bg-white dark:bg-[#0c180e] p-6 sm:p-8 rounded-3xl border border-emerald-500/25 dark:border-amber-500/30 shadow-xl flex flex-col items-center">
                                 <div className="relative group">
                                     <div className="h-28 w-28 rounded-full bg-black/80 flex items-center justify-center overflow-hidden border-4 border-amber-500/40 shadow-xl">
                                         {user.photoURL ? (
@@ -55,7 +55,7 @@ export default function ProfilePage() {
                                         <Camera className="h-4 w-4" />
                                     </button>
                                 </div>
-                                <h2 className="mt-4 text-lg font-black text-white text-center">
+                                <h2 className="mt-4 text-lg font-black text-zinc-900 dark:text-white text-center">
                                     {profile?.displayName || user.displayName || "Valued Customer"}
                                 </h2>
                                 <div className="mt-2 inline-flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/30 text-amber-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">

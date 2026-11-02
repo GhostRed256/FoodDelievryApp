@@ -30,7 +30,7 @@ export default function AdminDashboard() {
 
     return (
         <RoleGuard allowedRoles={["admin"]}>
-            <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
+            <main className="flex min-h-screen flex-col bg-[#f7fbf8] dark:bg-[#070a07] text-zinc-900 dark:text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
                 <Header />
                 <div className="container mx-auto py-8 px-4 md:px-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-amber-500/20">
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
                                 <Sparkles className="h-3 w-3 text-emerald-400" />
                                 Admin Management Suite
                             </div>
-                            <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
+                            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white flex items-center gap-3">
                                 <LayoutDashboard className="h-7 w-7 text-amber-400" />
                                 Operations <span className="text-gold-metallic">Dashboard</span>
                             </h1>
@@ -59,8 +59,8 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="grid gap-8 lg:grid-cols-3">
-                        <div className="lg:col-span-2 bg-[#0c120c] p-6 rounded-3xl border border-amber-500/20 shadow-xl">
-                            <h2 className="text-lg sm:text-xl font-black mb-6 text-white flex items-center gap-2">
+                        <div className="lg:col-span-2 bg-white dark:bg-[#0c120c] p-6 rounded-3xl border border-emerald-500/20 dark:border-amber-500/20 shadow-xl">
+                            <h2 className="text-lg sm:text-xl font-black mb-6 text-zinc-900 dark:text-white flex items-center gap-2">
                                 <ShoppingBag className="h-5 w-5 text-amber-400" />
                                 Real-Time Order Stream
                             </h2>
@@ -69,14 +69,14 @@ export default function AdminDashboard() {
                                     <div className="text-center py-16 text-zinc-500 font-bold">No active orders found in the pipeline.</div>
                                 ) : (
                                     orders.map((order) => (
-                                        <div key={order.id} className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#080c08] border border-amber-500/20 transition-all hover:border-amber-400/50 shadow-md">
+                                        <div key={order.id} className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl bg-zinc-50 dark:bg-[#080c08] border border-emerald-500/20 dark:border-amber-500/20 transition-all hover:border-amber-400/50 shadow-md">
                                             <div className="flex items-center gap-4 mb-4 sm:mb-0">
                                                 <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 text-black flex items-center justify-center font-black shadow-md shrink-0">
                                                     #{order.id.slice(-4).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-sm text-white">{order.customerName}</p>
-                                                    <p className="text-xs text-zinc-400">
+                                                    <p className="font-bold text-sm text-zinc-900 dark:text-white">{order.customerName}</p>
+                                                    <p className="text-xs text-zinc-600 dark:text-zinc-400">
                                                         {order.items.length} items • <span className="text-amber-400 font-bold">₹{order.total}</span> • {order.createdAt ? format(order.createdAt.toDate(), "HH:mm") : "Just now"}
                                                     </p>
                                                     <p className="text-[11px] text-zinc-400 mt-0.5 flex items-center gap-1">
@@ -126,12 +126,12 @@ export default function AdminDashboard() {
 
                         {/* Side Widgets */}
                         <div className="space-y-6">
-                            <div className="bg-[#0c120c] p-6 rounded-3xl border border-amber-500/20 shadow-xl">
-                                <h2 className="text-base sm:text-lg font-black mb-4 text-white flex items-center gap-2">
+                            <div className="bg-white dark:bg-[#0c120c] p-6 rounded-3xl border border-emerald-500/20 dark:border-amber-500/20 shadow-xl">
+                                <h2 className="text-base sm:text-lg font-black mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
                                     <Clock className="h-5 w-5 text-amber-400" />
                                     Kitchen Workload
                                 </h2>
-                                <div className="p-4 rounded-2xl bg-[#080c08] border border-amber-500/20">
+                                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-[#080c08] border border-emerald-500/20 dark:border-amber-500/20">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-xs font-bold text-zinc-400">Preparation Load</span>
                                         <span className="text-xs font-black text-amber-400">
@@ -147,12 +147,12 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
-                            <div className="bg-[#0c120c] p-6 rounded-3xl border border-emerald-500/20 shadow-xl">
+                            <div className="bg-white dark:bg-[#0c120c] p-6 rounded-3xl border border-emerald-500/20 dark:border-amber-500/20 shadow-xl">
                                 <h2 className="text-base sm:text-lg font-black mb-4 text-white flex items-center gap-2">
                                     <Truck className="h-5 w-5 text-emerald-400" />
                                     Delivery Fleet
                                 </h2>
-                                <div className="p-4 rounded-2xl bg-[#080c08] border border-emerald-500/20 flex justify-between items-center">
+                                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-[#080c08] border border-emerald-500/20 flex justify-between items-center">
                                     <span className="text-xs font-bold text-zinc-400">Active On Route</span>
                                     <span className="text-lg font-black text-emerald-400">
                                         {orders.filter(o => o.status === "picked_up").length}
@@ -169,14 +169,14 @@ export default function AdminDashboard() {
 
 function StatsCard({ title, value, icon, trend, color }: any) {
     return (
-        <div className={cn("p-5 sm:p-6 rounded-3xl border shadow-lg flex items-center gap-4 bg-[#0c120c]", color)}>
+        <div className={cn("p-5 sm:p-6 rounded-3xl border shadow-lg flex items-center gap-4 bg-white dark:bg-[#0c120c]", color)}>
             <div className="h-12 w-12 rounded-2xl bg-black/40 border border-amber-500/20 flex items-center justify-center text-xl shadow-md">
                 {icon}
             </div>
             <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">{title}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">{title}</p>
                 <div className="flex items-baseline gap-2 mt-0.5">
-                    <h3 className="text-xl sm:text-2xl font-black text-white">{value}</h3>
+                    <h3 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">{value}</h3>
                     <span className="text-[10px] font-black text-emerald-400">{trend}</span>
                 </div>
             </div>

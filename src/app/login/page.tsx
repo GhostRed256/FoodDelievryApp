@@ -106,27 +106,27 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#070a07] text-zinc-100 p-4 py-8 selection:bg-amber-500 selection:text-black">
+        <div className="flex min-h-screen items-center justify-center bg-[#f7fbf8] dark:bg-[#040905] text-zinc-900 dark:text-zinc-100 p-4 py-8 selection:bg-amber-500 selection:text-black transition-colors duration-300">
             <div className="w-full max-w-[420px] space-y-6 animate-in fade-in zoom-in duration-300">
                 <div className="flex flex-col items-center text-center">
                     <Link href="/" className="flex flex-col items-center gap-2 mb-4 active:scale-95 transition-transform group">
-                        <div className="h-16 w-16 rounded-full overflow-hidden border border-amber-500/50 shadow-xl shadow-amber-500/15">
-                            <img src="/logo.jpg" alt="FoodNJoy Logo" className="h-full w-full object-cover" />
+                        <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-emerald-500/50 shadow-xl shadow-emerald-500/15 bg-black">
+                            <img src="/logo.jpg" alt="FoodNJoy Logo" className="h-full w-full object-cover scale-105" />
                         </div>
-                        <span className="text-2xl font-black tracking-tight text-white">
+                        <span className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
                             Food<span className="text-gold-metallic">N</span>Joy
                         </span>
                         <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-400 -mt-1 flex items-center gap-1">
                             <Sparkles className="h-2.5 w-2.5 text-amber-400" /> The Tinsukia Canteen • Good Food • Good Mood
                         </span>
                     </Link>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Welcome back</h2>
-                    <p className="mt-1 text-xs sm:text-sm text-zinc-400">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white">Welcome back</h2>
+                    <p className="mt-1 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
                         Sign in to track orders and save your delivery details
                     </p>
                 </div>
 
-                <div className="bg-[#0c120c] p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/30">
+                <div className="bg-white dark:bg-[#0c180e] p-6 sm:p-8 rounded-3xl shadow-xl border border-emerald-500/25 dark:border-amber-500/30">
                     {/* Auth Mode Toggle */}
                     <div className="flex p-1 bg-black/40 rounded-xl mb-6 border border-amber-500/20">
                         <button

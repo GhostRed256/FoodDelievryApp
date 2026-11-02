@@ -317,7 +317,7 @@ export default function MenuPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-24 md:pb-12 selection:bg-amber-500 selection:text-black">
+        <main className="flex min-h-screen flex-col bg-[#f7fbf8] dark:bg-[#040905] text-zinc-900 dark:text-zinc-100 font-sans pb-24 md:pb-12 selection:bg-amber-500 selection:text-black transition-colors duration-300">
             <Header />
 
             <div className="container mx-auto py-6 sm:py-10 px-3 sm:px-4 md:px-6 flex-1">
@@ -328,7 +328,7 @@ export default function MenuPage() {
                             <Sparkles className="h-3 w-3 text-emerald-400" />
                             Taste • Hygiene • Value
                         </div>
-                        <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+                        <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight">
                             Food<span className="text-gold-metallic">N</span>Joy Menu
                         </h1>
                         <p className="text-zinc-400 mt-0.5 text-xs sm:text-sm">
@@ -342,7 +342,7 @@ export default function MenuPage() {
                         <input
                             type="text"
                             placeholder="Search dishes or categories..."
-                            className="w-full pl-10 pr-9 py-3 rounded-2xl bg-[#0c120c] border border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-md text-sm text-white placeholder:text-zinc-500"
+                            className="w-full pl-10 pr-9 py-3 rounded-2xl bg-white dark:bg-[#0c180e] border border-emerald-500/30 dark:border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -366,8 +366,8 @@ export default function MenuPage() {
                             className={cn(
                                 "px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all whitespace-nowrap border shadow-sm active:scale-95",
                                 activeCategory === cat
-                                    ? "bg-gradient-to-r from-amber-400 to-amber-500 text-black border-amber-400 shadow-lg shadow-amber-500/20 font-black"
-                                    : "bg-[#0c120c] text-zinc-300 border-amber-500/20 hover:border-amber-500/50 hover:text-white"
+                                    ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black border-amber-400 shadow-lg shadow-amber-500/25 font-black"
+                                    : "bg-white dark:bg-[#0c180e] text-zinc-700 dark:text-zinc-300 border-emerald-500/25 dark:border-emerald-500/20 hover:border-amber-400 hover:text-amber-500 dark:hover:text-amber-300 shadow-sm"
                             )}
                         >
                             {cat}
@@ -380,10 +380,10 @@ export default function MenuPage() {
                     <button
                         onClick={() => setVegFilter("All")}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border shadow-sm",
                             vegFilter === "All"
-                                ? "bg-amber-500/20 text-amber-400 border-amber-500/50"
-                                : "bg-transparent text-zinc-400 border-zinc-700 hover:text-zinc-300"
+                                ? "bg-amber-400 text-black border-amber-400 font-black shadow-amber-400/20"
+                                : "bg-white dark:bg-transparent text-zinc-700 dark:text-zinc-400 border-emerald-500/25 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-200"
                         )}
                     >
                         All Foods
@@ -391,21 +391,21 @@ export default function MenuPage() {
                     <button
                         onClick={() => setVegFilter("Veg")}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5",
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 shadow-sm",
                             vegFilter === "Veg"
-                                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50"
-                                : "bg-transparent text-zinc-400 border-zinc-700 hover:text-zinc-300"
+                                ? "bg-emerald-600 text-white border-emerald-600 font-black shadow-emerald-500/20"
+                                : "bg-white dark:bg-transparent text-zinc-700 dark:text-zinc-400 border-emerald-500/25 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-200"
                         )}
                     >
-                        <span className="h-2 w-2 rounded-full bg-emerald-500" /> Veg
+                        <span className="h-2 w-2 rounded-full bg-emerald-400" /> Veg
                     </button>
                     <button
                         onClick={() => setVegFilter("Non-Veg")}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5",
+                            "px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 shadow-sm",
                             vegFilter === "Non-Veg"
-                                ? "bg-red-500/20 text-red-400 border-red-500/50"
-                                : "bg-transparent text-zinc-400 border-zinc-700 hover:text-zinc-300"
+                                ? "bg-red-600 text-white border-red-600 font-black shadow-red-500/20"
+                                : "bg-white dark:bg-transparent text-zinc-700 dark:text-zinc-400 border-emerald-500/25 dark:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-200"
                         )}
                     >
                         <span className="h-2 w-2 rounded-full bg-red-500" /> Non-Veg
@@ -421,7 +421,7 @@ export default function MenuPage() {
                         return (
                             <div
                                 key={product.id}
-                                className="group bg-[#0c120c] rounded-2xl sm:rounded-3xl border border-amber-500/20 shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:border-amber-400/60 hover:-translate-y-1"
+                                className="group bg-white dark:bg-[#0c180e] rounded-2xl sm:rounded-3xl border border-emerald-500/25 dark:border-emerald-500/20 shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:border-amber-400/60 hover:-translate-y-1"
                             >
                                 {/* Dish Image */}
                                 <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-zinc-900">
@@ -472,11 +472,11 @@ export default function MenuPage() {
                                 {/* Content Details */}
                                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                                     <div>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-1 block">{product.category}</span>
-                                        <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors leading-snug mb-1">
+                                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-500 dark:text-amber-400 mb-1 block">{product.category}</span>
+                                        <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors leading-snug mb-1">
                                             {product.name}
                                         </h3>
-                                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mb-3">
+                                        <p className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed mb-3">
                                             {product.description}
                                         </p>
                                     </div>
@@ -485,10 +485,10 @@ export default function MenuPage() {
                                         {/* Portion/Variant Selector */}
                                         {product.variants.length > 1 && (
                                             <div className="mb-3">
-                                                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-1">
+                                                <div className="text-[10px] font-black uppercase tracking-wider text-amber-500 dark:text-amber-400 mb-1">
                                                     Select Portion
                                                 </div>
-                                                <div className="flex gap-1.5 bg-zinc-900/90 border border-amber-500/20 p-1 rounded-xl">
+                                                <div className="flex gap-1.5 bg-emerald-50/80 dark:bg-zinc-900/90 border border-emerald-500/20 dark:border-amber-500/20 p-1 rounded-xl">
                                                     {product.variants.map(variant => {
                                                         const isSelected = currentVariant.name === variant.name;
                                                         return (
@@ -499,8 +499,8 @@ export default function MenuPage() {
                                                                 className={cn(
                                                                     "flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95 min-h-[36px]",
                                                                     isSelected
-                                                                        ? "bg-amber-500 text-black font-black shadow-md"
-                                                                        : "text-zinc-400 hover:text-white"
+                                                                        ? "bg-amber-400 text-black font-black shadow-md"
+                                                                        : "text-zinc-700 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-white"
                                                                 )}
                                                             >
                                                                 <span>{variant.name}</span>
@@ -583,22 +583,22 @@ export default function MenuPage() {
             {isCartOpen && (
                 <>
                     <div
-                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                        className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                         onClick={() => setIsCartOpen(false)}
                     />
-                    <div className="fixed bottom-0 sm:top-0 right-0 z-50 h-[90vh] sm:h-full w-full max-w-md bg-[#0a0e0a] border-t sm:border-t-0 sm:border-l border-amber-500/30 rounded-t-[32px] sm:rounded-none shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 flex flex-col">
+                    <div className="fixed bottom-0 sm:top-0 right-0 z-50 h-[90vh] sm:h-full w-full max-w-md bg-white dark:bg-[#0a0e0a] border-t sm:border-t-0 sm:border-l border-emerald-500/20 dark:border-amber-500/30 rounded-t-[32px] sm:rounded-none shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 flex flex-col text-zinc-900 dark:text-white">
                         {/* Pull bar for mobile */}
-                        <div className="w-12 h-1 bg-amber-500/40 rounded-full mx-auto mt-3 sm:hidden" />
+                        <div className="w-12 h-1 bg-zinc-300 dark:bg-amber-500/40 rounded-full mx-auto mt-3 sm:hidden" />
 
                         {/* Drawer Header */}
-                        <div className="p-4 sm:p-5 border-b border-amber-500/20 flex items-center justify-between">
-                            <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2.5">
-                                <ShoppingCart className="h-5 w-5 text-amber-400" />
+                        <div className="p-4 sm:p-5 border-b border-emerald-500/20 dark:border-amber-500/20 flex items-center justify-between">
+                            <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2.5">
+                                <ShoppingCart className="h-5 w-5 text-amber-500 dark:text-amber-400" />
                                 Your Order ({totalCartCount})
                             </h2>
                             <button
                                 onClick={() => setIsCartOpen(false)}
-                                className="p-2 hover:bg-zinc-900 rounded-full transition-all text-zinc-400 hover:text-white"
+                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-full transition-all text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
                                 aria-label="Close cart"
                             >
                                 <X className="h-5 w-5" />
@@ -609,8 +609,8 @@ export default function MenuPage() {
                         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
                             {cart.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-                                    <Utensils className="h-16 w-16 mb-4 opacity-20 text-amber-400" />
-                                    <p className="font-bold text-zinc-300">Your cart is empty</p>
+                                    <Utensils className="h-16 w-16 mb-4 opacity-20 text-amber-500 dark:text-amber-400" />
+                                    <p className="font-bold text-zinc-700 dark:text-zinc-300">Your cart is empty</p>
                                     <p className="text-xs text-zinc-500 mt-1">Add your favorite momos, chowmein or rolls!</p>
                                 </div>
                             ) : (
@@ -619,20 +619,20 @@ export default function MenuPage() {
                                         {cart.map(item => (
                                             <div
                                                 key={item.cartKey}
-                                                className="flex gap-3 p-3 rounded-2xl bg-[#0e140e] border border-amber-500/20 shadow-sm"
+                                                className="flex gap-3 p-3 rounded-2xl bg-emerald-50/50 dark:bg-[#0e140e] border border-emerald-500/20 dark:border-amber-500/20 shadow-sm"
                                             >
                                                 <img
                                                     src={item.product.image}
                                                     alt={item.product.name}
-                                                    className="h-16 w-16 rounded-xl object-cover shadow-sm shrink-0 border border-amber-500/20"
+                                                    className="h-16 w-16 rounded-xl object-cover shadow-sm shrink-0 border border-emerald-500/20 dark:border-amber-500/20"
                                                 />
                                                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h4 className="font-bold text-sm text-white leading-tight truncate">
+                                                            <h4 className="font-bold text-sm text-zinc-900 dark:text-white leading-tight truncate">
                                                                 {item.product.name}
                                                             </h4>
-                                                            <span className="text-[11px] font-semibold text-amber-400">
+                                                            <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                                                                 {item.variant.name} • ₹{item.variant.price}
                                                             </span>
                                                         </div>
@@ -642,20 +642,20 @@ export default function MenuPage() {
                                                     </div>
 
                                                     <div className="flex items-center justify-between mt-2">
-                                                        <span className="text-[10px] font-bold text-zinc-400 uppercase">Qty</span>
-                                                        <div className="flex items-center gap-2 bg-zinc-900 border border-amber-500/30 rounded-lg p-1">
+                                                        <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Qty</span>
+                                                        <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 border border-emerald-500/30 dark:border-amber-500/30 rounded-lg p-1">
                                                             <button
                                                                 onClick={() => updateQuantity(item.cartKey, -1)}
-                                                                className="h-7 w-7 rounded bg-zinc-800 hover:bg-amber-500 hover:text-black transition-colors flex items-center justify-center text-zinc-300 active:scale-95"
+                                                                className="h-7 w-7 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-400 hover:text-black transition-colors flex items-center justify-center text-zinc-700 dark:text-zinc-300 active:scale-95"
                                                             >
                                                                 <Minus className="h-3 w-3" />
                                                             </button>
-                                                            <span className="font-bold text-xs w-4 text-center text-white">
+                                                            <span className="font-bold text-xs w-4 text-center text-zinc-900 dark:text-white">
                                                                 {item.quantity}
                                                             </span>
                                                             <button
                                                                 onClick={() => updateQuantity(item.cartKey, 1)}
-                                                                className="h-7 w-7 rounded bg-amber-500 text-black flex items-center justify-center shadow-sm active:scale-95 font-bold"
+                                                                className="h-7 w-7 rounded bg-amber-400 hover:bg-amber-300 text-black flex items-center justify-center shadow-sm active:scale-95 font-bold"
                                                             >
                                                                 <Plus className="h-3 w-3" />
                                                             </button>
@@ -667,13 +667,13 @@ export default function MenuPage() {
                                     </div>
 
                                     {/* Customer Contact Details (Name & Phone) */}
-                                    <div className="p-4 rounded-2xl bg-[#0c120c] border border-amber-500/30 space-y-3">
+                                    <div className="p-4 rounded-2xl bg-white dark:bg-[#0c120c] border border-emerald-500/20 dark:border-amber-500/30 space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                                                <Phone className="h-3.5 w-3.5 text-amber-400" />
+                                            <label className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                                <Phone className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                                                 Customer Contact Details
                                             </label>
-                                            <span className="text-[10px] font-bold text-zinc-400">Required for delivery</span>
+                                            <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400">Required for delivery</span>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             <input
@@ -681,28 +681,28 @@ export default function MenuPage() {
                                                 value={customerName}
                                                 onChange={(e) => setCustomerName(e.target.value)}
                                                 placeholder="Your Name"
-                                                className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-[#070a07] border border-emerald-500/25 dark:border-amber-500/20 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                                             />
                                             <input
                                                 type="tel"
                                                 value={customerPhone}
                                                 onChange={(e) => setCustomerPhone(e.target.value)}
                                                 placeholder="10-digit Mobile Number *"
-                                                className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                                                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-[#070a07] border border-emerald-500/25 dark:border-amber-500/20 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
                                                 maxLength={13}
                                             />
                                         </div>
                                     </div>
 
                                     {/* Free Direct Delivery Location & Address Input (No Google API needed) */}
-                                    <div className="p-4 rounded-2xl bg-[#0c120c] border border-amber-500/30 space-y-3">
+                                    <div className="p-4 rounded-2xl bg-white dark:bg-[#0c120c] border border-emerald-500/20 dark:border-amber-500/30 space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                                                <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+                                            <label className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                                <MapPin className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                                                 Delivery Address & Location
                                             </label>
                                             {gpsAcquired && (
-                                                <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1">
+                                                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                                                     <CheckCircle2 className="h-3 w-3" /> GPS Locked
                                                 </span>
                                             )}
@@ -713,7 +713,7 @@ export default function MenuPage() {
                                             value={deliveryAddress}
                                             onChange={(e) => setDeliveryAddress(e.target.value)}
                                             placeholder="House / Flat / Street / Landmark (Tinsukia)"
-                                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/20 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                            className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-[#070a07] border border-emerald-500/25 dark:border-amber-500/20 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                                         />
 
                                         <div className="flex gap-2">
@@ -721,7 +721,7 @@ export default function MenuPage() {
                                                 type="button"
                                                 onClick={handleFetchLocation}
                                                 disabled={isLocating}
-                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-bold text-[10px] sm:text-xs transition-all active:scale-95"
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] sm:text-xs transition-all active:scale-95"
                                             >
                                                 {isLocating ? (
                                                     <>
@@ -730,7 +730,7 @@ export default function MenuPage() {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Navigation className="h-3.5 w-3.5 text-emerald-400" />
+                                                        <Navigation className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                                                         {gpsAcquired ? "Refresh GPS" : "Pin Live GPS"}
                                                     </>
                                                 )}
@@ -739,7 +739,7 @@ export default function MenuPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowMap(true)}
-                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/40 text-amber-400 font-bold text-[10px] sm:text-xs transition-all active:scale-95"
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-500/40 text-amber-800 dark:text-amber-400 font-bold text-[10px] sm:text-xs transition-all active:scale-95"
                                             >
                                                 <Map className="h-3.5 w-3.5" />
                                                 Select on Map
@@ -752,17 +752,17 @@ export default function MenuPage() {
 
                         {/* Bill Breakdown & Sticky Checkout Footer */}
                         {cart.length > 0 && (
-                            <div className="p-4 sm:p-5 border-t border-amber-500/20 bg-[#080c08]">
-                                <div className="space-y-2 mb-4 text-xs text-zinc-300">
+                            <div className="p-4 sm:p-5 border-t border-emerald-500/20 dark:border-amber-500/20 bg-white dark:bg-[#080c08]">
+                                <div className="space-y-2 mb-4 text-xs text-zinc-600 dark:text-zinc-300">
                                     <div className="flex justify-between">
                                         <span>Item Subtotal</span>
-                                        <span className="font-semibold text-white">₹{itemsSubtotal}</span>
+                                        <span className="font-semibold text-zinc-900 dark:text-white">₹{itemsSubtotal}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Delivery Charges</span>
-                                        <span className="font-semibold text-emerald-400">₹{DELIVERY_FEE}</span>
+                                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">₹{DELIVERY_FEE}</span>
                                     </div>
-                                    <div className="flex justify-between text-base font-black text-white pt-2.5 border-t border-amber-500/20">
+                                    <div className="flex justify-between text-base font-black text-zinc-900 dark:text-white pt-2.5 border-t border-emerald-500/20 dark:border-amber-500/20">
                                         <span>To Pay</span>
                                         <span className="text-gold-metallic text-lg">₹{totalOrderAmount}</span>
                                     </div>
@@ -809,15 +809,15 @@ export default function MenuPage() {
             
             {/* Payment Modal */}
             {showPaymentModal && (
-                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-sm animate-in fade-in">
-                    <div className="w-full max-w-sm bg-[#0c120c] rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col max-h-[92vh]">
+                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/90 backdrop-blur-sm animate-in fade-in">
+                    <div className="w-full max-w-sm bg-white dark:bg-[#0c120c] rounded-3xl overflow-hidden border border-emerald-500/30 dark:border-amber-500/30 shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col max-h-[92vh] text-zinc-900 dark:text-white">
                         
-                        <div className="p-4 border-b border-amber-500/20 flex items-center justify-between sticky top-0 bg-[#0c120c] z-10">
+                        <div className="p-4 border-b border-emerald-500/20 dark:border-amber-500/20 flex items-center justify-between sticky top-0 bg-white dark:bg-[#0c120c] z-10">
                             <div className="flex items-center gap-2">
-                                <ShieldCheck className="h-5 w-5 text-amber-400" />
-                                <h3 className="text-base sm:text-lg font-black text-white">Pay Online via UPI</h3>
+                                <ShieldCheck className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+                                <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Pay Online via UPI</h3>
                             </div>
-                            <button onClick={() => setShowPaymentModal(false)} className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400">
+                            <button onClick={() => setShowPaymentModal(false)} className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -825,8 +825,8 @@ export default function MenuPage() {
                         <div className="p-5 overflow-y-auto pb-28 space-y-4">
                             {/* Bill Amount */}
                             <div className="text-center py-1">
-                                <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider mb-1">Total Bill Amount</p>
-                                <p className="text-4xl font-black text-amber-400 tracking-tight">₹{totalOrderAmount}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider mb-1">Total Bill Amount</p>
+                                <p className="text-4xl font-black text-amber-500 dark:text-amber-400 tracking-tight">₹{totalOrderAmount}</p>
                             </div>
                             
                             {/* Clickable UPI QR Code Card */}
@@ -843,7 +843,7 @@ export default function MenuPage() {
                                             className="w-full h-full object-contain relative z-10 bg-white"
                                         />
                                     </div>
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400/90 mt-2 group-hover:text-amber-300">
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400/90 mt-2 group-hover:text-amber-500 dark:group-hover:text-amber-300">
                                         <ExternalLink className="h-3 w-3" /> Tap QR to Open UPI App
                                     </span>
                                 </a>
@@ -859,10 +859,10 @@ export default function MenuPage() {
                             </a>
 
                             {/* UPI ID & Copy Box */}
-                            <div className="bg-[#070a07] p-3 rounded-xl border border-amber-500/30 flex items-center justify-between gap-2">
+                            <div className="bg-emerald-50/70 dark:bg-[#070a07] p-3 rounded-xl border border-emerald-500/30 dark:border-amber-500/30 flex items-center justify-between gap-2">
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">UPI ID ({UPI_NAME})</p>
-                                    <p className="text-xs font-mono font-bold text-white truncate">{UPI_ID}</p>
+                                    <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">UPI ID ({UPI_NAME})</p>
+                                    <p className="text-xs font-mono font-bold text-zinc-900 dark:text-white truncate">{UPI_ID}</p>
                                 </div>
                                 <button
                                     type="button"
@@ -871,12 +871,12 @@ export default function MenuPage() {
                                         setIsCopied(true);
                                         setTimeout(() => setIsCopied(false), 2000);
                                     }}
-                                    className="shrink-0 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold text-xs flex items-center gap-1 transition-all active:scale-95 border border-amber-500/20"
+                                    className="shrink-0 px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 hover:bg-emerald-100 dark:hover:bg-zinc-700 text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center gap-1 transition-all active:scale-95 border border-emerald-500/20 dark:border-amber-500/20"
                                 >
                                     {isCopied ? (
                                         <>
-                                            <Check className="h-3.5 w-3.5 text-emerald-400" />
-                                            <span className="text-emerald-400">Copied!</span>
+                                            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                                            <span className="text-emerald-600 dark:text-emerald-400">Copied!</span>
                                         </>
                                     ) : (
                                         <>
@@ -889,7 +889,7 @@ export default function MenuPage() {
 
                             {/* Optional UTR / Transaction ID */}
                             <div>
-                                <label className="text-[11px] font-black text-zinc-300 uppercase tracking-wider mb-1.5 block">
+                                <label className="text-[11px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
                                     Transaction ID / UTR (Optional)
                                 </label>
                                 <input 
@@ -897,27 +897,27 @@ export default function MenuPage() {
                                     value={upiTransactionId}
                                     onChange={e => setUpiTransactionId(e.target.value)}
                                     placeholder="e.g. 312345678901"
-                                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#070a07] border border-amber-500/30 text-xs text-white font-bold placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500 text-center tracking-widest font-mono"
+                                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-[#070a07] border border-emerald-500/30 dark:border-amber-500/30 text-xs text-zinc-900 dark:text-white font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-amber-500 text-center tracking-widest font-mono"
                                 />
                             </div>
 
                             {/* WhatsApp Screenshot Instructions Banner */}
-                            <div className="bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3.5 flex items-start gap-2.5">
-                                <Camera className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                            <div className="bg-emerald-500/10 dark:bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3.5 flex items-start gap-2.5">
+                                <Camera className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="text-xs font-black text-emerald-300">
+                                    <p className="text-xs font-black text-emerald-800 dark:text-emerald-300">
                                         📸 Attach Screenshot in WhatsApp
                                     </p>
-                                    <p className="text-[11px] text-zinc-300 mt-0.5 leading-relaxed">
+                                    <p className="text-[11px] text-zinc-600 dark:text-zinc-300 mt-0.5 leading-relaxed">
                                         After paying, tap the green button below. Your order details will open in WhatsApp — just attach your payment screenshot there so the owner can verify and cook your order!
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#080c08] border-t border-amber-500/20">
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-[#080c08] border-t border-emerald-500/20 dark:border-amber-500/20">
                             {checkoutError && (
-                                <div className="mb-2.5 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] text-center font-bold">
+                                <div className="mb-2.5 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 text-[11px] text-center font-bold">
                                     {checkoutError}
                                 </div>
                             )}

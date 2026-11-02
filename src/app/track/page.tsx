@@ -131,7 +131,7 @@ export function TrackingPageContent() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
+        <main className="flex min-h-screen flex-col bg-[#f7fbf8] dark:bg-[#040905] text-zinc-900 dark:text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black transition-colors duration-300">
             <Header />
 
             <div className="container mx-auto py-6 sm:py-10 px-3 sm:px-4 md:px-6 flex-1">
@@ -140,10 +140,10 @@ export function TrackingPageContent() {
                         <div className="inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-6 shadow-xl shadow-amber-500/10">
                             <Package className="h-8 w-8 sm:h-10 sm:w-10 text-amber-400" />
                         </div>
-                        <h1 className="text-2xl sm:text-4xl font-black text-white mb-2">
+                        <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white mb-2">
                             Live Order <span className="text-gold-metallic">Tracker</span>
                         </h1>
-                        <p className="text-zinc-400 mb-8 text-xs sm:text-base px-4">
+                        <p className="text-zinc-600 dark:text-zinc-400 mb-8 text-xs sm:text-base px-4">
                             Enter your order ID to see live kitchen status and real-time delivery GPS in Tinsukia.
                         </p>
 
@@ -153,7 +153,7 @@ export function TrackingPageContent() {
                                 <input
                                     type="text"
                                     placeholder="Enter Order ID"
-                                    className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-[#0c120c] border border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-md text-sm text-white font-mono placeholder:text-zinc-500"
+                                    className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-white dark:bg-[#0c180e] border border-emerald-500/30 dark:border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm text-sm text-zinc-900 dark:text-white font-mono placeholder:text-zinc-400"
                                     value={searchId}
                                     onChange={(e) => setSearchId(e.target.value)}
                                 />
@@ -161,7 +161,7 @@ export function TrackingPageContent() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black px-6 py-3.5 rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[48px] flex items-center justify-center text-sm"
+                                className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black px-6 py-3.5 rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[48px] flex items-center justify-center text-sm"
                             >
                                 {loading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : "Track Order"}
                             </button>
@@ -171,16 +171,16 @@ export function TrackingPageContent() {
                 ) : (
                     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-500">
                         {/* Top Bar with ID and Status */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0c120c] p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-amber-500/30 shadow-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0c120c] p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-emerald-500/25 dark:border-amber-500/30 shadow-lg text-zinc-900 dark:text-white">
                             <div>
                                 <button
                                     onClick={() => setOrder(null)}
-                                    className="text-xs font-bold text-amber-400 mb-1.5 hover:underline flex items-center gap-1 active:scale-95"
+                                    className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-1.5 hover:underline flex items-center gap-1 active:scale-95"
                                 >
                                     <ArrowLeft className="h-3 w-3" /> Back to Search
                                 </button>
                                 <div className="flex items-center gap-2.5">
-                                    <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
+                                    <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">
                                         Order #{order.id.slice(-6)}
                                     </h1>
                                     <span className={cn(
@@ -194,11 +194,11 @@ export function TrackingPageContent() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 self-start sm:self-auto bg-black/50 border border-amber-500/20 px-3.5 py-2 rounded-xl">
+                            <div className="flex items-center gap-3 self-start sm:self-auto bg-emerald-50/70 dark:bg-black/50 border border-emerald-500/20 dark:border-amber-500/20 px-3.5 py-2 rounded-xl">
                                 <Clock className="h-4 w-4 text-amber-400" />
                                 <div>
-                                    <p className="text-[10px] font-bold text-zinc-400 uppercase">Estimated Arrival</p>
-                                    <p className="text-xs sm:text-sm font-black text-white">
+                                    <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Estimated Arrival</p>
+                                    <p className="text-xs sm:text-sm font-black text-zinc-900 dark:text-white">
                                         {etaMinutes !== null ? `${etaMinutes} mins` : "15 - 25 mins"}
                                     </p>
                                 </div>
@@ -206,13 +206,13 @@ export function TrackingPageContent() {
                         </div>
 
                         {order.status === "delivered" ? (
-                            <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-emerald-500/30 shadow-2xl overflow-hidden relative flex flex-col items-center justify-center p-6 text-center">
+                            <div className="h-[340px] sm:h-[450px] md:h-[520px] bg-white dark:bg-[#0c120c] rounded-2xl sm:rounded-[32px] border border-emerald-500/30 shadow-2xl overflow-hidden relative flex flex-col items-center justify-center p-6 text-center text-zinc-900 dark:text-white">
                                 {reviewSubmitted ? (
                                     <div className="flex flex-col items-center animate-in zoom-in-95 duration-500">
                                         <div className="h-20 w-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
                                             <CheckCircle2 className="h-10 w-10 text-emerald-400" />
                                         </div>
-                                        <h2 className="text-2xl font-black text-white mb-2">Thank You!</h2>
+                                        <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">Thank You!</h2>
                                         <p className="text-zinc-400 text-sm max-w-xs">Your feedback helps us maintain the highest standards of taste and hygiene in Tinsukia.</p>
                                     </div>
                                 ) : (
@@ -220,7 +220,7 @@ export function TrackingPageContent() {
                                         <div className="h-16 w-16 bg-amber-500/10 rounded-full flex items-center justify-center mb-4 border border-amber-500/30">
                                             <Star className="h-8 w-8 text-amber-400" />
                                         </div>
-                                        <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Order Delivered</h2>
+                                        <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white mb-2">Order Delivered</h2>
                                         <p className="text-zinc-400 text-xs sm:text-sm mb-8">How was your FoodNJoy experience? Rate the food and delivery partner.</p>
                                         
                                         <div className="flex gap-2 mb-6">
@@ -249,7 +249,7 @@ export function TrackingPageContent() {
                                             value={reviewText}
                                             onChange={e => setReviewText(e.target.value)}
                                             placeholder="Tell us what you loved... (Optional)"
-                                            className="w-full h-24 bg-[#080c08] border border-amber-500/20 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 mb-6 resize-none"
+                                            className="w-full h-24 bg-zinc-50 dark:bg-[#080c08] border border-emerald-500/30 dark:border-amber-500/20 rounded-xl p-3 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/50 mb-6 resize-none"
                                         />
                                         
                                         <button 
@@ -324,8 +324,8 @@ export function TrackingPageContent() {
                         {/* Order Timeline & Item Summary Grid */}
                         <div className="grid gap-6 md:grid-cols-2">
                             {/* Order Timeline */}
-                            <div className="bg-[#0c120c] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-amber-500/20 shadow-lg">
-                                <h3 className="text-base sm:text-lg font-black text-white mb-6 flex items-center gap-2">
+                            <div className="bg-white dark:bg-[#0c120c] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-emerald-500/20 dark:border-amber-500/20 shadow-lg">
+                                <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
                                     <Clock className="h-4 w-4 text-amber-400" />
                                     Order Progress
                                 </h3>
@@ -360,15 +360,15 @@ export function TrackingPageContent() {
                             </div>
 
                             {/* Order Items Breakdown */}
-                            <div className="bg-[#0c120c] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-amber-500/20 shadow-lg flex flex-col justify-between">
+                            <div className="bg-white dark:bg-[#0c120c] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-emerald-500/20 dark:border-amber-500/20 shadow-lg flex flex-col justify-between">
                                 <div>
-                                    <h3 className="text-base sm:text-lg font-black text-white mb-4">
+                                    <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white mb-4">
                                         Ordered Items ({order.items.length})
                                     </h3>
                                     <div className="space-y-2.5 divide-y divide-amber-500/10">
                                         {order.items.map((item, idx) => (
                                             <div key={idx} className="pt-2.5 first:pt-0 flex justify-between items-center text-xs sm:text-sm">
-                                                <span className="font-semibold text-zinc-200">
+                                                <span className="font-semibold text-zinc-800 dark:text-zinc-200">
                                                     {item.quantity}x {item.name}
                                                 </span>
                                                 <span className="font-black text-gold-metallic">
@@ -380,11 +380,11 @@ export function TrackingPageContent() {
                                 </div>
 
                                 <div className="mt-6 pt-4 border-t border-amber-500/20">
-                                    <div className="flex justify-between items-center text-sm sm:text-base font-black text-white">
+                                    <div className="flex justify-between items-center text-sm sm:text-base font-black text-zinc-900 dark:text-white">
                                         <span>Total Amount</span>
                                         <span className="text-gold-metallic text-lg">₹{order.total}</span>
                                     </div>
-                                    <p className="text-[11px] text-zinc-400 mt-1">
+                                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
                                         Delivery destination: {order.customerLocation?.address || "Tinsukia Local Delivery"}
                                     </p>
                                 </div>
@@ -393,12 +393,12 @@ export function TrackingPageContent() {
 
                         {/* WhatsApp Action Banner for Pending Orders */}
                         {order.status === "pending" && (
-                            <div className="bg-[#0f1710] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-emerald-500/40 shadow-xl shadow-emerald-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in duration-300">
+                            <div className="bg-emerald-50/90 dark:bg-[#0f1710] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-emerald-500/40 shadow-xl shadow-emerald-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in duration-300 text-zinc-900 dark:text-white">
                                 <div className="text-center sm:text-left">
-                                    <h3 className="text-lg font-black text-white flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                    <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center justify-center sm:justify-start gap-2 mb-1">
                                         <Camera className="h-5 w-5 text-emerald-400" /> WhatsApp & Payment Screenshot
                                     </h3>
-                                    <p className="text-xs text-zinc-300 max-w-lg leading-relaxed">
+                                    <p className="text-xs text-zinc-700 dark:text-zinc-300 max-w-lg leading-relaxed">
                                         Please send your order details and attach your UPI payment screenshot in WhatsApp so the owner can verify and cook your order right away!
                                     </p>
                                 </div>
@@ -445,14 +445,14 @@ function TimelineStep({ icon, title, time, active = false, pulse = false }: any)
         <div className="flex gap-4 items-start relative group">
             <div className={cn(
                 "h-7 w-7 rounded-full border-2 flex items-center justify-center shrink-0 z-10 transition-all text-xs",
-                active ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/30" : "bg-[#070a07] border-zinc-800 text-zinc-600",
+                active ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/30" : "bg-zinc-100 dark:bg-[#070a07] border-zinc-300 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600",
                 pulse && "animate-pulse ring-4 ring-amber-500/30"
             )}>
                 {icon}
             </div>
             <div className="absolute left-[13px] top-7 bottom-[-24px] w-[2px] bg-amber-500/20 group-last:hidden" />
             <div>
-                <h4 className={cn("font-bold text-xs sm:text-sm leading-tight", active ? "text-white" : "text-zinc-500")}>
+                <h4 className={cn("font-bold text-xs sm:text-sm leading-tight", active ? "text-zinc-900 dark:text-white" : "text-zinc-500")}>
                     {title}
                 </h4>
                 <p className="text-[11px] text-amber-400/80 font-bold mt-0.5">{time}</p>

@@ -6,7 +6,7 @@ import * as motion from "framer-motion/client";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans selection:bg-amber-500 selection:text-black relative pb-10 overflow-x-hidden">
+    <main className="flex min-h-screen flex-col bg-[#f7fbf8] dark:bg-[#040905] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-amber-500 selection:text-black relative pb-10 overflow-x-hidden transition-colors duration-300">
       
       {/* Background Image + Overlay */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -15,14 +15,19 @@ export default function Home() {
           alt="Restaurant ambiance"
           fill
           priority
-          className="object-cover opacity-25"
+          className="object-cover opacity-20 dark:opacity-25"
           sizes="100vw"
           quality={60}
         />
-        {/* Dark overlay gradients for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070a07] via-[#070a07]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#070a07]/80 via-transparent to-transparent h-40" />
-        <div className="absolute inset-0 bg-black/40" />
+        {/* Dark overlay gradients for text readability in Dark Mode */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#040905] via-[#040905]/70 to-transparent dark:block hidden" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#040905]/80 via-transparent to-transparent h-40 dark:block hidden" />
+        <div className="absolute inset-0 bg-black/40 dark:block hidden" />
+
+        {/* Light overlay gradients for text readability in Light Mode */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#f7fbf8] via-[#f7fbf8]/85 to-transparent dark:hidden block" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#f7fbf8]/90 via-transparent to-transparent h-40 dark:hidden block" />
+        <div className="absolute inset-0 bg-white/40 dark:hidden block" />
       </div>
 
       <Header />
@@ -36,7 +41,7 @@ export default function Home() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative h-32 w-32 sm:h-40 sm:w-40 rounded-full p-1.5 bg-gradient-to-tr from-emerald-500 via-green-400 to-amber-400 shadow-[0_0_50px_rgba(34,197,94,0.35)] mb-6"
         >
-          <div className="h-full w-full rounded-full overflow-hidden bg-black border-4 border-[#070a07]">
+          <div className="h-full w-full rounded-full overflow-hidden bg-black border-4 border-white dark:border-[#040905] shadow-lg">
             <img
               src="/logo.jpg"
               alt="FoodNJoy Frog Chef Crest"
@@ -50,19 +55,19 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-emerald-400 shadow-sm mb-6">
-            <Sparkles className="h-3 w-3" />
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-400 shadow-sm mb-6">
+            <Sparkles className="h-3 w-3 text-amber-500" />
             The Tinsukia Canteen • Good Food • Good Mood
           </div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white mb-6 leading-[1.1]">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-zinc-900 dark:text-white mb-6 leading-[1.1]">
             Authentic Taste.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-green-400 to-amber-300">
-              Delivered Hot.
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-amber-500 dark:from-emerald-300 dark:via-green-400 dark:to-amber-300">
+              Delivered Hot & Fresh.
             </span>
           </h1>
 
-          <p className="mx-auto max-w-lg text-base sm:text-lg text-zinc-300 mb-10 leading-relaxed font-medium">
+          <p className="mx-auto max-w-lg text-base sm:text-lg text-zinc-600 dark:text-zinc-300 mb-10 leading-relaxed font-medium">
             Freshly prepared favourites, comforting classics and local specialities crafted with unmatched hygiene.
           </p>
         </motion.div>
@@ -75,18 +80,18 @@ export default function Home() {
         >
           <Link
             href="/menu"
-            className="w-full inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black text-lg shadow-xl shadow-amber-500/20 transition-all active:scale-[0.98]"
+            className="w-full inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-lg shadow-xl shadow-amber-500/25 transition-all active:scale-[0.98]"
           >
-            <Utensils className="h-5 w-5" />
+            <Utensils className="h-5 w-5 text-black" />
             Order Now
-            <ArrowRight className="h-5 w-5 ml-1" />
+            <ArrowRight className="h-5 w-5 ml-1 text-black" />
           </Link>
           
           <Link
             href="/track"
-            className="w-full inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-amber-500/30 text-white font-bold transition-all active:scale-[0.98]"
+            className="w-full inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white font-bold transition-all shadow-sm active:scale-[0.98]"
           >
-            <MapPin className="h-5 w-5 text-amber-400" />
+            <MapPin className="h-5 w-5 text-amber-500" />
             Live Tracker
           </Link>
         </motion.div>
@@ -102,42 +107,42 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="grid gap-4 sm:gap-6 sm:grid-cols-3"
         >
-          <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/50 backdrop-blur-sm">
-            <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+          <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white/90 dark:bg-zinc-900/50 border border-emerald-500/25 dark:border-zinc-800/50 backdrop-blur-sm shadow-md">
+            <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 mb-4">
               <ShieldCheck className="h-7 w-7" />
             </div>
-            <h3 className="text-lg font-black text-white mb-2">100% Hygienic</h3>
-            <p className="text-sm text-zinc-400">Strict safety and hygiene standards for every single meal we prepare.</p>
+            <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-2">100% Hygienic</h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">Strict safety and hygiene standards for every single meal we prepare.</p>
           </div>
 
-          <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/50 backdrop-blur-sm">
-            <div className="h-14 w-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
+          <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white/90 dark:bg-zinc-900/50 border border-emerald-500/25 dark:border-zinc-800/50 backdrop-blur-sm shadow-md">
+            <div className="h-14 w-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mb-4">
               <Leaf className="h-7 w-7" />
             </div>
-            <h3 className="text-lg font-black text-white mb-2">Fresh Ingredients</h3>
-            <p className="text-sm text-zinc-400">Farm-sourced produce and tender chicken with our signature spices.</p>
+            <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-2">Fresh Ingredients</h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">Farm-sourced produce and tender chicken with our signature spices.</p>
           </div>
 
-          <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/50 backdrop-blur-sm">
-            <div className="h-14 w-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mb-4">
+          <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white/90 dark:bg-zinc-900/50 border border-emerald-500/25 dark:border-zinc-800/50 backdrop-blur-sm shadow-md">
+            <div className="h-14 w-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mb-4">
               <Heart className="h-7 w-7" />
             </div>
-            <h3 className="text-lg font-black text-white mb-2">Made with Love</h3>
-            <p className="text-sm text-zinc-400">Authentic recipes passed down and perfected for your enjoyment.</p>
+            <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-2">Made with Love</h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">Authentic recipes passed down and perfected for your enjoyment.</p>
           </div>
         </motion.div>
       </section>
 
       {/* Signature Items Teaser */}
-      <section className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden mt-12 bg-black/50 border-t border-amber-500/10">
+      <section className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden mt-12 bg-emerald-950/10 dark:bg-black/50 border-t border-emerald-500/20">
         <div className="container mx-auto max-w-6xl">
           <div className="flex items-end justify-between mb-8 sm:mb-10">
             <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs sm:text-sm tracking-widest uppercase mb-2">
+              <div className="flex items-center gap-2 text-amber-500 font-bold text-xs sm:text-sm tracking-widest uppercase mb-2">
                 <Flame className="h-4 w-4" />
                 Specialties
               </div>
-              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-zinc-900 dark:text-white tracking-tight">
                 Signature Dishes
               </h2>
             </div>
@@ -161,10 +166,10 @@ export default function Home() {
               { name: "Chicken Roll", image: "/dishes/chicken_kathi_roll.jpg" },
               { name: "KitKat Shake", image: "/dishes/kitkat_shake.jpg" }
             ].map((item, i) => (
-              <div key={i} className="snap-center shrink-0 w-[260px] sm:w-[320px] group cursor-pointer relative overflow-hidden rounded-3xl border border-amber-500/20 bg-zinc-900">
-                <div className="absolute top-4 right-4 z-10 bg-black/60 backdrop-blur-md border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
+              <div key={i} className="snap-center shrink-0 w-[260px] sm:w-[320px] group cursor-pointer relative overflow-hidden rounded-3xl border border-emerald-500/30 dark:border-amber-500/20 bg-white dark:bg-zinc-900 shadow-md">
+                <div className="absolute top-4 right-4 z-10 bg-black/75 backdrop-blur-md border border-amber-500/40 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg preserve-white">
                   <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                  <span className="text-xs font-bold text-white">4.9</span>
+                  <span className="text-xs font-black text-amber-300">4.9</span>
                 </div>
                 <div className="aspect-[4/5] sm:aspect-square overflow-hidden relative">
                   <Image
@@ -177,7 +182,7 @@ export default function Home() {
                     className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
                 </div>
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 pt-12">
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 pt-12 preserve-white">
                   <h3 className="text-lg sm:text-xl font-black text-white">{item.name}</h3>
                 </div>
               </div>
@@ -196,19 +201,19 @@ export default function Home() {
       </section>
 
       {/* Trust Badges */}
-      <section className="py-12 border-t border-amber-500/10 bg-[#070a07]">
-        <div className="container mx-auto max-w-4xl px-4 flex flex-wrap justify-center gap-8 sm:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+      <section className="py-12 border-t border-emerald-500/20 bg-white/50 dark:bg-[#040905]">
+        <div className="container mx-auto max-w-4xl px-4 flex flex-wrap justify-center gap-8 sm:gap-16 opacity-75 grayscale hover:grayscale-0 transition-all duration-500">
           <div className="flex items-center gap-3">
             <ShieldCheck className="h-8 w-8 text-emerald-500" />
-            <div className="text-sm font-bold text-zinc-300">FSSAI<br/>Registered</div>
+            <div className="text-sm font-bold text-zinc-700 dark:text-zinc-300">FSSAI<br/>Registered</div>
           </div>
           <div className="flex items-center gap-3">
             <Award className="h-8 w-8 text-amber-500" />
-            <div className="text-sm font-bold text-zinc-300">Premium<br/>Quality</div>
+            <div className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Premium<br/>Quality</div>
           </div>
           <div className="flex items-center gap-3">
             <Leaf className="h-8 w-8 text-green-500" />
-            <div className="text-sm font-bold text-zinc-300">100% Fresh<br/>Sourced</div>
+            <div className="text-sm font-bold text-zinc-700 dark:text-zinc-300">100% Fresh<br/>Sourced</div>
           </div>
         </div>
       </section>

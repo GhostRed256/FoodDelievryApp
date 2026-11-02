@@ -33,7 +33,7 @@ export default function CookDashboard() {
 
     return (
         <RoleGuard allowedRoles={["admin", "cook"]}>
-            <main className="flex min-h-screen flex-col bg-[#070a07] text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
+            <main className="flex min-h-screen flex-col bg-[#f7fbf8] dark:bg-[#070a07] text-zinc-900 dark:text-zinc-100 font-sans pb-16 selection:bg-amber-500 selection:text-black">
                 <Header />
                 <div className="container mx-auto py-8 px-4 md:px-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-amber-500/20">
@@ -42,7 +42,7 @@ export default function CookDashboard() {
                                 <Sparkles className="h-3 w-3 text-amber-400" />
                                 Kitchen Display System (KDS)
                             </div>
-                            <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
+                            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-zinc-900 dark:text-white flex items-center gap-3">
                                 <ChefHat className="h-7 w-7 text-emerald-400" />
                                 Chef's <span className="text-gold-metallic">Kitchen Board</span>
                             </h1>
@@ -56,7 +56,7 @@ export default function CookDashboard() {
                     <div className="grid gap-8 lg:grid-cols-3">
                         {/* Column 1: Confirmed Orders (Incoming) */}
                         <div className="space-y-6">
-                            <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                            <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
                                 <AlertCircle className="h-5 w-5 text-amber-400" />
                                 New Confirmed
                                 {newOrders.length > 0 && (
@@ -67,15 +67,15 @@ export default function CookDashboard() {
                             </h2>
                             <div className="space-y-4">
                                 {newOrders.length === 0 ? (
-                                    <div className="text-center py-12 text-zinc-500 bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
+                                    <div className="text-center py-12 text-zinc-500 bg-white dark:bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
                                         No incoming orders.
                                     </div>
                                 ) : (
                                     newOrders.map((order) => (
-                                        <div key={order.id} className="bg-[#0c120c] p-5 rounded-3xl border-2 border-amber-500/40 shadow-xl animate-in fade-in slide-in-from-left-4">
+                                        <div key={order.id} className="bg-white dark:bg-[#0c120c] p-5 rounded-3xl border-2 border-amber-500/40 shadow-xl animate-in fade-in slide-in-from-left-4">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
-                                                    <p className="font-black text-lg text-white">Order #{order.id.slice(-4).toUpperCase()}</p>
+                                                    <p className="font-black text-lg text-zinc-900 dark:text-white">Order #{order.id.slice(-4).toUpperCase()}</p>
                                                     <p className="text-xs text-zinc-400">
                                                         {order.createdAt ? formatDistanceToNow(order.createdAt.toDate(), { addSuffix: true }) : "Just now"}
                                                     </p>
@@ -86,7 +86,7 @@ export default function CookDashboard() {
                                             </div>
                                             <div className="space-y-2 border-y border-amber-500/20 py-3 my-3 text-sm">
                                                 {order.items.map((item, idx) => (
-                                                    <div key={idx} className="flex justify-between font-bold text-zinc-200">
+                                                    <div key={idx} className="flex justify-between font-bold text-zinc-800 dark:text-zinc-200">
                                                         <span>{item.quantity}x {item.name}</span>
                                                     </div>
                                                 ))}
@@ -105,35 +105,35 @@ export default function CookDashboard() {
 
                         {/* Column 2: In Preparation */}
                         <div className="space-y-6">
-                            <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                            <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
                                 <Clock className="h-5 w-5 text-emerald-400" />
                                 On Stove / Wok
                             </h2>
                             <div className="space-y-4">
                                 {preparingOrders.length === 0 ? (
-                                    <div className="text-center py-12 text-zinc-500 bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
+                                    <div className="text-center py-12 text-zinc-500 bg-white dark:bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
                                         No dishes currently on flame.
                                     </div>
                                 ) : (
                                     preparingOrders.map((order) => (
-                                        <div key={order.id} className="bg-[#0c120c] p-5 rounded-3xl border border-emerald-500/30 shadow-xl border-l-4 border-l-emerald-400">
+                                        <div key={order.id} className="bg-white dark:bg-[#0c120c] p-5 rounded-3xl border border-emerald-500/30 shadow-xl border-l-4 border-l-emerald-400">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
-                                                    <p className="font-black text-lg text-white">Order #{order.id.slice(-4).toUpperCase()}</p>
+                                                    <p className="font-black text-lg text-zinc-900 dark:text-white">Order #{order.id.slice(-4).toUpperCase()}</p>
                                                     <p className="text-xs text-emerald-400 font-bold">Sizzling on Flame</p>
                                                 </div>
                                                 <div className="h-8 w-8 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
                                             </div>
                                             <div className="space-y-2 border-y border-emerald-500/20 py-3 my-3 text-sm">
                                                 {order.items.map((item, idx) => (
-                                                    <div key={idx} className="flex justify-between font-bold text-zinc-200">
+                                                    <div key={idx} className="flex justify-between font-bold text-zinc-800 dark:text-zinc-200">
                                                         <span>{item.quantity}x {item.name}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                             <button
                                                 onClick={() => updateStatus(order.id, "ready")}
-                                                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black py-3.5 rounded-2xl transition-all active:scale-[0.98] shadow-md text-sm"
+                                                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-zinc-900 dark:text-white font-black py-3.5 rounded-2xl transition-all active:scale-[0.98] shadow-md text-sm"
                                             >
                                                 Mark as Ready
                                             </button>
@@ -145,21 +145,21 @@ export default function CookDashboard() {
 
                         {/* Column 3: Ready for Rider Pickup */}
                         <div className="space-y-6">
-                            <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                            <h2 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
                                 <CheckCircle className="h-5 w-5 text-emerald-400" />
                                 Ready for Pickup
                             </h2>
                             <div className="space-y-4">
                                 {readyOrders.length === 0 ? (
-                                    <div className="text-center py-12 text-zinc-500 bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
+                                    <div className="text-center py-12 text-zinc-500 bg-white dark:bg-[#0c120c] rounded-3xl border border-dashed border-zinc-800 font-bold">
                                         No parcels waiting.
                                     </div>
                                 ) : (
                                     readyOrders.map((order) => (
-                                        <div key={order.id} className="bg-[#0c120c]/80 p-5 rounded-3xl border border-amber-500/20 shadow-md">
+                                        <div key={order.id} className="bg-white dark:bg-[#0c120c]/80 p-5 rounded-3xl border border-amber-500/20 shadow-md">
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                    <p className="font-black text-white">Order #{order.id.slice(-4).toUpperCase()}</p>
+                                                    <p className="font-black text-zinc-900 dark:text-white">Order #{order.id.slice(-4).toUpperCase()}</p>
                                                     <p className="text-xs text-amber-400 font-bold">Packed & Awaiting Driver</p>
                                                 </div>
                                                 <ShoppingBag className="h-5 w-5 text-emerald-400" />

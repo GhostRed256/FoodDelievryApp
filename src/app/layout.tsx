@@ -73,7 +73,7 @@ export default function RootLayout({
         />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="min-h-full flex flex-col bg-[#070a07] text-zinc-100 touch-manipulation">
+      <body className="min-h-full flex flex-col bg-[#f7fbf8] dark:bg-[#040905] text-[#042111] dark:text-[#f4fbf6] touch-manipulation transition-colors duration-200">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
