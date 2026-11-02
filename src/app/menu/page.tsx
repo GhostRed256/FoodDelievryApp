@@ -121,7 +121,7 @@ export default function MenuPage() {
         
         let matchesVeg = true;
         if (vegFilter === "Veg") matchesVeg = p.isVeg === true;
-        if (vegFilter === "Non-Veg") matchesVeg = p.isVeg === false;
+        if (vegFilter === "Non-Veg") matchesVeg = !p.isVeg;
 
         return matchesCategory && matchesSearch && matchesVeg;
     });
@@ -472,6 +472,7 @@ export default function MenuPage() {
                                 {/* Content Details */}
                                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                                     <div>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-1 block">{product.category}</span>
                                         <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors leading-snug mb-1">
                                             {product.name}
                                         </h3>

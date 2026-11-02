@@ -158,7 +158,7 @@ export default function Home() {
               { name: "Pork Thali", image: "/dishes/pork_thali.jpg" },
               { name: "Paneer Butter Masala", image: "/dishes/paneer_butter_masala.jpg" },
               { name: "Duck Curry", image: "/dishes/duck_curry.jpg" },
-              { name: "Chicken Kathi Roll", image: "/dishes/chicken_kathi_roll.jpg" },
+              { name: "Chicken Roll", image: "/dishes/chicken_kathi_roll.jpg" },
               { name: "KitKat Shake", image: "/dishes/kitkat_shake.jpg" }
             ].map((item, i) => (
               <div key={i} className="snap-center shrink-0 w-[260px] sm:w-[320px] group cursor-pointer relative overflow-hidden rounded-3xl border border-amber-500/20 bg-zinc-900">
