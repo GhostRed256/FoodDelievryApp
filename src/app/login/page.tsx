@@ -116,8 +116,8 @@ export default function LoginPage() {
                         <span className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
                             Food<span className="text-gold-metallic">N</span>Joy
                         </span>
-                        <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-400 -mt-1 flex items-center gap-1">
-                            <Sparkles className="h-2.5 w-2.5 text-amber-400" /> The Tinsukia Canteen • Good Food • Good Mood
+                        <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-800 dark:text-emerald-400 -mt-1 flex items-center gap-1">
+                            <Sparkles className="h-2.5 w-2.5 text-amber-600 dark:text-amber-400" /> The Tinsukia Canteen • Good Food • Good Mood
                         </span>
                     </Link>
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white">Welcome back</h2>

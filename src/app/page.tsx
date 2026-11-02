@@ -55,8 +55,12 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-400 shadow-sm mb-6">
-            <Sparkles className="h-3 w-3 text-amber-500" />
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-zinc-900 dark:text-white mb-3 flex items-center justify-center">
+            Food<span className="text-gold-gradient font-black">N</span>Joy
+          </h2>
+
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-600/10 dark:bg-emerald-500/15 border border-emerald-600/25 dark:border-emerald-500/30 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-emerald-900 dark:text-emerald-400 shadow-sm mb-6">
+            <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
             The Tinsukia Canteen • Good Food • Good Mood
           </div>
 

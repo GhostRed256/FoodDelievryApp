@@ -324,14 +324,14 @@ export default function MenuPage() {
                 {/* Header Banner */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 sm:mb-8 pb-4 border-b border-amber-500/20">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mb-2">
-                            <Sparkles className="h-3 w-3 text-emerald-400" />
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-600/30 dark:border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mb-2">
+                            <Sparkles className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                             Taste • Hygiene • Value
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight">
                             Food<span className="text-gold-metallic">N</span>Joy Menu
                         </h1>
-                        <p className="text-zinc-400 mt-0.5 text-xs sm:text-sm">
+                        <p className="text-zinc-600 dark:text-zinc-400 mt-0.5 text-xs sm:text-sm font-medium">
                             Freshly prepared favourites, comforting classics and local specialities.
                         </p>
                     </div>
@@ -414,7 +414,7 @@ export default function MenuPage() {
 
                 {/* Product Grid */}
                 <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {filteredProducts.map(product => {
+                    {filteredProducts.map((product, index) => {
                         const currentVariant = selectedVariants[product.id] || product.variants[0];
                         const cartItem = cart.find(c => c.cartKey === `${product.id}-${currentVariant.name}`);
 
@@ -431,8 +431,8 @@ export default function MenuPage() {
                                         fill
                                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                        quality={40}
-                                        loading="lazy"
+                                        priority={index < 6}
+                                        loading={index < 6 ? "eager" : "lazy"}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 

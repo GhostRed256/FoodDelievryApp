@@ -83,10 +83,10 @@ export default function Header() {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center">
+                        <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center leading-tight">
                             Food<span className="text-gold-gradient font-black">N</span>Joy
                         </span>
-                        <span className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 -mt-1 flex items-center gap-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-400 -mt-0.5 flex items-center gap-1">
                             The Tinsukia Canteen
                         </span>
                     </div>
