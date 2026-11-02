@@ -332,13 +332,13 @@ export default function MenuPage() {
                             Food<span className="text-gold-metallic">N</span>Joy Menu
                         </h1>
                         <p className="text-zinc-400 mt-0.5 text-xs sm:text-sm">
-                            Steaming fresh delicacies cooked to order in Tinsukia.
+                            Freshly prepared favourites, comforting classics and local specialities.
                         </p>
                     </div>
 
                     {/* Search Bar */}
                     <div className="relative w-full md:w-80">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400/80" />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
                         <input
                             type="text"
                             placeholder="Search dishes or categories..."

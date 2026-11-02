@@ -34,12 +34,12 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative h-28 w-28 sm:h-36 sm:w-36 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-yellow-500 to-amber-200 shadow-[0_0_40px_rgba(251,191,36,0.3)] mb-6"
+          className="relative h-32 w-32 sm:h-40 sm:w-40 rounded-full p-1.5 bg-gradient-to-tr from-emerald-500 via-green-400 to-amber-400 shadow-[0_0_50px_rgba(34,197,94,0.35)] mb-6"
         >
           <div className="h-full w-full rounded-full overflow-hidden bg-black border-4 border-[#070a07]">
             <img
               src="/logo.jpg"
-              alt="FoodNJoy Crest"
+              alt="FoodNJoy Frog Chef Crest"
               className="h-full w-full object-cover scale-105"
             />
           </div>
@@ -50,20 +50,20 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-amber-400 shadow-sm mb-6">
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-emerald-400 shadow-sm mb-6">
             <Sparkles className="h-3 w-3" />
-            Tinsukia's Premium Kitchen
+            The Tinsukia Canteen • Good Food • Good Mood
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white mb-6 leading-[1.1]">
             Authentic Taste.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-green-400 to-amber-300">
               Delivered Hot.
             </span>
           </h1>
 
           <p className="mx-auto max-w-lg text-base sm:text-lg text-zinc-300 mb-10 leading-relaxed font-medium">
-            Experience the finest momos, Kolkata kathi rolls, and Indo-Chinese delicacies. Crafted fresh with unmatched hygiene.
+            Freshly prepared favourites, comforting classics and local specialities crafted with unmatched hygiene.
           </p>
         </motion.div>
 

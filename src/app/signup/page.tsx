@@ -64,7 +64,7 @@ export default function SignupPage() {
                             Food<span className="text-gold-metallic">N</span>Joy
                         </span>
                         <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-400 -mt-1 flex items-center gap-1">
-                            <Sparkles className="h-2.5 w-2.5 text-amber-400" /> Taste • Hygiene • Value
+                            <Sparkles className="h-2.5 w-2.5 text-amber-400" /> The Tinsukia Canteen • Good Food • Good Mood
                         </span>
                     </Link>
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Create an account</h2>

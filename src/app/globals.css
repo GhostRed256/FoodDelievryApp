@@ -2,8 +2,8 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  --background: #070a07;
-  --foreground: #f4f4f5;
+  --background: #040905;
+  --foreground: #f4fbf6;
   --gold-primary: #d4af37;
   --gold-light: #f5d77f;
   --gold-dark: #997a15;
@@ -20,46 +20,126 @@
 }
 
 body {
-  background-color: #070a07;
-  color: #f4f4f5;
+  background-color: #040905;
+  color: #f4fbf6;
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
-  transition: filter 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* 
-  LIGHT MODE PERFECT INVERSION
-  This is a mathematically perfect filter that inverts darkness to lightness (e.g. #070a07 to #f8f5f8)
-  but the hue-rotate(180deg) brings the Amber, Emerald, and Red hues back to their EXACT original color.
-  This ensures 100% perfect contrast on every single hardcoded Tailwind class without breaking UI.
-*/
+/* ==========================================================================
+   LIGHT MODE: FRESH GREEN & CRISP WHITE THEME (FROM FROG CHEF LOGO)
+   Blazing fast, native CSS rendering — zero sluggish GPU filters
+   ========================================================================== */
 html.light {
-  filter: invert(1) hue-rotate(180deg);
-  background-color: #070a07;
+  background-color: #f7fbf8;
+  color: #062313;
 }
 
-/* Double-invert media, maps, and specific branding elements so they remain completely unaffected */
-html.light img,
-html.light video,
-html.light iframe,
-html.light .leaflet-container,
-html.light .leaflet-layer,
-html.light .leaflet-control,
-html.light .preserve-colors {
-  filter: invert(1) hue-rotate(180deg);
+html.light body,
+html.light main {
+  background-color: #f7fbf8 !important;
+  color: #062313 !important;
 }
 
-/* Gold Gradient Utilities */
+/* Clean White Card Surfaces with Subtle Emerald Green Borders */
+html.light [class*="bg-[#070a07]"],
+html.light [class*="bg-[#0c120c]"],
+html.light [class*="bg-[#080c08]"],
+html.light [class*="bg-[#0a0e0a]"],
+html.light [class*="bg-[#0d120d]"],
+html.light [class*="bg-[#0f1710]"] {
+  background-color: #ffffff !important;
+  border-color: rgba(22, 163, 74, 0.22) !important;
+  box-shadow: 0 4px 20px -2px rgba(22, 101, 52, 0.07) !important;
+}
+
+/* Header & Drawers in Light Mode */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom-color: rgba(22, 163, 74, 0.2) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .fixed.top-18 {
+  background-color: #ffffff !important;
+}
+
+/* Typography Contrast for Light Mode */
+html.light .text-white,
+html.light [class*="text-zinc-100"],
+html.light [class*="text-zinc-200"] {
+  color: #062313 !important;
+}
+
+html.light [class*="text-zinc-300"],
+html.light [class*="text-zinc-400"] {
+  color: #2b4735 !important;
+}
+
+html.light [class*="text-zinc-500"],
+html.light [class*="text-zinc-600"] {
+  color: #557560 !important;
+}
+
+/* Form Inputs & Interactive Elements in Light Mode */
+html.light input,
+html.light textarea,
+html.light select {
+  background-color: #ffffff !important;
+  color: #062313 !important;
+  border-color: rgba(22, 163, 74, 0.35) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #8da495 !important;
+}
+
+html.light .bg-zinc-900,
+html.light .bg-zinc-800 {
+  background-color: #eaf5ee !important;
+  color: #062313 !important;
+}
+
+/* Glassmorphism Cards in Light Mode */
+html.light .glass-gold-card,
+html.light .glass-emerald-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(22, 163, 74, 0.25) !important;
+  box-shadow: 0 8px 30px rgba(21, 128, 61, 0.08) !important;
+}
+
+/* Category Pills & Tags in Light Mode */
+html.light .border-amber-500\/20,
+html.light .border-amber-500\/30,
+html.light .border-amber-500\/40 {
+  border-color: rgba(22, 163, 74, 0.25) !important;
+}
+
+/* Keep Brand Accent Badges and Metallic Text Glowing */
 .text-gold-gradient {
   background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+html.light .text-gold-gradient {
+  background: linear-gradient(135deg, #15803d 0%, #16a34a 45%, #ca8a04 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
 .text-gold-metallic {
   background: linear-gradient(135deg, #fffbeb 0%, #fde047 30%, #d97706 70%, #fef08a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+html.light .text-gold-metallic {
+  background: linear-gradient(135deg, #15803d 0%, #16a34a 50%, #b45309 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 
 .bg-gold-gradient {
@@ -80,19 +160,19 @@ html.light .preserve-colors {
   box-shadow: 0 0 15px rgba(34, 197, 94, 0.12);
 }
 
-/* Glassmorphism for Dark Gold Luxury */
+/* Glassmorphism for Dark Mode */
 .glass-gold-card {
-  background: rgba(13, 18, 13, 0.85);
+  background: rgba(11, 25, 14, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(234, 179, 8, 0.2);
 }
 
 .glass-emerald-card {
-  background: rgba(8, 20, 11, 0.85);
+  background: rgba(8, 20, 11, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 /* Hide scrollbar for category pills and galleries */

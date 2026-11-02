@@ -75,11 +75,11 @@ export default function Header() {
             <div className="container mx-auto flex h-18 items-center justify-between px-4 md:px-6 relative z-10">
                 {/* Brand Logo & Name */}
                 <Link href="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
-                    <div className="relative h-11 w-11 rounded-full overflow-hidden border border-amber-500/40 shadow-md shadow-amber-500/10 group-hover:border-amber-400 transition-colors">
+                    <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-emerald-500/50 shadow-md shadow-emerald-500/20 group-hover:border-emerald-400 transition-colors bg-black">
                         <img
                             src="/logo.jpg"
-                            alt="FoodNJoy Logo"
-                            className="h-full w-full object-cover"
+                            alt="FoodNJoy Frog Chef Logo"
+                            className="h-full w-full object-cover scale-105"
                         />
                     </div>
                     <div className="flex flex-col">
@@ -87,7 +87,7 @@ export default function Header() {
                             Food<span className="text-gold-gradient">N</span>Joy
                         </span>
                         <span className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-emerald-400 -mt-1 flex items-center gap-1">
-                            Taste • Hygiene • Value
+                            The Tinsukia Canteen
                         </span>
                     </div>
                 </Link>
@@ -250,9 +250,9 @@ export default function Header() {
                     />
                     <div className="fixed top-18 right-0 left-0 bottom-0 z-50 bg-[#0a0e0a] border-t border-amber-500/20 md:hidden flex flex-col justify-between p-6 overflow-y-auto animate-in slide-in-from-top-4 duration-300">
                         <div className="space-y-3">
-                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500/80 px-3 mb-2 flex items-center gap-1.5">
-                                <Sparkles className="h-3 w-3 text-emerald-400" />
-                                Taste • Hygiene • Value
+                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 px-3 mb-2 flex items-center gap-1.5">
+                                <Sparkles className="h-3 w-3 text-amber-400" />
+                                The Tinsukia Canteen • Good Food • Good Mood
                             </div>
                             {navLinks.map((link) => {
                                 const Icon = link.icon;
@@ -264,15 +264,20 @@ export default function Header() {
                                         className={cn(
                                             "flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-base font-bold transition-all border",
                                             isActive
-                                                ? "bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-lg shadow-amber-500/10"
-                                                : "text-zinc-200 border-transparent hover:bg-zinc-900 hover:text-amber-300"
+                                                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-lg shadow-emerald-500/10"
+                                                : "text-zinc-200 border-transparent hover:bg-zinc-900 hover:text-emerald-300"
                                         )}
                                     >
-                                        <Icon className="h-5 w-5 text-amber-400" />
+                                        <Icon className="h-5 w-5 text-emerald-400" />
                                         <span>{link.label}</span>
                                     </Link>
                                 );
                             })}
+
+                            <div className="pt-2 px-1 flex items-center justify-between">
+                                <span className="text-xs font-bold text-zinc-300">Appearance Mode</span>
+                                <ThemeToggle />
+                            </div>
 
                             {/* Staff Role Section */}
                             {profile?.role && profile.role !== "customer" && (

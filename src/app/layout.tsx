@@ -16,13 +16,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#09090b",
+  themeColor: "#052e16",
 };
 
 export const metadata: Metadata = {
-  title: "FoodNJoy - Authentic Street Food Delivery | Tinsukia",
-  description: "Order fresh momos, noodles, rolls, and Indian Chinese delicacies with real-time delivery tracking in Tinsukia.",
-  keywords: ["food delivery", "tinsukia food", "assam food", "indian street food", "momos", "chowmein", "live tracking", "FoodNJoy"],
+  title: "FoodNJoy - The Tinsukia Canteen | Good Food • Good Mood",
+  description: "FoodNJoy – The Tinsukia Canteen. Good Food • Good Mood. Authentic momos, rolls, Indian classics, Chinese, Korean, and local specialities delivered hot in Tinsukia.",
+  keywords: ["food delivery", "tinsukia canteen", "foodnjoy", "tinsukia food", "assam food", "indian cuisine", "momos", "chowmein", "live tracking"],
   icons: {
     icon: "/logo.jpg",
     shortcut: "/logo.jpg",
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: "https://food-n-joy.vercel.app",
-    title: "FoodNJoy - Authentic Street Food Delivery",
-    description: "Fast, fresh, and authentic street food delivery in Tinsukia.",
+    title: "FoodNJoy - The Tinsukia Canteen",
+    description: "Good Food • Good Mood. Fast, fresh, and authentic food delivery in Tinsukia.",
     siteName: "FoodNJoy",
   },
   metadataBase: new URL("https://food-n-joy.vercel.app"),
