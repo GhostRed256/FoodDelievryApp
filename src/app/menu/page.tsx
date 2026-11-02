@@ -14,270 +14,8 @@ import dynamic from "next/dynamic";
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
 
-export interface ProductVariant {
-    name: string;
-    price: number;
-}
-
-export interface MenuItem {
-    id: string;
-    name: string;
-    category: string;
-    description: string;
-    image: string;
-    rating: number;
-    isVeg?: boolean;
-    isChefSpecial?: boolean;
-    variants: ProductVariant[];
-}
-
-const CATEGORIES = [
-    "All",
-    "Fried Rice",
-    "Noodles",
-    "Schezwan Specials",
-    "Momos & Starters",
-    "Kathi Rolls",
-    "Gravy & Dry Chinese"
-];
-
-const PRODUCTS: MenuItem[] = [
-    {
-        id: "chicken-fried-rice",
-        name: "Chicken Fried Rice",
-        category: "Fried Rice",
-        description: "Wok-tossed basmati rice with tender shredded chicken, scrambled eggs, carrots, spring onions, and aromatic seasonings.",
-        image: "/dishes/chicken_fried_rice.jpg",
-        rating: 4.8,
-        variants: [
-            { name: "Half", price: 59 },
-            { name: "Full", price: 99 }
-        ]
-    },
-    {
-        id: "egg-fried-rice",
-        name: "Egg Fried Rice",
-        category: "Fried Rice",
-        description: "Street-style wok fried rice packed with golden scrambled eggs, fresh crunchy veggies, and garlic-soy aroma.",
-        image: "/dishes/egg_fried_rice.jpg",
-        rating: 4.7,
-        variants: [
-            { name: "Half", price: 55 },
-            { name: "Full", price: 89 }
-        ]
-    },
-    {
-        id: "veg-fried-rice",
-        name: "Veg Fried Rice",
-        category: "Fried Rice",
-        description: "Flavorful rice stir-fried with garden fresh carrots, french beans, sweet corn, green peas, and spring onions.",
-        image: "/dishes/veg_fried_rice.jpg",
-        rating: 4.6,
-        isVeg: true,
-        variants: [
-            { name: "Half", price: 49 },
-            { name: "Full", price: 79 }
-        ]
-    },
-    {
-        id: "chicken-noodles",
-        name: "Chicken Hakka Noodles",
-        category: "Noodles",
-        description: "High-flame wok tossed noodles with sliced chicken, egg ribbons, shredded cabbage, carrots, and spicy soy garlic glaze.",
-        image: "/dishes/hakka_noodles.jpg",
-        rating: 4.8,
-        variants: [
-            { name: "Half", price: 59 },
-            { name: "Full", price: 99 }
-        ]
-    },
-    {
-        id: "egg-noodles",
-        name: "Egg Hakka Noodles",
-        category: "Noodles",
-        description: "Delicious chowmein noodles tossed with farm fresh scrambled eggs, cabbage, capsicum, and oriental spices.",
-        image: "/dishes/egg_noodles.jpg",
-        rating: 4.6,
-        variants: [
-            { name: "Half", price: 55 },
-            { name: "Full", price: 89 }
-        ]
-    },
-    {
-        id: "veg-noodles",
-        name: "Veg Hakka Noodles",
-        category: "Noodles",
-        description: "Classic street chowmein noodles with crisp stir-fried vegetables, soya sauce, and secret spice blend.",
-        image: "/dishes/veg_noodles.jpg",
-        rating: 4.6,
-        isVeg: true,
-        variants: [
-            { name: "Half", price: 49 },
-            { name: "Full", price: 79 }
-        ]
-    },
-    {
-        id: "triple-schezwan-chicken-rice",
-        name: "Triple Layered Schezwan Chicken Rice",
-        category: "Schezwan Specials",
-        description: "Signature 3-layer delight: spicy Schezwan fried rice, topped with crispy fried noodles, boiled egg, and thick savory chicken gravy.",
-        image: "/dishes/schezwan_triple_rice.jpg",
-        rating: 4.9,
-        isChefSpecial: true,
-        variants: [
-            { name: "Half", price: 79 },
-            { name: "Full", price: 129 }
-        ]
-    },
-    {
-        id: "triple-schezwan-egg-rice",
-        name: "Triple Layered Schezwan Egg Rice",
-        category: "Schezwan Specials",
-        description: "Fiery Schezwan egg fried rice served with crispy noodles and rich spicy gravy topped with boiled egg.",
-        image: "/dishes/schezwan_egg_rice.jpg",
-        rating: 4.7,
-        isChefSpecial: true,
-        variants: [
-            { name: "Half", price: 69 },
-            { name: "Full", price: 119 }
-        ]
-    },
-    {
-        id: "triple-schezwan-veg-rice",
-        name: "Triple Layered Schezwan Veg Rice",
-        category: "Schezwan Specials",
-        description: "Wholesome combo of Schezwan vegetable fried rice, crunchy fried noodles, and sizzling vegetable Schezwan sauce.",
-        image: "/dishes/schezwan_veg_rice.jpg",
-        rating: 4.7,
-        isVeg: true,
-        isChefSpecial: true,
-        variants: [
-            { name: "Half", price: 59 },
-            { name: "Full", price: 99 }
-        ]
-    },
-    {
-        id: "chicken-momo",
-        name: "Chicken Steamed Momos",
-        category: "Momos & Starters",
-        description: "Hot, juicy handcrafted dumplings filled with spiced minced chicken. Served with signature red garlic chili chutney & clear soup.",
-        image: "/dishes/chicken_momos.jpg",
-        rating: 4.9,
-        variants: [
-            { name: "Half (5 Pcs)", price: 59 },
-            { name: "Full (10 Pcs)", price: 99 }
-        ]
-    },
-    {
-        id: "chicken-pops",
-        name: "Crispy Chicken Pops",
-        category: "Momos & Starters",
-        description: "Crunchy golden bite-sized chicken popcorn bites tossed in peri-peri seasoning and served with creamy mayonnaise dip.",
-        image: "/dishes/chicken_pops.jpg",
-        rating: 4.8,
-        variants: [
-            { name: "Small", price: 79 },
-            { name: "Medium", price: 109 },
-            { name: "Large", price: 139 }
-        ]
-    },
-    {
-        id: "chicken-kabab",
-        name: "Tandoori Chicken Kabab",
-        category: "Momos & Starters",
-        description: "Juicy chicken chunks marinated in rich tandoori spices and roasted to perfection. Served with mint chutney and onion salad.",
-        image: "/dishes/chicken_kabab.jpg",
-        rating: 4.9,
-        variants: [
-            { name: "Half", price: 79 },
-            { name: "Full", price: 129 }
-        ]
-    },
-    {
-        id: "kolkata-chicken-kathi-roll",
-        name: "Kolkata Chicken Kathi Roll",
-        category: "Kathi Rolls",
-        description: "Authentic flaky layered paratha roll stuffed with spiced chicken tikka, crunchy sliced onions, chaat masala, and mint chutney.",
-        image: "/dishes/chicken_kathi_roll.jpg",
-        rating: 4.9,
-        variants: [
-            { name: "Single (Half)", price: 89 },
-            { name: "Double (Full)", price: 159 }
-        ]
-    },
-    {
-        id: "kolkata-egg-kathi-roll",
-        name: "Kolkata Egg Kathi Roll",
-        category: "Kathi Rolls",
-        description: "Crispy paratha coated with golden eggs, loaded with crunchy spiced onions, green chillies, lemon, and tangy sauces.",
-        image: "/dishes/egg_kathi_roll.jpg",
-        rating: 4.7,
-        variants: [
-            { name: "Single (Half)", price: 69 },
-            { name: "Double (Full)", price: 109 }
-        ]
-    },
-    {
-        id: "chicken-manchurian",
-        name: "Chicken Manchurian",
-        category: "Gravy & Dry Chinese",
-        description: "Crispy chicken meatballs tossed in a dark, luscious garlic, ginger, soya, and spring onion Manchurian gravy.",
-        image: "/dishes/chicken_manchurian.jpg",
-        rating: 4.8,
-        variants: [
-            { name: "Half", price: 99 },
-            { name: "Full", price: 189 }
-        ]
-    },
-    {
-        id: "chilly-chicken",
-        name: "Indo-Chinese Chilli Chicken",
-        category: "Gravy & Dry Chinese",
-        description: "Popular wok-tossed crispy chicken chunks with green capsicum, sliced onions, green chillies, and savory dark soy sauce.",
-        image: "/dishes/chilly_chicken.jpg",
-        rating: 4.8,
-        variants: [
-            { name: "Half", price: 89 },
-            { name: "Full", price: 139 }
-        ]
-    },
-    {
-        id: "chicken-dry-fry",
-        name: "Northeast Spicy Chicken Dry Fry",
-        category: "Gravy & Dry Chinese",
-        description: "Traditional spicy pan-roasted chicken infused with crushed black pepper, curry leaves, ginger, and local green chilies.",
-        image: "/dishes/chicken_dry_fry.jpg",
-        rating: 4.9,
-        variants: [
-            { name: "Half", price: 79 },
-            { name: "Full", price: 129 }
-        ]
-    },
-    {
-        id: "baba-chicken-roll",
-        name: "Special Baba Chicken Roll",
-        category: "Kathi Rolls",
-        description: "Signature jumbo roll with double spiced grilled chicken, egg layer, melted cheese, and creamy garlic mayonnaise.",
-        image: "/dishes/baba_chicken_roll.jpg",
-        rating: 4.9,
-        isChefSpecial: true,
-        variants: [
-            { name: "Full", price: 139 }
-        ]
-    },
-    {
-        id: "mix-special-roll",
-        name: "Special Mix Veg / Egg / Chicken Roll",
-        category: "Kathi Rolls",
-        description: "The ultimate jumbo roll packed with spiced chicken chunks, fluffy egg, sauteed veggies, and signature condiments.",
-        image: "/dishes/mix_special_roll.jpg",
-        rating: 4.9,
-        isChefSpecial: true,
-        variants: [
-            { name: "Full", price: 159 }
-        ]
-    }
-];
+import { CATEGORIES, PRODUCTS, MenuItem, ProductVariant } from "@/data/menuData";
+export type { MenuItem, ProductVariant };
 
 interface CartItem {
     cartKey: string;
@@ -372,8 +110,8 @@ export default function MenuPage() {
     // Origin: Tinsukia College (27.4893, 95.3524)
     const distanceToKitchen = calculateDistance(27.4893, 95.3524, customerCoords.lat, customerCoords.lng);
     const isOutsideTinsukia = gpsAcquired && distanceToKitchen > 12; // Reject if outside 12km radius of Tinsukia College
-    const DELIVERY_FEE = (gpsAcquired && distanceToKitchen <= 5) ? 0 : 25;
-    const TAX_AND_SERVICE_FEE = 15;
+    const DELIVERY_FEE = 20;
+    const TAX_AND_SERVICE_FEE = 0;
 
     const filteredProducts = PRODUCTS.filter(p => {
         const matchesCategory = activeCategory === "All" || p.category === activeCategory;
@@ -460,7 +198,7 @@ export default function MenuPage() {
 
     const totalCartCount = cart.reduce((a, b) => a + b.quantity, 0);
     const itemsSubtotal = cart.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
-    const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE + TAX_AND_SERVICE_FEE : 0;
+    const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE : 0;
     const [hasWarnedLocation, setHasWarnedLocation] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [upiTransactionId, setUpiTransactionId] = useState("");
@@ -491,10 +229,7 @@ export default function MenuPage() {
         let finalOrderId = tempOrderId;
 
         try {
-            let finalTotal = itemsSubtotal + TAX_AND_SERVICE_FEE;
-            if (gpsAcquired) {
-                finalTotal += DELIVERY_FEE;
-            }
+            let finalTotal = itemsSubtotal + DELIVERY_FEE;
 
             // Save phone & name in browser storage for convenience
             if (typeof window !== "undefined") {
@@ -546,7 +281,7 @@ export default function MenuPage() {
             cart.forEach(item => {
                 msg += `▪️ ${item.quantity}x ${item.product.name} (${item.variant.name}) - ₹${item.variant.price * item.quantity}\n`;
             });
-            msg += `\n*💰 Total Amount:* ₹${finalTotal}\n`;
+            msg += `\n*💰 Total Amount:* ₹${finalTotal} (Includes ₹20 Delivery Charges)\n`;
             msg += `*💳 Payment:* Online UPI (to ${UPI_NAME})\n`;
             if (upiTransactionId.trim()) {
                 msg += `*🧾 UTR / Trans ID:* ${upiTransactionId.trim()}\n`;
@@ -1023,14 +758,8 @@ export default function MenuPage() {
                                         <span className="font-semibold text-white">₹{itemsSubtotal}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span>Delivery Partner Fee (Tinsukia)</span>
-                                        <span className={cn("font-semibold", DELIVERY_FEE === 0 ? "text-emerald-400" : "text-white")}>
-                                            {DELIVERY_FEE === 0 ? "FREE" : `₹${DELIVERY_FEE}`}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between text-zinc-400">
-                                        <span>Platform & Service Fee (Applied at Checkout)</span>
-                                        <span className="font-semibold text-white">₹{TAX_AND_SERVICE_FEE}</span>
+                                        <span>Delivery Charges</span>
+                                        <span className="font-semibold text-emerald-400">₹{DELIVERY_FEE}</span>
                                     </div>
                                     <div className="flex justify-between text-base font-black text-white pt-2.5 border-t border-amber-500/20">
                                         <span>To Pay</span>

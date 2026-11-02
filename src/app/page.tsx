@@ -152,9 +152,14 @@ export default function Home() {
           {/* Scrollable Gallery */}
           <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {[
+              { name: "Chicken Biryani", image: "/dishes/chicken_biryani.jpg" },
+              { name: "Chicken Butter Masala", image: "/dishes/chicken_butter_masala.jpg" },
               { name: "Chicken Steamed Momo", image: "/dishes/chicken_momos.jpg" },
+              { name: "Pork Thali", image: "/dishes/pork_thali.jpg" },
+              { name: "Paneer Butter Masala", image: "/dishes/paneer_butter_masala.jpg" },
+              { name: "Duck Curry", image: "/dishes/duck_curry.jpg" },
               { name: "Chicken Kathi Roll", image: "/dishes/chicken_kathi_roll.jpg" },
-              { name: "Schezwan Veg Rice", image: "/dishes/schezwan_veg_rice.jpg" }
+              { name: "KitKat Shake", image: "/dishes/kitkat_shake.jpg" }
             ].map((item, i) => (
               <div key={i} className="snap-center shrink-0 w-[260px] sm:w-[320px] group cursor-pointer relative overflow-hidden rounded-3xl border border-amber-500/20 bg-zinc-900">
                 <div className="absolute top-4 right-4 z-10 bg-black/60 backdrop-blur-md border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
