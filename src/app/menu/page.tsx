@@ -328,7 +328,7 @@ export default function MenuPage() {
                             <Sparkles className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                             Taste • Hygiene • Value
                         </div>
-                        <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight">
+                        <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight brand-name-text">
                             Food<span className="text-gold-metallic">N</span>Joy Menu
                         </h1>
                         <p className="text-zinc-600 dark:text-zinc-400 mt-0.5 text-xs sm:text-sm font-medium">

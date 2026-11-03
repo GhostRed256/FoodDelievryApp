@@ -113,7 +113,7 @@ export default function LoginPage() {
                         <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-emerald-500/50 shadow-xl shadow-emerald-500/15 bg-black">
                             <img src="/logo.jpg" alt="FoodNJoy Logo" className="h-full w-full object-cover scale-105" />
                         </div>
-                        <span className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
+                        <span className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white brand-name-text">
                             Food<span className="text-gold-metallic">N</span>Joy
                         </span>
                         <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-800 dark:text-emerald-400 -mt-1 flex items-center gap-1">

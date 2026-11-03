@@ -67,10 +67,7 @@ export default function Header() {
 
     return (
         <header 
-            className="sticky top-0 z-40 w-full border-b border-emerald-500/20 dark:border-amber-500/20 bg-white/95 dark:bg-[#070a07]/95 backdrop-blur-md shadow-sm dark:shadow-lg dark:shadow-black/60 relative"
-            style={{ 
-                backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23fbbf24\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' 
-            }}
+            className="sticky top-0 z-40 w-full border-b border-emerald-500/20 dark:border-amber-500/20 bg-white/95 dark:bg-[#070a07]/95 backdrop-blur-md shadow-sm dark:shadow-lg dark:shadow-black/60 relative header-pattern"
         >
             <div className="container mx-auto flex h-18 items-center justify-between px-4 md:px-6 relative z-10">
                 {/* Brand Logo & Name */}
@@ -83,7 +80,7 @@ export default function Header() {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center leading-tight">
+                        <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center leading-tight brand-name-text">
                             Food<span className="text-gold-gradient font-black">N</span>Joy
                         </span>
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-400 -mt-0.5 flex items-center gap-1">

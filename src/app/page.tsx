@@ -55,7 +55,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-zinc-900 dark:text-white mb-3 flex items-center justify-center">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-zinc-900 dark:text-white mb-3 flex items-center justify-center brand-name-text">
             Food<span className="text-gold-gradient font-black">N</span>Joy
           </h2>
 
