@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
-import { Utensils, User as UserIcon, LogOut, ChevronDown, Menu, X, MapPin, ChefHat, Truck, Shield, Home, Sparkles, ShoppingCart } from "lucide-react";
+import { Utensils, User as UserIcon, LogOut, ChevronDown, Menu, X, MapPin, ChefHat, Truck, Shield, Home, Sparkles, ShoppingCart, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
@@ -264,147 +264,216 @@ export default function Header() {
                         onClick={() => setIsMenuOpen(false)}
                     />
 
-                    {/* Full-Height Sliding Side Drawer */}
-                    <div className="fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white dark:bg-[#070a07] border-l border-emerald-500/30 dark:border-amber-500/30 shadow-2xl flex flex-col justify-between p-6 overflow-y-auto animate-in slide-in-from-right duration-300 text-zinc-900 dark:text-white">
-                        <div className="space-y-4">
-                            {/* Drawer Header */}
-                            <div className="flex items-center justify-between pb-3 border-b border-emerald-500/20 dark:border-amber-500/20">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="h-9 w-9 rounded-full overflow-hidden border border-emerald-500/50 bg-black">
-                                        <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover scale-105" />
+                    {/* Full-Height Sliding Side Drawer with Complete Scrollability */}
+                    <div className="fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white dark:bg-[#070a07] border-l border-emerald-500/30 dark:border-amber-500/30 shadow-2xl overflow-y-auto overscroll-contain animate-in slide-in-from-right duration-300 text-zinc-900 dark:text-white">
+                        <div className="flex flex-col min-h-full justify-between p-5 sm:p-6 pb-28 gap-6">
+                            <div className="space-y-5">
+                                {/* Drawer Header */}
+                                <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 dark:border-amber-500/20">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="h-10 w-10 rounded-full overflow-hidden border border-emerald-500/50 bg-black shrink-0">
+                                            <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover scale-105" />
+                                        </div>
+                                        <div>
+                                            <span className="text-base font-black brand-name-text">
+                                                Food<span className="text-gold-gradient font-black">N</span>Joy
+                                            </span>
+                                            <p className="text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                                                Tinsukia Canteen
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span className="text-base font-black brand-name-text">
-                                            Food<span className="text-gold-gradient font-black">N</span>Joy
-                                        </span>
-                                        <p className="text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                                            Tinsukia Canteen
-                                        </p>
-                                    </div>
+                                    <button
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                                        aria-label="Close menu"
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
-                                    aria-label="Close menu"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
-                            </div>
 
-                            {/* Nav Links */}
-                            <div className="space-y-1.5 pt-1">
-                                {navLinks.map((link) => {
-                                    const Icon = link.icon;
-                                    const isActive = pathname === link.href;
-                                    return (
-                                        <Link
-                                            key={link.href}
-                                            href={link.href}
-                                            onClick={() => setIsMenuOpen(false)}
-                                            className={cn(
-                                                "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all border",
-                                                isActive
-                                                    ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border-emerald-500/40 shadow-sm"
-                                                    : "text-zinc-800 dark:text-zinc-200 border-transparent hover:bg-emerald-50 dark:hover:bg-zinc-900 hover:text-emerald-700 dark:hover:text-emerald-300"
-                                            )}
-                                        >
-                                            <Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                            <span>{link.label}</span>
+                                {/* Main Navigation Links */}
+                                <div className="space-y-1.5">
+                                    {navLinks.map((link) => {
+                                        const Icon = link.icon;
+                                        const isActive = pathname === link.href;
+                                        return (
+                                            <Link
+                                                key={link.href}
+                                                href={link.href}
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className={cn(
+                                                    "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all border",
+                                                    isActive
+                                                        ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border-emerald-500/40 shadow-sm"
+                                                        : "text-zinc-800 dark:text-zinc-200 border-transparent hover:bg-emerald-50 dark:hover:bg-zinc-900 hover:text-emerald-700 dark:hover:text-emerald-300"
+                                                )}
+                                            >
+                                                <Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                                <span>{link.label}</span>
+                                            </Link>
+                                        );
+                                    })}
+
+                                    {/* Cart Quick Shortcut */}
+                                    <Link
+                                        href="/menu"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-all"
+                                    >
+                                        <div className="flex items-center gap-3.5">
+                                            <ShoppingCart className="h-4 w-4 text-amber-500" />
+                                            <span>View Cart & Bill</span>
+                                        </div>
+                                        {cartCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-full bg-amber-500 text-black text-xs font-black">
+                                                {cartCount} items
+                                            </span>
+                                        )}
+                                    </Link>
+                                </div>
+
+                                {/* Popular Canteen Menu Categories Quick Jump */}
+                                <div className="pt-2">
+                                    <div className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 px-1 mb-2 flex items-center justify-between">
+                                        <span>Popular Categories</span>
+                                        <Link href="/menu" onClick={() => setIsMenuOpen(false)} className="text-amber-500 hover:underline">
+                                            All Menu &rarr;
                                         </Link>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Appearance Toggle */}
-                            <div className="pt-2 px-1 flex items-center justify-between border-t border-emerald-500/20 dark:border-amber-500/20">
-                                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Theme Mode</span>
-                                <ThemeToggle />
-                            </div>
-
-                            {/* Staff & Admin Section - Always Accessible */}
-                            <div className="pt-3 border-t border-emerald-500/20 dark:border-amber-500/20 space-y-2">
-                                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 px-2 flex items-center gap-1.5">
-                                    <Shield className="h-3 w-3 text-amber-500" />
-                                    Staff & Management
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-1.5 text-xs font-bold">
+                                        {[
+                                            "Chicken Specialities",
+                                            "Vegetarian Specialities",
+                                            "Momos",
+                                            "Hakka Noodles",
+                                            "Fried Rice",
+                                            "Milkshakes"
+                                        ].map((catName) => (
+                                            <Link
+                                                key={catName}
+                                                href={`/menu`}
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className="px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-emerald-500/15 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-amber-400/50 hover:text-amber-600 dark:hover:text-amber-400 truncate text-[11px]"
+                                            >
+                                                {catName}
+                                            </Link>
+                                        ))}
+                                    </div>
                                 </div>
-                                {profile?.role === "admin" ? (
-                                    <Link
-                                        href="/admin"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+
+                                {/* Delivery Agent Contact Shortcut */}
+                                <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-600/15 via-green-600/15 to-emerald-700/15 border border-emerald-500/30 flex items-center justify-between">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                            <Phone className="h-4 w-4 fill-white" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Delivery Agent</p>
+                                            <p className="text-xs font-black text-emerald-800 dark:text-emerald-300">+91 91810 42005</p>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href="https://api.whatsapp.com/send?phone=919181042005&text=Hello%20FoodNJoy%20Delivery%20Agent"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black transition-all active:scale-95"
                                     >
-                                        <Shield className="h-4 w-4 text-amber-500" />
-                                        Admin Dashboard
-                                    </Link>
-                                ) : profile?.role === "cook" ? (
-                                    <Link
-                                        href="/cook"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                                    >
-                                        <ChefHat className="h-4 w-4 text-emerald-500" />
-                                        Kitchen Dashboard
-                                    </Link>
-                                ) : profile?.role === "delivery" ? (
-                                    <Link
-                                        href="/delivery"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
-                                    >
-                                        <Truck className="h-4 w-4 text-amber-500" />
-                                        Delivery Dashboard
-                                    </Link>
+                                        WhatsApp
+                                    </a>
+                                </div>
+
+                                {/* Theme Mode */}
+                                <div className="pt-2 px-1 flex items-center justify-between border-t border-emerald-500/20 dark:border-amber-500/20">
+                                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Theme Mode</span>
+                                    <ThemeToggle />
+                                </div>
+
+                                {/* Staff & Management Section */}
+                                <div className="pt-3 border-t border-emerald-500/20 dark:border-amber-500/20 space-y-2">
+                                    <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 px-2 flex items-center gap-1.5">
+                                        <Shield className="h-3 w-3 text-amber-500" />
+                                        Staff & Management
+                                    </div>
+                                    {profile?.role === "admin" ? (
+                                        <Link
+                                            href="/admin"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                        >
+                                            <Shield className="h-4 w-4 text-amber-500" />
+                                            Admin Dashboard (Menu & Orders)
+                                        </Link>
+                                    ) : profile?.role === "cook" ? (
+                                        <Link
+                                            href="/cook"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                                        >
+                                            <ChefHat className="h-4 w-4 text-emerald-500" />
+                                            Kitchen Dashboard
+                                        </Link>
+                                    ) : profile?.role === "delivery" ? (
+                                        <Link
+                                            href="/delivery"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                        >
+                                            <Truck className="h-4 w-4 text-amber-500" />
+                                            Delivery Dashboard
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            href="/admin/login"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-colors"
+                                        >
+                                            <Shield className="h-4 w-4 text-amber-500" />
+                                            Admin Login Portal
+                                        </Link>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Bottom Auth Actions */}
+                            <div className="pt-4 border-t border-emerald-500/20 dark:border-amber-500/20 space-y-3">
+                                {user ? (
+                                    <>
+                                        <Link
+                                            href="/profile"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-emerald-500/30 dark:border-amber-500/30 font-bold text-sm text-zinc-800 dark:text-zinc-200 bg-emerald-50/50 dark:bg-zinc-900/60"
+                                        >
+                                            <UserIcon className="h-4 w-4 text-amber-500" />
+                                            My Profile
+                                        </Link>
+                                        <button
+                                            onClick={() => { signOut(); setIsMenuOpen(false); }}
+                                            className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-900/50 font-bold text-sm"
+                                        >
+                                            <LogOut className="h-4 w-4" />
+                                            Log Out
+                                        </button>
+                                    </>
                                 ) : (
-                                    <Link
-                                        href="/admin/login"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-colors"
-                                    >
-                                        <Shield className="h-4 w-4 text-amber-500" />
-                                        Admin Login Portal
-                                    </Link>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Link
+                                            href="/login"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center justify-center py-3.5 rounded-2xl border border-emerald-500/30 dark:border-amber-500/30 font-bold text-sm text-zinc-800 dark:text-zinc-200 bg-emerald-50/50 dark:bg-zinc-900/60"
+                                        >
+                                            Log In
+                                        </Link>
+                                        <Link
+                                            href="/signup"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="flex items-center justify-center py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black text-sm shadow-lg shadow-amber-500/20"
+                                        >
+                                            Sign Up
+                                        </Link>
+                                    </div>
                                 )}
                             </div>
-                        </div>
-
-                        {/* Bottom Auth Actions */}
-                        <div className="pt-6 border-t border-emerald-500/20 dark:border-amber-500/20 space-y-3">
-                            {user ? (
-                                <>
-                                    <Link
-                                        href="/profile"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-emerald-500/30 dark:border-amber-500/30 font-bold text-sm text-zinc-800 dark:text-zinc-200 bg-emerald-50/50 dark:bg-zinc-900/60"
-                                    >
-                                        <UserIcon className="h-4 w-4 text-amber-500" />
-                                        My Profile
-                                    </Link>
-                                    <button
-                                        onClick={() => { signOut(); setIsMenuOpen(false); }}
-                                        className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-900/50 font-bold text-sm"
-                                    >
-                                        <LogOut className="h-4 w-4" />
-                                        Log Out
-                                    </button>
-                                </>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                    <Link
-                                        href="/login"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center justify-center py-3.5 rounded-2xl border border-emerald-500/30 dark:border-amber-500/30 font-bold text-sm text-zinc-800 dark:text-zinc-200 bg-emerald-50/50 dark:bg-zinc-900/60"
-                                    >
-                                        Log In
-                                    </Link>
-                                    <Link
-                                        href="/signup"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="flex items-center justify-center py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black text-sm shadow-lg shadow-amber-500/20"
-                                    >
-                                        Sign Up
-                                    </Link>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>,

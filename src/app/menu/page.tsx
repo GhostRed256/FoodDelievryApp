@@ -8,6 +8,7 @@ import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
 import { orderService } from "@/lib/orderService";
+import { menuService, MenuOverrides } from "@/lib/menuService";
 import { db, auth } from "@/lib/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -53,6 +54,39 @@ export default function MenuPage() {
     });
 
     const [vegFilter, setVegFilter] = useState<"All" | "Veg" | "Non-Veg">("All");
+
+    // Real-Time Menu Customization: Daily Stock Availability & Custom Prices
+    const [menuOverrides, setMenuOverrides] = useState<MenuOverrides>(() => menuService.getCachedOverrides());
+
+    useEffect(() => {
+        const unsubscribe = menuService.subscribeToOverrides((overrides) => {
+            setMenuOverrides(overrides);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    // Helper functions for daily availability and custom prices
+    const isItemAvailableToday = (productId: string): boolean => {
+        return menuOverrides[productId]?.isAvailable !== false;
+    };
+
+    const getEffectiveVariantPrice = (productId: string, variant: ProductVariant): number => {
+        const override = menuOverrides[productId];
+        if (override?.variantPrices && typeof override.variantPrices[variant.name] === "number") {
+            return override.variantPrices[variant.name];
+        }
+        if (typeof override?.price === "number") {
+            return override.price;
+        }
+        return variant.price;
+    };
+
+    const getResolvedVariant = (productId: string, variant: ProductVariant): ProductVariant => {
+        return {
+            ...variant,
+            price: getEffectiveVariantPrice(productId, variant)
+        };
+    };
 
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isCartLoaded, setIsCartLoaded] = useState(false);
@@ -137,7 +171,11 @@ export default function MenuPage() {
     };
 
     const addToCart = (product: MenuItem) => {
-        const currentVariant = selectedVariants[product.id] || product.variants[0];
+        if (!isItemAvailableToday(product.id)) {
+            return;
+        }
+        const rawVariant = selectedVariants[product.id] || product.variants[0];
+        const currentVariant = getResolvedVariant(product.id, rawVariant);
         const cartKey = `${product.id}-${currentVariant.name}`;
 
         setCart(prev => {
@@ -145,7 +183,7 @@ export default function MenuPage() {
             if (existing) {
                 return prev.map(item =>
                     item.cartKey === cartKey
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, quantity: item.quantity + 1, variant: currentVariant }
                         : item
                 );
             }
@@ -200,7 +238,10 @@ export default function MenuPage() {
     };
 
     const totalCartCount = cart.reduce((a, b) => a + b.quantity, 0);
-    const itemsSubtotal = cart.reduce((sum, item) => sum + (item.variant.price * item.quantity), 0);
+    const itemsSubtotal = cart.reduce((sum, item) => {
+        const effPrice = getEffectiveVariantPrice(item.product.id, item.variant);
+        return sum + (effPrice * item.quantity);
+    }, 0);
     const totalOrderAmount = cart.length > 0 ? itemsSubtotal + DELIVERY_FEE : 0;
     const [hasWarnedLocation, setHasWarnedLocation] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -213,7 +254,8 @@ export default function MenuPage() {
         msg += `*Phone:* ${customerPhone.trim()}\n\n`;
         msg += `*📋 Ordered Items:*\n`;
         cart.forEach(item => {
-            msg += `▪️ ${item.quantity}x ${item.product.name} (${item.variant.name}) - ₹${item.variant.price * item.quantity}\n`;
+            const effPrice = getEffectiveVariantPrice(item.product.id, item.variant);
+            msg += `▪️ ${item.quantity}x ${item.product.name} (${item.variant.name}) - ₹${effPrice * item.quantity}\n`;
         });
         msg += `\n*💰 Total Amount:* ₹${itemsSubtotal + DELIVERY_FEE} (Includes ₹20 Delivery Charges)\n`;
         msg += `*💳 Payment:* ${paymentMethod}\n`;
@@ -267,7 +309,7 @@ export default function MenuPage() {
                     items: cart.map(item => ({
                         id: item.cartKey,
                         name: `${item.product.name} (${item.variant.name})`,
-                        price: item.variant.price,
+                        price: getEffectiveVariantPrice(item.product.id, item.variant),
                         quantity: item.quantity
                     })),
                     total: finalTotal,
@@ -437,13 +479,20 @@ export default function MenuPage() {
                 {/* Product Grid */}
                 <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredProducts.map((product, index) => {
-                        const currentVariant = selectedVariants[product.id] || product.variants[0];
+                        const rawVariant = selectedVariants[product.id] || product.variants[0];
+                        const currentVariant = getResolvedVariant(product.id, rawVariant);
+                        const isAvailable = isItemAvailableToday(product.id);
                         const cartItem = cart.find(c => c.cartKey === `${product.id}-${currentVariant.name}`);
 
                         return (
                             <div
                                 key={product.id}
-                                className="group bg-white dark:bg-[#0c180e] rounded-2xl sm:rounded-3xl border border-emerald-500/25 dark:border-emerald-500/20 shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:border-amber-400/60 hover:-translate-y-1"
+                                className={cn(
+                                    "group bg-white dark:bg-[#0c180e] rounded-2xl sm:rounded-3xl border shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                                    isAvailable
+                                        ? "border-emerald-500/25 dark:border-emerald-500/20 hover:border-amber-400/60"
+                                        : "border-red-500/30 dark:border-red-500/20 opacity-85"
+                                )}
                             >
                                 {/* Dish Image */}
                                 <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-zinc-900">
@@ -451,7 +500,10 @@ export default function MenuPage() {
                                         src={product.image}
                                         alt={product.name}
                                         fill
-                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                        className={cn(
+                                            "object-cover transition-transform duration-500 group-hover:scale-105",
+                                            !isAvailable && "grayscale-[35%]"
+                                        )}
                                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                         priority={index < 6}
                                         loading={index < 6 ? "eager" : "lazy"}
@@ -459,8 +511,13 @@ export default function MenuPage() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
                                     {/* Top Badges */}
-                                    <div className="absolute top-2.5 left-2.5 flex gap-1.5">
-                                        {product.isVeg ? (
+                                    <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+                                        {!isAvailable ? (
+                                            <span className="bg-rose-700/95 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1 shadow-md border border-rose-500/40">
+                                                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                                Sold Out Today
+                                            </span>
+                                        ) : product.isVeg ? (
                                             <span className="bg-emerald-600/95 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1 shadow-md border border-emerald-400/30">
                                                 <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                                                 Veg
@@ -470,7 +527,7 @@ export default function MenuPage() {
                                                 Non-Veg
                                             </span>
                                         )}
-                                        {product.isChefSpecial && (
+                                        {isAvailable && product.isChefSpecial && (
                                             <span className="bg-amber-500/90 backdrop-blur-md text-black text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 sm:py-1 rounded-full shadow-md">
                                                 ★ Chef Special
                                             </span>
@@ -513,11 +570,12 @@ export default function MenuPage() {
                                                 <div className="flex gap-1.5 bg-emerald-50/80 dark:bg-zinc-900/90 border border-emerald-500/20 dark:border-amber-500/20 p-1 rounded-xl">
                                                     {product.variants.map(variant => {
                                                         const isSelected = currentVariant.name === variant.name;
+                                                        const effPrice = getEffectiveVariantPrice(product.id, variant);
                                                         return (
                                                             <button
                                                                 key={variant.name}
                                                                 type="button"
-                                                                onClick={() => handleSelectVariant(product.id, variant)}
+                                                                onClick={() => handleSelectVariant(product.id, getResolvedVariant(product.id, variant))}
                                                                 className={cn(
                                                                     "flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95 min-h-[36px]",
                                                                     isSelected
@@ -526,7 +584,7 @@ export default function MenuPage() {
                                                                 )}
                                                             >
                                                                 <span>{variant.name}</span>
-                                                                <span className="text-[10px] opacity-80 font-bold">₹{variant.price}</span>
+                                                                <span className="text-[10px] opacity-80 font-bold">₹{effPrice}</span>
                                                             </button>
                                                         );
                                                     })}
@@ -535,7 +593,16 @@ export default function MenuPage() {
                                         )}
 
                                         {/* Add to Cart or Quantity Selector */}
-                                        {cartItem ? (
+                                        {!isAvailable ? (
+                                            <button
+                                                type="button"
+                                                disabled
+                                                className="w-full flex items-center justify-center gap-2 bg-zinc-100 dark:bg-zinc-900/90 text-zinc-400 dark:text-zinc-500 font-black py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-xs min-h-[44px] cursor-not-allowed"
+                                            >
+                                                <Minus className="h-3.5 w-3.5 text-zinc-400" />
+                                                <span>Sold Out for Today</span>
+                                            </button>
+                                        ) : cartItem ? (
                                             <div className="flex items-center justify-between bg-amber-500/15 border border-amber-500/40 rounded-2xl p-1.5">
                                                 <button
                                                     onClick={() => updateQuantity(cartItem.cartKey, -1)}

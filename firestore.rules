@@ -33,6 +33,12 @@ service cloud.firestore {
     //   - createdAt: timestamp (required) - Order creation timestamp
     //   - updatedAt: timestamp (required) - Last update timestamp
     //
+    // Collection: menu_config
+    // Document ID: {configId} (e.g. 'daily_overrides')
+    // Fields:
+    //   - items: map (optional) - Map of item IDs to item override configs (isAvailable, price, variantPrices, updatedAt)
+    //   - lastUpdated: number (optional) - Epoch timestamp of last menu config update
+    //
     // ===============================================================
 
     // ===============================================================
@@ -116,5 +122,15 @@ service cloud.firestore {
       // Strict Delete: Only admins can delete orders.
       allow delete: if hasRole('admin');
     }
+
+    // --- Menu Configuration (Daily Overrides & Prices) ---
+    match /menu_config/{configId} {
+      // Public Read: All customers (including guests) can read daily menu availability and prices
+      allow read: if true;
+
+      // Admin Write: Only authorized administrators can create, update, or delete menu configurations
+      allow write: if hasRole('admin');
+    }
   }
 }
+
