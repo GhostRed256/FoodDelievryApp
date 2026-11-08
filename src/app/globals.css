@@ -175,12 +175,6 @@ html.light header {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
 }
 
-/* Mobile Drawer in Light Mode */
-html.light .fixed.top-18 {
-  background-color: #ffffff !important;
-  border-top-color: rgba(22, 163, 74, 0.2) !important;
-}
-
 /* Inputs & Form Controls in Light Mode */
 html.light input,
 html.light textarea,

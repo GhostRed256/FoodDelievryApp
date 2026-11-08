@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
 import { Utensils, User as UserIcon, LogOut, ChevronDown, Menu, X, MapPin, ChefHat, Truck, Shield, Home, Sparkles, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -13,6 +14,11 @@ export default function Header() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         setIsMenuOpen(false);
@@ -69,7 +75,7 @@ export default function Header() {
         <header 
             className="sticky top-0 z-40 w-full border-b border-emerald-500/20 dark:border-amber-500/20 bg-white/95 dark:bg-[#070a07]/95 backdrop-blur-md shadow-sm dark:shadow-lg dark:shadow-black/60 relative header-pattern"
         >
-            <div className="container mx-auto flex h-18 items-center justify-between px-4 md:px-6 relative z-10">
+            <div className="container mx-auto flex h-[72px] items-center justify-between px-4 md:px-6 relative z-10">
                 {/* Brand Logo & Name */}
                 <Link href="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
                     <div className="relative h-11 w-11 rounded-full overflow-hidden border-2 border-emerald-500/50 shadow-md shadow-emerald-500/20 group-hover:border-emerald-400 transition-colors bg-black">
@@ -90,7 +96,7 @@ export default function Header() {
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="hidden md:flex items-center gap-8">
+                <nav className="hidden md:flex items-center gap-7">
                     {navLinks.map((link) => {
                         const isActive = pathname === link.href;
                         return (
@@ -112,23 +118,26 @@ export default function Header() {
                         );
                     })}
 
-                    {/* Role-Specific Badges */}
-                    {profile?.role === "admin" && (
-                        <Link href="/admin" className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30">
+                    {/* Role-Specific Badges or Staff Login Link */}
+                    {profile?.role === "admin" ? (
+                        <Link href="/admin" className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-colors">
                             <Shield className="h-3.5 w-3.5 text-amber-500" />
-                            Admin
+                            Admin Dashboard
                         </Link>
-                    )}
-                    {profile?.role === "cook" && (
-                        <Link href="/cook" className="text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+                    ) : profile?.role === "cook" ? (
+                        <Link href="/cook" className="text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors">
                             <ChefHat className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                             Kitchen
                         </Link>
-                    )}
-                    {profile?.role === "delivery" && (
-                        <Link href="/delivery" className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30">
+                    ) : profile?.role === "delivery" ? (
+                        <Link href="/delivery" className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-colors">
                             <Truck className="h-3.5 w-3.5 text-amber-500" />
                             Delivery
+                        </Link>
+                    ) : (
+                        <Link href="/admin/login" className="text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1 px-2.5 py-1 rounded-full border border-zinc-300 dark:border-zinc-800 hover:border-amber-500/40 transition-colors">
+                            <Shield className="h-3 w-3 text-amber-500/80" />
+                            Admin
                         </Link>
                     )}
                 </nav>
@@ -190,13 +199,21 @@ export default function Header() {
                                             <UserIcon className="h-4 w-4 text-amber-500" />
                                             Profile & Addresses
                                         </Link>
-                                        {profile?.role === "admin" && (
+                                        {profile?.role === "admin" ? (
                                             <Link
                                                 href="/admin"
                                                 className="flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-xl transition-all"
                                             >
                                                 <Shield className="h-4 w-4 text-emerald-600" />
                                                 Admin Dashboard
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                href="/admin/login"
+                                                className="flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-emerald-50 dark:hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 rounded-xl transition-all"
+                                            >
+                                                <Shield className="h-4 w-4 text-amber-500" />
+                                                Admin Portal Login
                                             </Link>
                                         )}
                                         <button
@@ -238,79 +255,116 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* Mobile Navigation Drawer */}
-            {isMenuOpen && (
-                <>
+            {/* Mobile Navigation Drawer Portaled Directly to Document Body */}
+            {mounted && isMenuOpen && createPortal(
+                <div className="fixed inset-0 z-[99999] md:hidden">
+                    {/* Backdrop */}
                     <div
-                        className="fixed inset-0 top-18 z-40 bg-black/60 dark:bg-black/80 backdrop-blur-sm md:hidden animate-in fade-in"
+                        className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                         onClick={() => setIsMenuOpen(false)}
                     />
-                    <div className="fixed top-18 right-0 left-0 bottom-0 z-50 bg-white dark:bg-[#0a0e0a] border-t border-emerald-500/20 dark:border-amber-500/20 md:hidden flex flex-col justify-between p-6 overflow-y-auto animate-in slide-in-from-top-4 duration-300">
-                        <div className="space-y-3">
-                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 px-3 mb-2 flex items-center gap-1.5">
-                                <Sparkles className="h-3 w-3 text-amber-500" />
-                                The Tinsukia Canteen • Good Food • Good Mood
-                            </div>
-                            {navLinks.map((link) => {
-                                const Icon = link.icon;
-                                const isActive = pathname === link.href;
-                                return (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
-                                        className={cn(
-                                            "flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-base font-bold transition-all border",
-                                            isActive
-                                                ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border-emerald-500/40 shadow-sm"
-                                                : "text-zinc-800 dark:text-zinc-200 border-transparent hover:bg-emerald-50 dark:hover:bg-zinc-900 hover:text-emerald-700 dark:hover:text-emerald-300"
-                                        )}
-                                    >
-                                        <Icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                        <span>{link.label}</span>
-                                    </Link>
-                                );
-                            })}
 
-                            <div className="pt-2 px-1 flex items-center justify-between">
-                                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Appearance Mode</span>
+                    {/* Full-Height Sliding Side Drawer */}
+                    <div className="fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white dark:bg-[#070a07] border-l border-emerald-500/30 dark:border-amber-500/30 shadow-2xl flex flex-col justify-between p-6 overflow-y-auto animate-in slide-in-from-right duration-300 text-zinc-900 dark:text-white">
+                        <div className="space-y-4">
+                            {/* Drawer Header */}
+                            <div className="flex items-center justify-between pb-3 border-b border-emerald-500/20 dark:border-amber-500/20">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="h-9 w-9 rounded-full overflow-hidden border border-emerald-500/50 bg-black">
+                                        <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover scale-105" />
+                                    </div>
+                                    <div>
+                                        <span className="text-base font-black brand-name-text">
+                                            Food<span className="text-gold-gradient font-black">N</span>Joy
+                                        </span>
+                                        <p className="text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                                            Tinsukia Canteen
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                                    aria-label="Close menu"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            {/* Nav Links */}
+                            <div className="space-y-1.5 pt-1">
+                                {navLinks.map((link) => {
+                                    const Icon = link.icon;
+                                    const isActive = pathname === link.href;
+                                    return (
+                                        <Link
+                                            key={link.href}
+                                            href={link.href}
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className={cn(
+                                                "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all border",
+                                                isActive
+                                                    ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border-emerald-500/40 shadow-sm"
+                                                    : "text-zinc-800 dark:text-zinc-200 border-transparent hover:bg-emerald-50 dark:hover:bg-zinc-900 hover:text-emerald-700 dark:hover:text-emerald-300"
+                                            )}
+                                        >
+                                            <Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                            <span>{link.label}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Appearance Toggle */}
+                            <div className="pt-2 px-1 flex items-center justify-between border-t border-emerald-500/20 dark:border-amber-500/20">
+                                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Theme Mode</span>
                                 <ThemeToggle />
                             </div>
 
-                            {/* Staff Role Section */}
-                            {profile?.role && profile.role !== "customer" && (
-                                <div className="pt-4 border-t border-emerald-500/20 dark:border-amber-500/20 mt-4 space-y-2">
-                                    <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 px-3 mb-2">
-                                        Staff Portal ({profile.role})
-                                    </div>
-                                    {profile.role === "admin" && (
-                                        <Link
-                                            href="/admin"
-                                            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
-                                        >
-                                            <Shield className="h-4 w-4" />
-                                            Admin Dashboard
-                                        </Link>
-                                    )}
-                                    {profile.role === "cook" && (
-                                        <Link
-                                            href="/cook"
-                                            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                                        >
-                                            <ChefHat className="h-4 w-4" />
-                                            Kitchen Dashboard
-                                        </Link>
-                                    )}
-                                    {profile.role === "delivery" && (
-                                        <Link
-                                            href="/delivery"
-                                            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
-                                        >
-                                            <Truck className="h-4 w-4" />
-                                            Delivery Dashboard
-                                        </Link>
-                                    )}
+                            {/* Staff & Admin Section - Always Accessible */}
+                            <div className="pt-3 border-t border-emerald-500/20 dark:border-amber-500/20 space-y-2">
+                                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 px-2 flex items-center gap-1.5">
+                                    <Shield className="h-3 w-3 text-amber-500" />
+                                    Staff & Management
                                 </div>
-                            )}
+                                {profile?.role === "admin" ? (
+                                    <Link
+                                        href="/admin"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                    >
+                                        <Shield className="h-4 w-4 text-amber-500" />
+                                        Admin Dashboard
+                                    </Link>
+                                ) : profile?.role === "cook" ? (
+                                    <Link
+                                        href="/cook"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                                    >
+                                        <ChefHat className="h-4 w-4 text-emerald-500" />
+                                        Kitchen Dashboard
+                                    </Link>
+                                ) : profile?.role === "delivery" ? (
+                                    <Link
+                                        href="/delivery"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                    >
+                                        <Truck className="h-4 w-4 text-amber-500" />
+                                        Delivery Dashboard
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        href="/admin/login"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-colors"
+                                    >
+                                        <Shield className="h-4 w-4 text-amber-500" />
+                                        Admin Login Portal
+                                    </Link>
+                                )}
+                            </div>
                         </div>
 
                         {/* Bottom Auth Actions */}
@@ -319,13 +373,14 @@ export default function Header() {
                                 <>
                                     <Link
                                         href="/profile"
+                                        onClick={() => setIsMenuOpen(false)}
                                         className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border border-emerald-500/30 dark:border-amber-500/30 font-bold text-sm text-zinc-800 dark:text-zinc-200 bg-emerald-50/50 dark:bg-zinc-900/60"
                                     >
                                         <UserIcon className="h-4 w-4 text-amber-500" />
                                         My Profile
                                     </Link>
                                     <button
-                                        onClick={() => signOut()}
+                                        onClick={() => { signOut(); setIsMenuOpen(false); }}
                                         className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-900/50 font-bold text-sm"
                                     >
                                         <LogOut className="h-4 w-4" />
@@ -336,12 +391,14 @@ export default function Header() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <Link
                                         href="/login"
+                                        onClick={() => setIsMenuOpen(false)}
                                         className="flex items-center justify-center py-3.5 rounded-2xl border border-emerald-500/30 dark:border-amber-500/30 font-bold text-sm text-zinc-800 dark:text-zinc-200 bg-emerald-50/50 dark:bg-zinc-900/60"
                                     >
                                         Log In
                                     </Link>
                                     <Link
                                         href="/signup"
+                                        onClick={() => setIsMenuOpen(false)}
                                         className="flex items-center justify-center py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black text-sm shadow-lg shadow-amber-500/20"
                                     >
                                         Sign Up
@@ -350,7 +407,8 @@ export default function Header() {
                             )}
                         </div>
                     </div>
-                </>
+                </div>,
+                document.body
             )}
         </header>
     );

@@ -222,6 +222,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Footer & Staff Portal */}
+      <footer className="py-8 border-t border-emerald-500/20 bg-white/80 dark:bg-[#070a07] text-center text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 font-bold text-zinc-800 dark:text-zinc-200">
+            <span className="brand-name-text">Food<span className="text-gold-metallic">N</span>Joy</span>
+            <span>•</span>
+            <span className="text-emerald-700 dark:text-emerald-400">The Tinsukia Canteen</span>
+          </div>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link href="/menu" className="hover:text-amber-500 transition-colors">Menu</Link>
+            <Link href="/track" className="hover:text-amber-500 transition-colors">Live Tracker</Link>
+            <Link href="/admin/login" className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400 hover:underline font-bold">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Admin Portal
+            </Link>
+          </div>
+        </div>
+      </footer>
+
     </main>
   );
 }

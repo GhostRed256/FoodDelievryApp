@@ -5,7 +5,7 @@ import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, ArrowRight, Loader2, Sparkles, Phone } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, Sparkles, Phone, Shield } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
 // Add global recaptcha type
@@ -309,12 +309,23 @@ export default function LoginPage() {
                     </button>
                 </div>
 
-                <p className="text-center text-xs sm:text-sm text-zinc-400">
+                <p className="text-center text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
                     Don't have an account?{" "}
-                    <Link href="/signup" className="text-amber-400 font-bold hover:underline">
+                    <Link href="/signup" className="text-amber-500 font-bold hover:underline">
                         Sign up
                     </Link>
                 </p>
+
+                {/* Admin & Staff Portal Link */}
+                <div className="pt-2 text-center">
+                    <Link
+                        href="/admin/login"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-bold transition-all"
+                    >
+                        <Shield className="h-3.5 w-3.5 text-amber-500" />
+                        Restaurant Owner & Staff Login →
+                    </Link>
+                </div>
             </div>
         </div>
     );

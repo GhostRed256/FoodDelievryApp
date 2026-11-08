@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Header from "@/components/Header";
 import Image from "next/image";
 import { ShoppingCart, Search, Utensils, Star, Plus, Minus, X, Loader2, Sparkles, ShieldCheck, ChevronRight, MapPin, Navigation, CheckCircle2, Map, QrCode, Copy, Check, ExternalLink, Camera, Phone } from "lucide-react";
@@ -87,8 +88,10 @@ export default function MenuPage() {
     const UPI_ID = "7002586087-2@ybl";
     const UPI_NAME = "DIBAN BORBORUAH";
     const WHATSAPP_NUMBER = "918133819414";
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         if (typeof window !== "undefined") {
             const savedName = localStorage.getItem("foodnjoy_name");
             const savedPhone = localStorage.getItem("foodnjoy_phone");
@@ -203,7 +206,30 @@ export default function MenuPage() {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [upiTransactionId, setUpiTransactionId] = useState("");
 
-    const initiatePayment = () => {
+    const buildWhatsAppMessage = (orderId: string, paymentMethod: string, utr?: string) => {
+        let msg = `*🍽️ NEW ORDER - FoodNJoy Tinsukia*\n\n`;
+        msg += `*Order ID:* #${orderId.slice(-6)}\n`;
+        msg += `*Customer:* ${customerName.trim() || "Customer"}\n`;
+        msg += `*Phone:* ${customerPhone.trim()}\n\n`;
+        msg += `*📋 Ordered Items:*\n`;
+        cart.forEach(item => {
+            msg += `▪️ ${item.quantity}x ${item.product.name} (${item.variant.name}) - ₹${item.variant.price * item.quantity}\n`;
+        });
+        msg += `\n*💰 Total Amount:* ₹${itemsSubtotal + DELIVERY_FEE} (Includes ₹20 Delivery Charges)\n`;
+        msg += `*💳 Payment:* ${paymentMethod}\n`;
+        if (utr && utr.trim()) {
+            msg += `*🧾 UTR / Trans ID:* ${utr.trim()}\n`;
+            msg += `*📸 Payment Proof:* Attaching screenshot in this chat\n`;
+        }
+        msg += `\n*📍 Delivery Address:*\n${deliveryAddress.trim() || "Tinsukia Local Delivery"}\n`;
+        if (customerCoords.lat) {
+            msg += `*🗺️ GPS Location:* https://maps.google.com/?q=${customerCoords.lat},${customerCoords.lng}\n`;
+        }
+        msg += `\n_Please confirm our order and dispatch freshly cooked!_`;
+        return msg;
+    };
+
+    const processOrder = async (paymentMethod: "WhatsApp / Cash on Delivery" | "Online UPI", utr?: string) => {
         setCheckoutError("");
 
         if (!customerPhone.trim() || customerPhone.replace(/\D/g, "").length < 10) {
@@ -213,31 +239,26 @@ export default function MenuPage() {
 
         // Make location optional but show a warning prompt once
         if (!gpsAcquired && !deliveryAddress.trim() && !hasWarnedLocation) {
-            setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin Live GPS'. If you still want to order without a location, tap Proceed to Pay again.");
+            setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin Live GPS'. If you still want to order without a location, tap order button again.");
             setHasWarnedLocation(true);
             return;
         }
-        
-        setShowPaymentModal(true);
-    };
 
-    const confirmCheckout = async () => {
-        setCheckoutError("");
         setIsSubmitting(true);
-
         const tempOrderId = `FNJ-${Date.now().toString().slice(-6)}`;
         let finalOrderId = tempOrderId;
 
         try {
-            let finalTotal = itemsSubtotal + DELIVERY_FEE;
+            const finalTotal = itemsSubtotal + DELIVERY_FEE;
 
             // Save phone & name in browser storage for convenience
             if (typeof window !== "undefined") {
                 if (customerPhone.trim()) localStorage.setItem("foodnjoy_phone", customerPhone.trim());
                 if (customerName.trim()) localStorage.setItem("foodnjoy_name", customerName.trim());
+                localStorage.setItem("foodnjoy_last_order_id", finalOrderId);
             }
 
-            // Attempt to save to database with 4s timeout so network never blocks the user
+            // Attempt to save to database with 3.5s timeout so network never blocks the user
             try {
                 const orderPromise = orderService.createOrder({
                     customerId: user ? user.uid : "guest",
@@ -251,8 +272,8 @@ export default function MenuPage() {
                     })),
                     total: finalTotal,
                     status: "pending",
-                    paymentMethod: "UPI",
-                    transactionId: upiTransactionId.trim() || "Screenshot in WhatsApp",
+                    paymentMethod: paymentMethod === "Online UPI" ? "UPI" : "Cash on Delivery",
+                    transactionId: utr?.trim() || (paymentMethod === "Online UPI" ? "Screenshot in WhatsApp" : "COD"),
                     customerLocation: {
                         lat: customerCoords.lat,
                         lng: customerCoords.lng,
@@ -261,50 +282,42 @@ export default function MenuPage() {
                 });
 
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("DB Timeout")), 4000)
+                    setTimeout(() => reject(new Error("DB Timeout")), 3500)
                 );
 
                 const orderDoc = (await Promise.race([orderPromise, timeoutPromise])) as any;
                 if (orderDoc && orderDoc.id) {
                     finalOrderId = orderDoc.id;
+                    if (typeof window !== "undefined") {
+                        localStorage.setItem("foodnjoy_last_order_id", finalOrderId);
+                    }
                 }
             } catch (dbErr) {
                 console.warn("DB save skipped or timed out, order proceeding via WhatsApp:", dbErr);
             }
 
-            // Build detailed WhatsApp Message for Restaurant Owner
-            let msg = `*🍽️ NEW ORDER - FoodNJoy Tinsukia*\n\n`;
-            msg += `*Order ID:* #${finalOrderId.slice(-6)}\n`;
-            msg += `*Customer:* ${customerName.trim() || "Customer"}\n`;
-            msg += `*Phone:* ${customerPhone.trim()}\n\n`;
-            msg += `*📋 Ordered Items:*\n`;
-            cart.forEach(item => {
-                msg += `▪️ ${item.quantity}x ${item.product.name} (${item.variant.name}) - ₹${item.variant.price * item.quantity}\n`;
-            });
-            msg += `\n*💰 Total Amount:* ₹${finalTotal} (Includes ₹20 Delivery Charges)\n`;
-            msg += `*💳 Payment:* Online UPI (to ${UPI_NAME})\n`;
-            if (upiTransactionId.trim()) {
-                msg += `*🧾 UTR / Trans ID:* ${upiTransactionId.trim()}\n`;
-            }
-            msg += `*📸 Payment Proof:* Attaching screenshot in this chat\n\n`;
-            msg += `*📍 Delivery Address:*\n${deliveryAddress.trim() || "Tinsukia Local Delivery"}\n`;
-            if (customerCoords.lat) {
-                msg += `*🗺️ GPS Location:* https://maps.google.com/?q=${customerCoords.lat},${customerCoords.lng}\n`;
-            }
-            msg += `\n_Please confirm our order and dispatch freshly cooked!_`;
-
-            // Open WhatsApp directly
+            // Build detailed WhatsApp Message for Restaurant Owner & Delivery Agent
+            const msg = buildWhatsAppMessage(finalOrderId, paymentMethod, utr);
             const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, "_blank");
 
             // Clear cart & state
             setCart([]);
             if (typeof window !== "undefined") {
                 localStorage.removeItem("foodnjoy_cart");
+                window.dispatchEvent(new Event("cartUpdated"));
             }
             setIsCartOpen(false);
             setShowPaymentModal(false);
             setHasWarnedLocation(false);
+
+            // Open WhatsApp reliably using programmatic anchor to bypass popup blockers
+            const anchor = document.createElement("a");
+            anchor.href = waUrl;
+            anchor.target = "_blank";
+            anchor.rel = "noopener noreferrer";
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
 
             // Redirect to tracking page
             router.push(`/track?id=${finalOrderId}&new=true`);
@@ -314,6 +327,23 @@ export default function MenuPage() {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const initiatePayment = () => {
+        setCheckoutError("");
+
+        if (!customerPhone.trim() || customerPhone.replace(/\D/g, "").length < 10) {
+            setCheckoutError("Please enter your 10-digit mobile number so the restaurant & rider can contact you.");
+            return;
+        }
+
+        if (!gpsAcquired && !deliveryAddress.trim() && !hasWarnedLocation) {
+            setCheckoutError("Delivery Location is currently empty! Please fill it or tap 'Pin Live GPS'. If you still want to order without a location, tap Proceed to Pay again.");
+            setHasWarnedLocation(true);
+            return;
+        }
+        
+        setShowPaymentModal(true);
     };
 
     return (
@@ -580,13 +610,13 @@ export default function MenuPage() {
             )}
 
             {/* Mobile Bottom Sheet / Drawer */}
-            {isCartOpen && (
-                <>
+            {mounted && isCartOpen && createPortal(
+                <div className="fixed inset-0 z-[99999]">
                     <div
-                        className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                        className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                         onClick={() => setIsCartOpen(false)}
                     />
-                    <div className="fixed bottom-0 sm:top-0 right-0 z-50 h-[90vh] sm:h-full w-full max-w-md bg-white dark:bg-[#0a0e0a] border-t sm:border-t-0 sm:border-l border-emerald-500/20 dark:border-amber-500/30 rounded-t-[32px] sm:rounded-none shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 flex flex-col text-zinc-900 dark:text-white">
+                    <div className="fixed bottom-0 sm:top-0 right-0 z-50 h-[92vh] sm:h-full w-full max-w-md bg-white dark:bg-[#0a0e0a] border-t sm:border-t-0 sm:border-l border-emerald-500/20 dark:border-amber-500/30 rounded-t-[32px] sm:rounded-none shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-right duration-300 flex flex-col text-zinc-900 dark:text-white">
                         {/* Pull bar for mobile */}
                         <div className="w-12 h-1 bg-zinc-300 dark:bg-amber-500/40 rounded-full mx-auto mt-3 sm:hidden" />
 
@@ -769,30 +799,54 @@ export default function MenuPage() {
                                 </div>
 
                                 {checkoutError && (
-                                    <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-medium">
+                                    <div className="mb-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 text-xs text-center font-bold">
                                         {checkoutError}
                                     </div>
                                 )}
 
+                                {/* Primary Button: Send Order Directly to WhatsApp */}
                                 <button
-                                    className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm min-h-[48px]"
-                                    onClick={initiatePayment}
+                                    className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 text-sm min-h-[50px] border border-emerald-400/40 disabled:opacity-50"
+                                    disabled={isSubmitting}
+                                    onClick={() => processOrder("WhatsApp / Cash on Delivery")}
                                 >
-                                    Proceed to Pay • ₹{totalOrderAmount}
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                                            <span>Connecting to WhatsApp...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Phone className="h-4 w-4 text-white fill-white" />
+                                            <span>Send Order to WhatsApp • ₹{totalOrderAmount}</span>
+                                        </>
+                                    )}
                                 </button>
 
-                                <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-400 font-bold">
+                                {/* Secondary Button: Pay Online via UPI */}
+                                <button
+                                    className="w-full bg-white dark:bg-zinc-900 hover:bg-amber-50 dark:hover:bg-zinc-800 text-amber-600 dark:text-amber-400 border border-amber-500/40 font-black py-3 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-xs min-h-[44px]"
+                                    disabled={isSubmitting}
+                                    onClick={initiatePayment}
+                                >
+                                    <QrCode className="h-4 w-4 text-amber-500" />
+                                    <span>Pay Online via UPI (QR / Apps)</span>
+                                </button>
+
+                                <div className="mt-1 flex items-center justify-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
                                     <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Instant UPI & WhatsApp Checkout</span>
+                                    <span>Direct delivery agent WhatsApp: +91 81338 19414</span>
                                 </div>
                             </div>
                         )}
                     </div>
-                </>
+                </div>,
+                document.body
             )}
+
             {/* Map Modal */}
-            {showMap && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            {mounted && showMap && createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="w-full max-w-lg bg-[#070a07] rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl animate-in zoom-in-95 duration-200">
                         <LocationPicker 
                             onConfirm={(loc) => {
@@ -804,12 +858,13 @@ export default function MenuPage() {
                             onCancel={() => setShowMap(false)} 
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
             
             {/* Payment Modal */}
-            {showPaymentModal && (
-                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/90 backdrop-blur-sm animate-in fade-in">
+            {mounted && showPaymentModal && createPortal(
+                <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center p-3 sm:p-4 bg-black/70 dark:bg-black/90 backdrop-blur-sm animate-in fade-in">
                     <div className="w-full max-w-sm bg-white dark:bg-[#0c120c] rounded-3xl overflow-hidden border border-emerald-500/30 dark:border-amber-500/30 shadow-2xl relative animate-in zoom-in-95 duration-300 flex flex-col max-h-[92vh] text-zinc-900 dark:text-white">
                         
                         <div className="p-4 border-b border-emerald-500/20 dark:border-amber-500/20 flex items-center justify-between sticky top-0 bg-white dark:bg-[#0c120c] z-10">
@@ -924,7 +979,7 @@ export default function MenuPage() {
                             <button
                                 className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black py-3.5 rounded-xl shadow-xl shadow-emerald-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 text-sm border border-emerald-400/40"
                                 disabled={isSubmitting}
-                                onClick={confirmCheckout}
+                                onClick={() => processOrder("Online UPI", upiTransactionId)}
                             >
                                 {isSubmitting ? (
                                     <>
@@ -940,7 +995,8 @@ export default function MenuPage() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </main>
     );

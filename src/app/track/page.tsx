@@ -43,20 +43,52 @@ export function TrackingPageContent() {
         }, 1500);
     };
 
-    // Auto-load order from URL if present
+    // Auto-load order from URL or localStorage
     useEffect(() => {
-        if (urlOrderId) {
-            setSearchId(urlOrderId);
-            const unsubscribe = orderService.subscribeToOrder(urlOrderId, (found) => {
+        const targetId = urlOrderId || (typeof window !== "undefined" ? localStorage.getItem("foodnjoy_last_order_id") : null);
+        if (targetId) {
+            setSearchId(targetId);
+            const unsubscribe = orderService.subscribeToOrder(targetId, (found) => {
                 if (found) {
                     setOrder(found);
-                } else {
+                } else if (urlOrderId) {
                     setError("Order not found from link.");
                 }
             });
             return () => unsubscribe();
         }
     }, [urlOrderId]);
+
+    const handleSendToWhatsApp = () => {
+        if (!order) return;
+        let msg = "*🍽️ FOODNJOY TINSUKIA ORDER*\n\n";
+        msg += "*Order ID:* #" + order.id.slice(-6) + "\n";
+        if (order.customerName) msg += "*Customer:* " + order.customerName + "\n";
+        if (order.customerPhone) msg += "*Phone:* " + order.customerPhone + "\n\n";
+        msg += "*📋 Items:* \n";
+        order.items.forEach((item) => {
+            msg += "- " + item.quantity + "x " + item.name + " [₹" + (item.price * item.quantity) + "]\n";
+        });
+        msg += "\n*💰 Total Amount:* ₹" + order.total + "\n";
+        msg += "*💳 Payment Method:* " + (order.paymentMethod || "COD / UPI") + "\n";
+        if (order.transactionId && order.transactionId !== "COD") {
+            msg += "*🧾 UTR / Trans ID:* " + order.transactionId + "\n";
+        }
+        msg += "\n*📍 Delivery Address:*\n" + (order.customerLocation?.address || "Tinsukia Local Delivery") + "\n";
+        if (order.customerLocation?.lat) {
+            msg += "*🗺️ GPS Location:* https://maps.google.com/?q=" + order.customerLocation.lat + "," + order.customerLocation.lng + "\n";
+        }
+        msg += "\n_Please confirm our order and dispatch freshly cooked!_";
+
+        const waUrl = "https://wa.me/918133819414?text=" + encodeURIComponent(msg);
+        const a = document.createElement("a");
+        a.href = waUrl;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
 
     // Auto-load active order for logged-in user
     useEffect(() => {
@@ -203,6 +235,34 @@ export function TrackingPageContent() {
                                     </p>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Top WhatsApp Banner for Instant Delivery Confirmation */}
+                        <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl shadow-emerald-600/20 flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-400/50 animate-in fade-in">
+                            <div className="flex items-center gap-3.5 text-center sm:text-left">
+                                <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0 border border-white/30">
+                                    <Phone className="h-6 w-6 text-white fill-white" />
+                                </div>
+                                <div>
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-black uppercase tracking-wider mb-1">
+                                        <Sparkles className="h-3 w-3 text-amber-300" />
+                                        Delivery Agent WhatsApp: +91 81338 19414
+                                    </div>
+                                    <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+                                        Send / Confirm Order on WhatsApp
+                                    </h3>
+                                    <p className="text-xs text-emerald-100 mt-0.5 max-w-md">
+                                        Tap below to message the delivery agent directly on WhatsApp to verify your order and live location!
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleSendToWhatsApp}
+                                className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-950 font-black px-6 py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap text-sm border border-emerald-300"
+                            >
+                                <Phone className="h-4 w-4 text-emerald-700 fill-emerald-700" />
+                                <span>Open WhatsApp Now</span>
+                            </button>
                         </div>
 
                         {order.status === "delivered" ? (

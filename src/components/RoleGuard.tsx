@@ -16,7 +16,11 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
 
     useEffect(() => {
         if (!loading && (!profile || !allowedRoles.includes(profile.role))) {
-            router.push("/login");
+            if (allowedRoles.includes("admin")) {
+                router.push("/admin/login");
+            } else {
+                router.push("/admin/login");
+            }
         }
     }, [profile, loading, allowedRoles, router]);
 
