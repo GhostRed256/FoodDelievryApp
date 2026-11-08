@@ -4,6 +4,7 @@ import {
     addDoc,
     updateDoc,
     doc,
+    getDocs,
     serverTimestamp,
     query,
     where,
@@ -92,29 +93,57 @@ export const orderService = {
             q = query(q, where("customerId", "==", filters.uid));
         }
 
-        return onSnapshot(q, (snapshot) => {
-            const orders = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as Order));
-            
-            // Client-side sort to avoid requiring composite indexes in Firestore
-            orders.sort((a, b) => {
-                const timeA = a.createdAt?.toMillis() || 0;
-                const timeB = b.createdAt?.toMillis() || 0;
-                return timeB - timeA; // Descending
-            });
-            
-            onUpdate(orders);
-        });
+        return onSnapshot(
+            q,
+            (snapshot) => {
+                const orders = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Order));
+                
+                // Client-side sort to avoid requiring composite indexes in Firestore
+                orders.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA; // Descending
+                });
+                
+                onUpdate(orders);
+            },
+            (error) => {
+                console.error("Firestore subscribeToOrders error:", error);
+                // Try fallback one-time getDocs if permissions allow
+                getDocs(q).then((snapshot) => {
+                    const orders = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    } as Order));
+                    orders.sort((a, b) => {
+                        const timeA = a.createdAt?.toMillis() || 0;
+                        const timeB = b.createdAt?.toMillis() || 0;
+                        return timeB - timeA;
+                    });
+                    onUpdate(orders);
+                }).catch(fetchErr => {
+                    console.error("Firestore fallback getDocs failed:", fetchErr);
+                    onUpdate([]);
+                });
+            }
+        );
     },
 
     // Listen to a single order (for tracking page)
     subscribeToOrder(orderId: string, onUpdate: (order: Order) => void) {
-        return onSnapshot(doc(db, ORDERS_COLLECTION, orderId), (doc) => {
-            if (doc.exists()) {
-                onUpdate({ id: doc.id, ...doc.data() } as Order);
+        return onSnapshot(
+            doc(db, ORDERS_COLLECTION, orderId),
+            (doc) => {
+                if (doc.exists()) {
+                    onUpdate({ id: doc.id, ...doc.data() } as Order);
+                }
+            },
+            (error) => {
+                console.error("Firestore subscribeToOrder error:", error);
             }
-        });
+        );
     }
 };

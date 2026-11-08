@@ -87,7 +87,7 @@ export default function MenuPage() {
     // UPI Payment & WhatsApp Details (Diban Borboruah)
     const UPI_ID = "7002586087-2@ybl";
     const UPI_NAME = "DIBAN BORBORUAH";
-    const WHATSAPP_NUMBER = "918133819414";
+    const WHATSAPP_NUMBER = "919181042005";
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -298,29 +298,21 @@ export default function MenuPage() {
 
             // Build detailed WhatsApp Message for Restaurant Owner & Delivery Agent
             const msg = buildWhatsAppMessage(finalOrderId, paymentMethod, utr);
-            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+            const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
 
             // Clear cart & state
             setCart([]);
             if (typeof window !== "undefined") {
                 localStorage.removeItem("foodnjoy_cart");
+                localStorage.setItem("foodnjoy_last_order_id", finalOrderId);
                 window.dispatchEvent(new Event("cartUpdated"));
             }
             setIsCartOpen(false);
             setShowPaymentModal(false);
             setHasWarnedLocation(false);
 
-            // Open WhatsApp reliably using programmatic anchor to bypass popup blockers
-            const anchor = document.createElement("a");
-            anchor.href = waUrl;
-            anchor.target = "_blank";
-            anchor.rel = "noopener noreferrer";
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
-
-            // Redirect to tracking page
-            router.push(`/track?id=${finalOrderId}&new=true`);
+            // Direct WhatsApp redirect on mobile and desktop
+            window.location.href = waUrl;
         } catch (error: any) {
             console.error("Checkout process error:", error);
             setCheckoutError(error.message || "Failed to process order. Please try again.");
@@ -835,7 +827,7 @@ export default function MenuPage() {
 
                                 <div className="mt-1 flex items-center justify-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
                                     <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Direct delivery agent WhatsApp: +91 81338 19414</span>
+                                    <span>Direct delivery agent WhatsApp: +91 91810 42005</span>
                                 </div>
                             </div>
                         )}

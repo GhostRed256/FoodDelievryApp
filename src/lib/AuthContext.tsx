@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         import("firebase/auth").then(({ getRedirectResult }) => {
             getRedirectResult(auth).catch((error) => {
                 console.error("Redirect Auth Error:", error);
-                // We could set a global error state here if needed
             });
         });
 
@@ -47,41 +46,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(user);
             if (user) {
                 try {
-                    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase();
-                    const isSystemAdmin = !!(user.email && user.email.toLowerCase() === adminEmail);
+                    const ADMIN_EMAILS = [
+                        (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase(),
+                        "tapan99570@gmail.com",
+                    ];
+                    const userEmailLower = user.email ? user.email.toLowerCase() : "";
+                    const isSystemAdmin = ADMIN_EMAILS.includes(userEmailLower);
 
                     const userDocRef = doc(db, "users", user.uid);
                     const userDoc = await getDoc(userDocRef);
 
                     if (userDoc.exists()) {
                         const data = userDoc.data() as UserProfile;
-                        // Enforce environment variable security for admin privileges
-                        const resolvedRole: UserRole = isSystemAdmin ? "admin" : (data.role === "admin" ? "customer" : data.role);
+                        // Grant admin if system admin email or if document role is admin
+                        const resolvedRole: UserRole = isSystemAdmin ? "admin" : (data.role || "customer");
                         setProfile({ ...data, role: resolvedRole });
                     } else {
-                        // New user - default to customer role unless matching environment variable admin credentials
+                        // New user - default to customer role unless matching admin credentials
                         const newProfile: UserProfile = {
                             uid: user.uid,
                             email: user.email,
-                            displayName: user.displayName,
+                            displayName: user.displayName || (isSystemAdmin ? "Admin" : "Customer"),
                             role: isSystemAdmin ? "admin" : "customer",
                             photoURL: user.photoURL,
                         };
-                        // Immediately set profile to unblock UI
                         setProfile(newProfile);
-                        // Fire and forget the write to Firestore
                         setDoc(userDocRef, newProfile).catch(err => {
-                             console.error("Profile background save failed:", err);
+                             console.warn("Profile background save warning:", err);
                         });
                     }
                 } catch (err) {
                     console.error("Profile load/save failed:", err);
-                    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase();
-                    const isSystemAdmin = !!(user.email && user.email.toLowerCase() === adminEmail);
+                    const ADMIN_EMAILS = [
+                        (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase(),
+                        "tapan99570@gmail.com",
+                    ];
+                    const userEmailLower = user.email ? user.email.toLowerCase() : "";
+                    const isSystemAdmin = ADMIN_EMAILS.includes(userEmailLower);
                     setProfile({
                         uid: user.uid,
                         email: user.email,
-                        displayName: user.displayName,
+                        displayName: user.displayName || (isSystemAdmin ? "Admin" : "Customer"),
                         role: isSystemAdmin ? "admin" : "customer",
                         photoURL: user.photoURL,
                     });

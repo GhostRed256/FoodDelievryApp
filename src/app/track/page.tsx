@@ -80,14 +80,8 @@ export function TrackingPageContent() {
         }
         msg += "\n_Please confirm our order and dispatch freshly cooked!_";
 
-        const waUrl = "https://wa.me/918133819414?text=" + encodeURIComponent(msg);
-        const a = document.createElement("a");
-        a.href = waUrl;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const waUrl = "https://api.whatsapp.com/send?phone=919181042005&text=" + encodeURIComponent(msg);
+        window.location.href = waUrl;
     };
 
     // Auto-load active order for logged-in user
@@ -246,7 +240,7 @@ export function TrackingPageContent() {
                                 <div>
                                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-black uppercase tracking-wider mb-1">
                                         <Sparkles className="h-3 w-3 text-amber-300" />
-                                        Delivery Agent WhatsApp: +91 81338 19414
+                                        Delivery Agent WhatsApp: +91 91810 42005
                                     </div>
                                     <h3 className="text-base sm:text-lg font-black text-white leading-tight">
                                         Send / Confirm Order on WhatsApp
@@ -371,7 +365,7 @@ export function TrackingPageContent() {
                                         </div>
                                     </div>
                                     <a
-                                        href="tel:+919876543210"
+                                        href="tel:+919181042005"
                                         className="h-10 sm:h-11 px-3.5 sm:px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black rounded-xl flex items-center gap-1.5 font-black text-xs shadow-md transition-all active:scale-95 shrink-0"
                                     >
                                         <Phone className="h-3.5 w-3.5 text-black" />
@@ -484,7 +478,8 @@ export function TrackingPageContent() {
                                             msg += `*🗺️ GPS Link:* https://maps.google.com/?q=${order.customerLocation.lat},${order.customerLocation.lng}\n`;
                                         }
                                         
-                                        window.open(`https://wa.me/918133819414?text=${encodeURIComponent(msg)}`, "_blank");
+                                        const waUrl = `https://api.whatsapp.com/send?phone=919181042005&text=${encodeURIComponent(msg)}`;
+                                        window.location.href = waUrl;
                                     }}
                                     className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black px-6 py-4 rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 whitespace-nowrap border border-emerald-400/50"
                                 >

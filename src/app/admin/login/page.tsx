@@ -42,27 +42,40 @@ function AdminLoginContent() {
             const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
             const loggedInUser = userCredential.user;
 
-            const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase();
-            const isSystemAdmin = loggedInUser.email && loggedInUser.email.toLowerCase() === adminEmail;
+            const ADMIN_EMAILS = [
+                (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "foodnjoy26@gmail.com").toLowerCase(),
+                "tapan99570@gmail.com",
+            ];
+            const loggedInEmailLower = loggedInUser.email ? loggedInUser.email.toLowerCase() : "";
+            const isSystemAdmin = ADMIN_EMAILS.includes(loggedInEmailLower);
 
             // Check or update profile in Firestore
             const userDocRef = doc(db, "users", loggedInUser.uid);
-            const userDoc = await getDoc(userDocRef);
+            let userDoc: any = null;
+            try {
+                userDoc = await getDoc(userDocRef);
+            } catch (fetchErr) {
+                console.warn("Could not fetch user document:", fetchErr);
+            }
 
             if (isSystemAdmin) {
                 // Ensure role is explicitly admin in Firestore
-                await setDoc(userDocRef, {
-                    uid: loggedInUser.uid,
-                    email: loggedInUser.email,
-                    displayName: loggedInUser.displayName || "Admin",
-                    role: "admin",
-                    photoURL: loggedInUser.photoURL || null
-                }, { merge: true });
+                try {
+                    await setDoc(userDocRef, {
+                        uid: loggedInUser.uid,
+                        email: loggedInUser.email,
+                        displayName: loggedInUser.displayName || "Admin",
+                        role: "admin",
+                        photoURL: loggedInUser.photoURL || null
+                    }, { merge: true });
+                } catch (writeErr) {
+                    console.warn("Could not save admin document in Firestore, proceeding with verified system admin session:", writeErr);
+                }
                 router.push(returnUrl);
                 return;
             }
 
-            if (userDoc.exists()) {
+            if (userDoc && userDoc.exists()) {
                 const data = userDoc.data();
                 if (data.role === "admin" || data.role === "cook" || data.role === "delivery") {
                     router.push(data.role === "admin" ? returnUrl : `/${data.role}`);

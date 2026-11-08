@@ -1,62 +1,119 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Strict Helper Functions
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (matches Firebase Auth UID)
+    // Fields:
+    //   - uid: string (required) - Firebase Auth UID
+    //   - email: string (optional) - User's email address
+    //   - displayName: string (optional) - User's full name
+    //   - role: string (required) - Role ('customer' | 'admin' | 'cook' | 'delivery')
+    //   - photoURL: string (optional) - Profile photo URL
+    //
+    // Collection: orders
+    // Document ID: {orderId} (auto-generated Firestore document ID)
+    // Fields:
+    //   - customerId: string (required) - Customer UID or 'guest'
+    //   - customerName: string (required) - Customer display name
+    //   - customerPhone: string (optional) - Customer contact phone number
+    //   - items: list (required) - List of order items (id, name, price, quantity)
+    //   - total: number (required) - Total order amount
+    //   - status: string (required) - OrderStatus ('pending' | 'confirmed' | 'preparing' | 'ready' | 'picked_up' | 'delivered' | 'cancelled')
+    //   - paymentMethod: string (optional) - e.g. 'UPI' | 'Cash on Delivery'
+    //   - transactionId: string (optional) - Payment reference or UTR
+    //   - cookId: string (optional) - Assigned cook UID
+    //   - deliveryId: string (optional) - Assigned delivery personnel UID
+    //   - deliveryLocation: map (optional) - Live delivery coordinate { lat: number, lng: number }
+    //   - customerLocation: map (optional) - Delivery address { lat: number, lng: number, address: string }
+    //   - createdAt: timestamp (required) - Order creation timestamp
+    //   - updatedAt: timestamp (required) - Last update timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    function hasRole(role) {
+
+    // Verify if the authenticated user has an authorized bootstrap admin email
+    function isAdminEmail() {
       return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+        ('email' in request.auth.token) &&
+        request.auth.token.email != null &&
+        request.auth.token.email.lower() in ['foodnjoy26@gmail.com', 'tapan99570@gmail.com'];
     }
-    
+
+    // Role-Based Access Control:
+    // Grants admin authority if user email matches authorized bootstrap admins,
+    // or validates role from the user's profile document in Firestore (with existence guard).
+    function hasRole(role) {
+      return isAuthenticated() && (
+        (role == 'admin' && isAdminEmail()) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role)
+      );
+    }
+
+    // Check if the user owns the resource by matching the document ID with auth UID
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // ===============================================================
+    // Security Rules
+    // ===============================================================
+
     // --- Users Collection (Private Profiles) ---
     match /users/{userId} {
-      // Users can strictly only read their own data.
+      // Users can strictly read their own profile; admins can inspect profiles.
       allow read: if isOwner(userId) || hasRole('admin');
       
-      // Security: Users can only create their own profile as a 'customer'.
-      // Privilege Escalation Prevention: They CANNOT set themselves as 'admin'.
-      allow create: if isOwner(userId) && request.resource.data.role == 'customer';
+      // Users can create their own profile with 'customer' role.
+      // Bootstrapped admin emails can initialize their profile with 'admin' role.
+      // Privilege Escalation Prevention: Non-admin users cannot self-assign privileged roles.
+      allow create: if isOwner(userId) && (request.resource.data.role == 'customer' || isAdminEmail());
       
-      // Security: Users can update their profile, but CANNOT change their own role.
-      // Only an existing Admin can upgrade someone's role.
-      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || hasRole('admin');
+      // Users can update their profile but CANNOT change their role unless they are an authorized admin email.
+      // Active admins can update user roles and profiles.
+      allow update: if (isOwner(userId) && (request.resource.data.role == resource.data.role || isAdminEmail())) || hasRole('admin');
       
+      // Strict Delete: Only admins can delete user profiles.
       allow delete: if hasRole('admin');
     }
 
     // --- Orders Collection (Secure Transactions) ---
     match /orders/{orderId} {
-      // Security: Allow authenticated customers to create orders OR allow guest orders.
-      // We enforce that the customerId matches the auth token or is explicitly "guest".
+      // Allow authenticated customers to create orders with their auth UID, or guests with customerId == 'guest'.
       allow create: if (isAuthenticated() && request.resource.data.customerId == request.auth.uid) || 
                        (!isAuthenticated() && request.resource.data.customerId == 'guest');
       
-      // Strict Read: 
-      // Customers can only see their OWN orders. 
-      // Unauthenticated users can read an order ONLY if they know the 20-character random orderId (URL sharing).
-      // Admins/Cooks/Delivery agents can read all orders for operational needs.
+      // Strict Read:
+      // - Guests can read orders where customerId == 'guest' (for shared order tracking links).
+      // - Authenticated customers can read their own orders.
+      // - Operational staff (admin, cook, delivery) can read orders for processing.
       allow read: if resource.data.customerId == 'guest' || 
                      isOwner(resource.data.customerId) || 
                      hasRole('admin') || 
                      hasRole('cook') || 
                      hasRole('delivery');
 
-      // Strict Update: 
-      // Only authorized staff can modify order state. Customers CANNOT modify orders once placed.
+      // Strict Update:
+      // Only authorized staff (admins, cooks, delivery personnel) can update orders (e.g. status, assignment, location).
+      // Customers cannot tamper with orders once placed.
       allow update: if hasRole('admin') || 
                        hasRole('cook') || 
                        hasRole('delivery');
       
-      // Strict Delete:
-      // Only admins can delete orders.
+      // Strict Delete: Only admins can delete orders.
       allow delete: if hasRole('admin');
     }
   }
